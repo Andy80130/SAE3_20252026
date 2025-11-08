@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyGo - Covoiturage étudiant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .car-icon {
+            color: #ff6600;
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-icon, .user-icon {
+            color: #ff6600;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .create-trip {
+            color: #ff6600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23f4a460" width="1200" height="400"/></svg>');
+            background-size: cover;
+            background-position: center;
+            padding: 60px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            min-height: 250px;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Search Form */
+        .search-form {
+            background: white;
+            border-radius: 50px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .search-form input {
+            border: none;
+            padding: 10px 15px;
+            flex: 1;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-form input::placeholder {
+            color: #999;
+        }
+
+        .search-btn {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-btn:hover {
+            background: #e55a00;
+        }
+
+        /* Map Section */
+        .map-container {
+            height: 350px;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Nearby Trips */
+        .nearby-trips {
+            background: #ff6600;
+            padding: 20px;
+        }
+
+        .nearby-trips h2 {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .trip-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .trip-card:hover {
+            transform: translateX(5px);
+        }
+
+        .trip-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+
+        .trip-details {
+            flex: 1;
+        }
+
+        .trip-route {
+            font-weight: bold;
+            color: #ff6600;
+            margin-bottom: 5px;
+        }
+
+        .trip-time {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .arrow {
+            color: #ff6600;
+            font-size: 20px;
+        }
+
+        .see-more {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 10px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 15px auto;
+            display: block;
+            font-weight: bold;
+        }
+
+        .see-more:hover {
+            background: white;
+            color: #ff6600;
+        }
+
+        /* Popular Routes */
+        .popular-routes {
+            background: #fff5e6;
+            padding: 30px 20px;
+        }
+
+        .popular-routes h2 {
+            color: #ff6600;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .popular-routes p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .route-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid #ff6600;
+            transition: transform 0.2s;
+        }
+
+        .route-card:hover {
+            transform: translateX(5px);
+        }
+
+        .route-text {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Illustration Section */
+        .illustration-section {
+            background: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .illustration {
+            max-width: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .illustration-section h2 {
+            color: #ff6600;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .illustration-section p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #fff5e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .view-trips-btn {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .view-trips-btn:hover {
+            background: #e55a00;
+        }
+
+        /* About Section */
+        .about-section {
+            background: white;
+            padding: 40px 20px;
+        }
+
+        .about-content {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .about-image {
+            flex: 1;
+            min-width: 250px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+        }
+
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .about-text h2 {
+            color: #ff6600;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .about-text p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .learn-more-btn {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 10px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            margin: 0 auto;
+            gap: 30px;
+        }
+
+        .footer-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .footer-section ul li:hover {
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #445566;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .search-form {
+                flex-direction: column;
+                border-radius: 15px;
+                padding: 15px;
+            }
+
+            .search-form input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .search-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .about-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <span class="car-icon">🚗</span>
+            <span>StudyGo</span>
+        </div>
+        <div class="header-actions">
+            <div class="search-icon">🔍</div>
+            <div class="create-trip">➕ Créer un trajet</div>
+            <div class="user-icon">👤</div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Le covoiturage étudiant, simple et malin</h1>
+        <form class="search-form" onsubmit="return false;">
+            <label style="display: flex; align-items: center; gap: 5px;">
+                <span style="color: #ff6600;">📍</span>
+                <input type="text" placeholder="Départ">
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px;">
+                <span style="color: #ff6600;">📍</span>
+                <input type="text" placeholder="Destination">
+            </label>
+            <button class="search-btn" onclick="return false;">
+                🔍 Rechercher
+            </button>
+        </form>
+    </section>
+
+    <!-- Map Section -->
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <!-- Nearby Trips -->
+    <section class="nearby-trips">
+        <h2>Trajets proche de vous</h2>
+        
+        <div class="trip-card" onclick="return false;">
+            <div class="trip-info">
+                <div class="avatar" style="background: #ffccaa;"></div>
+                <div class="trip-details">
+                    <div class="trip-route">Gare d'Amiens / IUT d'Amiens</div>
+                    <div class="trip-time">07:55, Aujourd'hui</div>
+                </div>
+            </div>
+            <div class="arrow">›</div>
+        </div>
+
+        <div class="trip-card" onclick="return false;">
+            <div class="trip-info">
+                <div class="avatar" style="background: #ffaacc;"></div>
+                <div class="trip-details">
+                    <div class="trip-route">Mairie Béhencourt / IUT d'Amiens</div>
+                    <div class="trip-time">08:05, Aujourd'hui</div>
+                </div>
+            </div>
+            <div class="arrow">›</div>
+        </div>
+
+        <div class="trip-card" onclick="return false;">
+            <div class="trip-info">
+                <div class="avatar" style="background: #aaccff;"></div>
+                <div class="trip-details">
+                    <div class="trip-route">IUT d'Amiens / Rue 3 Cailloux</div>
+                    <div class="trip-time">08:05, Aujourd'hui</div>
+                </div>
+            </div>
+            <div class="arrow">›</div>
+        </div>
+
+        <button class="see-more" onclick="return false;">Voir plus ▼</button>
+    </section>
+
+    <!-- Popular Routes -->
+    <section class="popular-routes">
+        <h2>Trajets Populaires</h2>
+        <p>Les trajets les plus empruntés par les étudiants</p>
+        
+        <div class="route-card" onclick="return false;">
+            <span class="route-text">Amiens, Gare routière → IUT d'Amiens</span>
+            <span class="arrow">›</span>
+        </div>
+
+        <div class="route-card" onclick="return false;">
+            <span class="route-text">IUT d'Amiens → Amiens, Gare routière</span>
+            <span class="arrow">›</span>
+        </div>
+    </section>
+
+    <!-- Illustration Section -->
+    <section class="illustration-section">
+        <div class="illustration">
+    		<img src="https://www.actu-juridique.fr/app/uploads/2024/02/AdobeStock_550571559-scaled.jpeg" 
+         	alt="Ne perdez plus le fil" 
+         	style="width: 100%; max-width: 350px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+	</div>
+        
+        <h2>Ne perdez plus le fil !</h2>
+        <p>Accédez facilement à vos réservations et retrouvez tous vos trajets<br>
+        passés ou à venir en quelques clics.</p>
+
+        <div class="info-box">
+            <p><strong>Vous avez :</strong></p>
+            <p>• 2 trajets à venir</p>
+            <p>• 1 trajet en attente de validation</p>
+            <p>• 5 trajets effectués</p>
+        </div>
+
+        <button class="view-trips-btn" onclick="return false;">Voir mes trajets</button>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" style="background: #ff6600;">
+        <div class="about-content">
+            <div class="about-image">
+    		<img src="https://media.licdn.com/dms/image/v2/C5603AQEe-KI4pFpDJA/profile-displayphoto-shrink_200_200/profile-				displayphoto-shrink_200_200/0/1517365013809?e=2147483647&v=beta&t=gGLCvBCx1fvWxMBk-						J9mcN4sPHB0JjKH9g2TxvvupNE" 
+         		alt="À propos de notre groupe" 
+         		style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+		</div>
+            <div class="about-text">
+                <h2>À propos de notre groupe</h2>
+                <p style="color: white;">Notre application web de covoiturage a été créée par des étudiants, pour les étudiants. Développée dans le cadre d'un projet de programmation, notre plateforme vise à faciliter les déplacements quotidiens de tous les étudiants en leur permettant de partager leurs trajets de manière simple et conviviale. Nous sommes fiers de contribuer à une mobilité plus durable et accessible pour la communauté étudiante.</p>
+                <button class="learn-more-btn" onclick="return false;">En savoir plus</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <span style="color: #ff6600;">🚗</span>
+                    <span>StudyGo</span>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>À PROPOS DE NOUS</h3>
+                <ul>
+                    <li onclick="return false;">Création</li>
+                    <li onclick="return false;">L'équipe</li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>BESOIN D'AIDE ?</h3>
+                <ul>
+                    <li onclick="return false;">Nous contacter</li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>UTILISATION</h3>
+                <ul>
+                    <li onclick="return false;">Conditions d'utilisation</li>
+                    <li onclick="return false;">Paramétrez les cookies</li>
+                    <li onclick="return false;">Politique de confidentialité</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            © 2025 StudyGo - Projet Covoiturage Étudiant
+        </div>
+    </footer>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([49.8942, 2.2957], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add markers
+        var orangeIcon = L.divIcon({
+            className: 'custom-icon',
+            html: '<div style="background: #ff6600; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        });
+
+        L.marker([49.8942, 2.2957], {icon: orangeIcon}).addTo(map);
+        L.marker([49.8892, 2.3057], {icon: orangeIcon}).addTo(map);
+        L.marker([49.8992, 2.2857], {icon: orangeIcon}).addTo(map);
+        L.marker([49.8850, 2.2900], {icon: orangeIcon}).addTo(map);
+    </script>
+</body>
+</html>  
