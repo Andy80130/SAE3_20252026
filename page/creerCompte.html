@@ -3,50 +3,75 @@
 <head>
     <title>Inscription à StudyGo</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <link rel="stylesheet" href="../css/styleConnexion.css">
+    <link rel="stylesheet" href="../css/styleCompte.css">
 </head>
 <body>
-Appli de co-voiturage dans la région ammiennoise pour les étudiants de l'IUT.
+    <main class="my-5 text-start container container-infos">
+        <header class="shadow mb-3 p-3 rounded d-flex justify-content-center align-items-center titre">
+            <h2>Inscription à StudyGo</h2>
+            <div class="text-center">
+                L'appli de co-voiturage dans la région ammiennoise pour les étudiants de l'IUT UPJV !
+            </div>
+            <div class="text-center">
+                N'hésitez pas à vous inscrire, c'est rapide et 100% gratuit !
+            </div>
+        </header>
+        <section class="shadow p-4 rounded saisie-infos">
+            <?php if (isset($successMessage) && isset($successMessage2) && isset($successMessage3)) : ?>
+            <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage; ?></div>
+            <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage2; ?></div>
+            <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage3; ?></div>
+            <?php endif; ?>
 
-<main class="my-5 text-start container container-infos">
-    <header class="shadow mb-3 p-3 rounded d-flex justify-content-center align-items-center titre">
-        <h2>Inscription</h2>
-    </header>
-    <section class="shadow p-4 rounded saisie-infos">
-        <?php if (isset($successMessage) && isset($successMessage2) && isset($successMessage3)) : ?>
-        <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage; ?></div>
-        <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage2; ?></div>
-        <div class="d-flex justify-content-center alert alert-success text-center"><?php echo $successMessage3; ?></div>
-        <?php endif; ?>
+            <?php if (isset($errorMessage)) : ?>
+            <div class="d-flex justify-content-center alert alert-danger text-center"><?php echo $errorMessage; ?></div>
+            <?php endif; ?>
 
-        <?php if (isset($errorMessage)) : ?>
-        <div class="d-flex justify-content-center alert alert-danger text-center"><?php echo $errorMessage; ?></div>
-        <?php endif; ?>
-
-        <div class="container">
             <form method="creerCompte.php" action="POST">
-                <label for="nom">Nom</label>
-                <input type="text" id="nom" name="nom" required />
-
-                <label for="prenom">Prénom</label>
-                <input type="text" id="prenom" name="prenom" required />
+                <div class="row">
+                    <div class="col">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" required />
+                    </div>
+                    <div class="col">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" required />
+                    </div>
+                </div>
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required />
 
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required />
+                <div class="row">
+                    <div class="col">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" required />
+                    </div>
+                    <div class="col">
+                        <label for="verifPassword">Confirmer votre mot de passe</label>
+                        <input type="password" id="verifPassword" name="verifPassword" required />
+                    </div>
+                </div>
 
                 <button type="submit">Créer le compte</button>
             </form>
 
-            <div class="mt-3 text-center texte-connexion">
-                <p class="fs-6 form-text">Vous avez déjà un compte ? <a href="connexion.html" class="text-decoration-none">Se connecter</a></p>
+            <div class="text-center">
+                <p class="fs-6 form-text">Vous avez déjà un compte ?
+                    <a href="connexion.html" class="text-decoration-none">Se connecter</a>
+                </p>
             </div>
-        </div>
 
-    </section>
-</main>
+            <div class="text-center">
+                <p class="fs-6 form-text">
+                    En créant un compte, vous acceptez nos conditions d’utilisation qui garantissent une expérience
+                    respectueuse et responsable pour tous. Nous vous invitons à consulter nos règles de sécurité,
+                    nos politiques d’annulation et notre charte de bonne conduite afin de profiter du service en toute confiance.
+                </p>
+            </div>
+
+        </section>
+    </main>
 </body>
 
 </html>
