@@ -12,17 +12,7 @@
     <link rel="stylesheet" href="../css/styleReservation.css" />
   </head>
   <body>
-    <header>
-      <div class="logo"><i class="fa-solid fa-car-side"></i> StudyGo</div>
-      <div class="header-icons">
-        <i class="fa-regular fa-address-book"></i>
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <a href="#" class="create-btn"
-          ><i class="fa-solid fa-plus"></i> Créer un trajet</a
-        >
-        <i class="fa-solid fa-user"></i>
-      </div>
-    </header>
+  <?php require("../includes/header.php")?>
 
     <main>
       <h1 class="page-title">Mes trajets et reservations</h1>
@@ -133,37 +123,6 @@
       </div>
     </main>
 
-    <footer>
-      <div class="footer-logo">
-        <i class="fa-solid fa-car-side"></i> StudyGo
-      </div>
-      <div class="footer-links">
-        <div>
-          <h4>À PROPOS DE NOUS</h4>
-          <ul>
-            <li><a href="#">Cotisation</a></li>
-            <li><a href="#">UPJV</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>BESOIN D'AIDE ?</h4>
-          <ul>
-            <li><a href="#">Nous contacter</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>UTILISATION</h4>
-          <ul>
-            <li><a href="#">Conditions d'utilisation</a></li>
-            <li><a href="#">Paramètres des cookies</a></li>
-            <li><a href="#">Politique de confidentialité</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-copyright">
-        <hr />
-        <p>© 2024 StudyGo. Tous Droits Réservés.</p>
-      </div>
-    </footer>
+    <?php require("../includes/footer.php")?>
   </body>
 </html>
