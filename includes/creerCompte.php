@@ -14,13 +14,13 @@ if (
     isset($_POST['password'])
 ) {
 
-    $nom = htmlspecialchars($_POST['lastname']);
-    $prenom = htmlspecialchars($_POST['firstname']);
+    $nom = htmlspecialchars($_POST['nom']);
+    $prenom = htmlspecialchars($_POST['prenom']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     // Préparation de la requête SQL sécurisée
-    $stmt = $db->prepare("INSERT INTO users (nom, prenom, email, password) VALUES (?, ?, ?, ?)");
+    $stmt = $db->prepare("INSERT INTO users (last_name, first_name, mail, password) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $nom, $prenom, $email, $password);
 
     if ($stmt->execute()) {
