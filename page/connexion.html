@@ -1,1 +1,59 @@
-<?php
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Connexion à StudyGo</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" href="../css/styleCompte.css">
+</head>
+<body>
+<main class="my-5 text-start container container-infos">
+    <header class="shadow mb-3 p-3 rounded d-flex justify-content-center align-items-center titre">
+        <h2>Connexion à <a href="accueil.html">StudyGo</a></h2>
+        <div class="text-center">
+            L'appli de co-voiturage dans la région ammiennoise pour les étudiants de l'IUT UPJV !
+        </div>
+    </header>
+    <section class="shadow p-4 rounded saisie-infos">
+        <?php endif; ?>
+
+        <?php if (isset($errorMessage)) : ?>
+        <div class="d-flex justify-content-center alert alert-danger text-center"><?php echo $errorMessage; ?></div>
+        <?php endif; ?>
+
+        <form method="connexion.php" action="POST">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+
+            <div class="row">
+                <div class="col">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required />
+                </div>
+                <div class="col">
+                    <label for="verifPassword">Confirmer votre mot de passe</label>
+                    <input type="password" id="verifPassword" name="verifPassword" required />
+                </div>
+            </div>
+
+            <button type="submit">Connexion</button>
+        </form>
+
+        <div class="text-center">
+            <p class="fs-6 form-text">Vous n'avez pas de compte ?
+                <a href="creerCompte.html" class="text-decoration-none">Créer un compte !</a>
+            </p>
+        </div>
+
+        <div class="text-center">
+            <p class="fs-6 form-text">
+                En accédant à l'application, vous acceptez nos conditions d’utilisation qui garantissent une expérience
+                respectueuse et responsable pour tous. Nous vous invitons à consulter nos règles de sécurité,
+                nos politiques d’annulation et notre charte de bonne conduite afin de profiter du service en toute confiance.
+            </p>
+        </div>
+
+    </section>
+</main>
+</body>
+
+</html>
