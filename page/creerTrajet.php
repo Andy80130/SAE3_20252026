@@ -11,25 +11,11 @@
 
 <body>
     <!-- Header -->
-    <header>
-        <div class="logo">
-            <a href="accueil.html"
-            <span class="car-icon">🚗</span>
-            <span>StudyGo</span></a>
-        </div>
-        <div class="header-actions">
-            <div class="search-icon"><a href="rechercheTrajet.html">🔍</a></div>
-            <div class="create-trip"><a href="creerTrajet.html">➕ Créer un trajet</a></div>
-            <div class="user-icon"><a href="profil.html"> 👤</a></div>
-        </div>
-    </header>
-
+    <?php require ('../includes/header.php'); ?>
 
     <h1 class="TitreCreer" style="text-align:center; margin:30px auto; width:100%;">
         Creer un trajet
     </h1>
-
-
 
     <!-- Hero Section -->
     <section class="hero">
@@ -71,10 +57,6 @@
         </div>
     </section>
 
-
-
-
-
     <div class="map-container">
         <div id="map"></div>
     </div>
@@ -87,9 +69,6 @@
         }).addTo(map);
 
     </script>
-
-
-
 
     <section class="hero">
         <div class="title">Information sur le trajet</div>
@@ -159,45 +138,7 @@
     <img src="https://img.freepik.com/vecteurs-libre/illustration-concept-abstrait-stylo-numerique_335657-2281.jpg">
     </div>
 
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <span style="color: #ff6600;">🚗</span>
-                    <span>StudyGo</span>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>À PROPOS DE NOUS</h3>
-                <ul>
-                    <li><a href="Apropos.html">Création</a></li>
-                    <li><a href="Apropos.html#equipe">L'équipe</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>BESOIN D'AIDE ?</h3>
-                <ul>
-                    <li onclick="return false;">Nous contacter</li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>UTILISATION</h3>
-                <ul>
-                    <li onclick="return false;">Conditions d'utilisation</li>
-                    <li onclick="return false;">Paramétrez les cookies</li>
-                    <li onclick="return false;">Politique de confidentialité</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            © 2025 StudyGo - Projet Covoiturage Étudiant
-        </div>
-    </footer>
+     <?php require("../includes/footer.php")?>
 
 </body>
 </html>
