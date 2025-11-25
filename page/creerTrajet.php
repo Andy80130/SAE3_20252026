@@ -71,12 +71,12 @@
     </script>
 
     <section class="hero">
-        <div class="title">Information sur le trajet</div>
 
         <div class="card">
+            <div class="section-title">Informations de trajet</div>
 
             <form class="trip-form">
-
+                
                 <div class="form-group">
                     <label for="date" class="form-label">
                         <span class="icon"></span> Date du trajet
@@ -84,7 +84,7 @@
                     <input type="date" id="date" name="date" class="form-input">
                 </div>
 
-
+                
                 <div class="form-group time-range">
                     <label class="form-label">
                         <span class="icon"></span> Départ : de
@@ -94,7 +94,7 @@
                     <input type="time" name="end" class="form-input time-input">
                 </div>
 
-
+                
                 <div class="form-group">
                     <label for="places" class="form-label">
                         <span class="icon"></span> Nombre de places dispo.
@@ -106,16 +106,17 @@
                         <option value="4">4+</option>
                     </select>
                 </div>
+
+                <div class="form-actions">
+                    <button class="primary" type="submit">Valider</button>
+                </div>
             </form>
         </div>
 
     </section>
 
-
-
-
     <div class="infosCertif">
-        <div class="petittitle">Je certifie que les informations ci-dessus sont exactes ‎ ‎ → </div>
+        <div class="petittitle">Je certifie que les informations ci-dessus sont exactes</div>
         <label class="custom-checkbox">
             <input type="checkbox">
             <span class="checkmark"></span>
@@ -125,23 +126,16 @@
         <button class="secondary" type="reset">Réinitialiser</button>
     </div>
 
-
-
-
     <section class="hero">
         <button class="primary"  style="text-align:center; margin:30px auto; width:50%;" 
                 type="submit" name="action" value="search">Creer le trajet</button>
     </section>
 
-
     <div class="full-image">
     <img src="https://img.freepik.com/vecteurs-libre/illustration-concept-abstrait-stylo-numerique_335657-2281.jpg">
     </div>
 
-     <?php require("../includes/footer.php")?>
+    <?php require("../includes/footer.php")?>
 
 </body>
 </html>
-
-
-

@@ -1,10 +1,10 @@
 <?php
 
-$dbname='sae3_20252026';
-$host='localhost';
+$dbname='studygo_bd';
+$host='mysql-studygo.alwaysdata.net';
 $port='3306';
-$nom_utilisateur='root';
-$mdp='';
+$nom_utilisateur='studygo';
+$mdp='SAEStudyGo3?';
 
 try{
     $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8",
