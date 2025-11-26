@@ -1,0 +1,78 @@
+.title{
+    color: #ff6600;
+    font-size: 250%;
+
+    margin-top: 25px;
+    margin-left: 15px;
+}
+
+.orangeBackground{
+    color : white;
+    background-color: #ff6600;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.orangeBackground p{
+    flex: 1;
+    font-size: 150%;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.orangeBackground img{
+    flex-shrink: 0;
+}
+
+.search{
+    color : #ff6600;
+    font-size: 150%;
+    
+    border-style: solid;
+    border-radius: 15px;
+
+    display: flex;
+    justify-content: center;
+
+    margin: 15px;
+    padding-left: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.search-btn-position{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchedJourney{
+    color: #ff6600;
+    border-style: solid;
+    border-radius: 25px;
+    padding: 1%;
+
+    margin: 15px;
+}
+
+#infosVoiture{
+    border-style: solid;
+    border-radius: 15px;
+
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.user, .buttons{
+    display: flex;
+    justify-content: space-between;
+}
+
+footer{
+    margin-top: 50px;
+}
