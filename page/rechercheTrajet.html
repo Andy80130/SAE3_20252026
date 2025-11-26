@@ -105,8 +105,11 @@
         </div>
         <!-- Boutons -->
         <div class="buttons">
-            <button class="search-btn" onclick="myFunction()">
+            <button class="search-btn" onclick="infosVoiture()">
                 Informations voiture
+            </button>
+            <button class=search-btn onclick="voirCarte([49.8942, 2.2957], [49.8892, 2.3057])">
+                Voir sur la carte
             </button>
             <button class="search-btn">Envoyer une demande</button>
         </div>
@@ -115,12 +118,57 @@
         <div id="infosVoiture"></div>
     </section>
 
+
+
+
+
+
+
+    <section class="searchedJourney">
+        <!-- Profil -->
+        <div class="user">
+            <div>
+                <img class="user-icon" src="..\images\MarioPFP.png" height="50px">
+                <p class="name">Placeholder Name</p>
+            </div>
+            <!-- Infos trajet -->
+            <div class="journeyInfo">
+                <p>Départ : Gare du Nord</p>
+                <p>Arrivée : IUT d'Amiens</p>
+                <p>Le : Vendredi 17 Octobre</p>
+                <p>Horaires : 7:30 à 7:50</p>
+            </div>
+            <p class="participants">Participants inscrits : 0</p>
+        </div>
+        <!-- Boutons -->
+        <div class="buttons">
+            <button class="search-btn" onclick="infosVoiture()">
+                Informations voiture
+            </button>
+            <button class=search-btn onclick="voirCarte([49.8992, 2.2857], [49.8850, 2.2900])">
+                Voir sur la carte
+            </button>
+            <button class="search-btn">Envoyer une demande</button>
+        </div>
+
+        <!-- Infos voiture -->
+        <div id="infosVoiture"></div>
+    </section>
+
+
+
+
+
+
+
+
+
     <!-- Rien -->
     <h1 class="orangeBackground">Vous ne trouvez pas ce que vous voulez ?</h1>
     <section class="orangeBackground">
         <p>Aucun trajet ne correspond pour le moment. Essayez d’ajuster vos
             filtres de recherche ou réessayez un peu plus tard.</p>
-        <img src="..\images\MarioSad.png" height="200px">
+        <img src="..\images\MarioSad.png" height="150px">
     </section>
 
     <!-- Footer -->
@@ -181,15 +229,40 @@
             iconSize: [30, 30],
             iconAnchor: [15, 30]
         });
+        var blueIcon = L.divIcon({
+            className: 'custom-icon',
+            html: '<div style="background: blue; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        });
+        var arrayMarkers=[];
 
-        function myFunction() {
+        function infosVoiture() {
             if(document.getElementById("infosVoiture").innerHTML == ""){
-                document.getElementById("infosVoiture").innerHTML = "<p>Modèle :</p>"
-                document.getElementById("infosVoiture").innerHTML += "<p>Couleur :</p>"
+                document.getElementById("infosVoiture").innerHTML = "<p>Modèle :</p> <p>Couleur :</p>"
+                document.getElementById("infosVoiture").style = "border-style: solid; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; padding-top: 5px; padding-bottom: 5px; padding-left: 5px;";
             }
             else{
                 document.getElementById("infosVoiture").innerHTML = "";
+                document.getElementById("infosVoiture").style = "border: none;";
             }
+        }
+        function voirCarte(positionBgn, positionEnd){
+            //Enlever chaque marker déjà présent
+            for (i in arrayMarkers) {
+                arrayMarkers[i].remove();
+            }
+
+            //Départ
+            var begin = L.marker(positionBgn, {icon: orangeIcon});
+            //Arrivée
+            var end = L.marker(positionEnd, {icon: blueIcon});
+
+            //Ajout des marqueurs sur la carte
+            begin.addTo(map).bindPopup("Départ");
+            end.addTo(map).bindPopup("Arrivée");
+
+            arrayMarkers=[begin,end];
         }
     </script>
 </body>

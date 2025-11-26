@@ -58,19 +58,14 @@
     margin: 15px;
 }
 
-#infosVoiture{
-    border-style: solid;
-    border-radius: 15px;
-
-    margin-top: 15px;
-    margin-bottom: 15px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
-.user, .buttons{
+.user{
     display: flex;
     justify-content: space-between;
+}
+
+.buttons{
+    display: flex;
+    justify-content: start;
 }
 
 footer{
