@@ -82,7 +82,7 @@ $destinationData = [
 
 
     <!-- Autocomplétion -->
-    <script src="autocomplete.js"></script>
+    <script src="../js/autocomplete.js"></script>
 
 
 
