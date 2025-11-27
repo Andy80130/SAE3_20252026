@@ -3,9 +3,11 @@
 
     function GlobalSelect(string $table){
         global $db;
-        $stmt = $db->prepare("SELECT * FROM :table");
+        if (!in_array($table, ['Users', 'Journeys', 'Notes','Reports','BlackList','Reservations'])) {
+            throw new Exception("Table non autorisée.");
+        }
+        $stmt = $db->prepare("SELECT * FROM $table");
         try{
-            $stmt->bindParam(':table', $table);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -166,6 +168,8 @@
     function deleteJourney(int $journey_id){
         global $db;
         try{
+            $db->beginTransaction();
+
             //Suppression des Réservations
             $stmt =$db->prepare("DELETE FROM Reservation WHERE journey_id = :journey_id");
             $stmt->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
@@ -174,7 +178,9 @@
             //Suppression du Trajet
             $stmt2 = $db->prepare("DELETE FROM Journeys WHERE journey_id = :journey_id");
             $stmt2->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
-            return $stmt2->execute();
+            $stmt2->execute();
+            $db->commit();
+            return true;
         }
         catch (PDOException $e){
             echo "Erreur lors de la suppression des réservations du trajet : " . $e->getMessage();
@@ -185,7 +191,7 @@
     //Reservation
     function AddReservation(int $user_id,int $journey_id):bool{
         global $db;
-        $stmt = $db->prepare("INSERT INTO Reservations(user_id,journey_id) 
+        $stmt = $db->prepare("INSERT INTO Reservation(user_id,journey_id) 
                                 VALUES (:user_id,:journey_id)");
         try{
             $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
@@ -330,7 +336,7 @@
     
     function PendingReport(): array {
         global $db;
-        $stmt = $db->prepare("SELECT * FROM Reports WHERE status = 'pending'");
+        $stmt = $db->prepare("SELECT * FROM Reports WHERE status = 0");
         try{
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
