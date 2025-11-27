@@ -125,7 +125,7 @@
             <div class="about-text">
                 <h2>À propos de notre groupe</h2>
                 <p style="color: white;">Notre application web de covoiturage a été créée par des étudiants, pour les étudiants. Développée dans le cadre d'un projet de programmation, notre plateforme vise à faciliter les déplacements quotidiens de tous les étudiants en leur permettant de partager leurs trajets de manière simple et conviviale. Nous sommes fiers de contribuer à une mobilité plus durable et accessible pour la communauté étudiante.</p>
-                <button class="learn-more-btn" onclick="return false;">En savoir plus</button>
+                <button class="learn-more-btn" onclick="window.location.href='Apropos.php';">En savoir plus</button>
             </div>
         </div>
     </section>
