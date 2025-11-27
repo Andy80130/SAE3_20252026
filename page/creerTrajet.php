@@ -1,92 +1,66 @@
 ﻿<?php
+
 session_start();
 
 // RÉCUPÉRATION DES PARAM. 
-
-$depart = $_GET['depart'] ?? ($_POST['depart'] ?? 'iut');
-$destination = $_GET['destination'] ?? ($_POST['destination'] ?? 'gare');
-$date = $_GET['date'] ?? '';
-$start = $_GET['start'] ?? '';
-$end = $_GET['end'] ?? '';
-$places = $_GET['places'] ?? '1';
+$depart = $_POST['depart'] ?? '';
+$destination = $_POST['destination'] ?? '';
+$date = $_POST['date'] ?? '';
+$start = $_POST['start'] ?? '';
+$end = $_POST['end'] ?? '';
+$places = $_POST['places'] ?? '1';
 
 $errors = isset($_GET['errors']) ? explode('|', $_GET['errors']) : [];
 $success = isset($_GET['success']);
 
-// Petit jeu de valeur en vif
-$locations = [
-    'iut' => [
-        'name' => "IUT d'Amiens",
-        'lat' => 49.8942,
-        'lon' => 2.2957
-    ],
-    'gare' => [
-        'name' => "Gare d'Amiens",
-        'lat' => 49.8892,
-        'lon' => 2.3057
-    ],
-    'behencourt' => [
-        'name' => "Mairie Béhencourt",
-        'lat' => 49.8992,
-        'lon' => 2.2857
-    ],
-    'pont-noyelles' => [
-        'name' => "Pont de Noyelles",
-        'lat' => 49.8850,
-        'lon' => 2.2900
-    ],
-    'st-fuscien' => [
-        'name' => "Mairie de Saint-Fuscien",
-        'lat' => 49.9050,
-        'lon' => 2.3100
-    ]
+// Récupération des coordonnées envoyées par le formulaire
+$departData = [
+    'name' => $depart,
+    'lat'  => $_POST['depart_lat'] ?? null,
+    'lon'  => $_POST['depart_lon'] ?? null
 ];
 
-// Récupération des coordonnées pour départ et destination
-$departData = $locations[$depart] ?? $locations['iut'];
-$destinationData = $locations[$destination] ?? $locations['gare'];
+$destinationData = [
+    'name' => $destination,
+    'lat'  => $_POST['destination_lat'] ?? null,
+    'lon'  => $_POST['destination_lon'] ?? null
+];
 ?>
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyGo - Covoiturage étudiant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="../css/styleCreerTrajet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 </head>
-
 <body>
-    <!-- Header -->
     <?php require ('../includes/header.php'); ?>
 
-    <h1 class="TitreCreer" style="text-align:center; margin:30px auto; width:100%;">
-        Creer un trajet
-    </h1>
+    <h1 class="TitreCreer" style="text-align:center; margin:30px auto;">Créer un trajet</h1>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="title">Itinéraire</div>
-
         <div class="card">
             <form class="itinerary" method="post" action="CreerTrajet.php">
                 <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
                 <input type="hidden" name="places" value="<?= htmlspecialchars($places) ?>">
                 <input type="hidden" name="start" value="<?= htmlspecialchars($start) ?>">
                 <input type="hidden" name="end" value="<?= htmlspecialchars($end) ?>">
-                
+
                 <div class="field">
                     <div class="labelOrange">Départ</div>
-                    <select name="depart" onchange="this.form.submit()">
-                    <?php foreach ($locations as $key => $data): ?>
-                    <option value="<?= htmlspecialchars($key) ?>" 
-                    <?= $depart === $key ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($data['name']) ?>
-                    </option>
-                    <?php endforeach; ?>
-                    </select>
+                    <input type="text" id="depart" name="depart" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($depart) ?>">
+                    <div id="suggestions-depart" class="suggestions"></div>
+                    <input type="hidden" id="depart_lat" name="depart_lat" value="<?= htmlspecialchars($departData['lat']) ?>">
+                    <input type="hidden" id="depart_lon" name="depart_lon" value="<?= htmlspecialchars($departData['lon']) ?>">
                 </div>
 
                 <div class="swap">
@@ -94,84 +68,108 @@ $destinationData = $locations[$destination] ?? $locations['gare'];
                 </div>
 
                 <div class="field">
-                    <select name="destination" onchange="this.form.submit()">
-                    <?php foreach ($locations as $key => $data): ?>
-                    <option value="<?= htmlspecialchars($key) ?>" 
-                    <?= $destination === $key ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($data['name']) ?>
-                    </option>
-                    <?php endforeach; ?>
-                    </select>
+                    <div class="labelOrange">Destination</div>
+                    <input type="text" id="destination" name="destination" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($destination) ?>">
+                    <div id="suggestions-destination" class="suggestions"></div>
+                    <input type="hidden" id="destination_lat" name="destination_lat" value="<?= htmlspecialchars($destinationData['lat']) ?>">
+                    <input type="hidden" id="destination_lon" name="destination_lon" value="<?= htmlspecialchars($destinationData['lon']) ?>">
                 </div>
             </form>
         </div>
     </section>
 
-    <div class="map-container">
-        <div id="map"></div>
-    </div>
-     
 
+
+
+    <!-- Autocomplétion -->
+    <script src="autocomplete.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Carte -->
+    <div class="map-container"><div id="map"></div></div>
     <script>
-        // Initialisation de la carte
-        var map = L.map('map').setView([49.8942, 2.2957], 13);
+    // Initialisation de la carte
+    const map = L.map('map').setView([49.8942, 2.2957], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Icône orange pour le départ
-        var orangeIcon = L.divIcon({
-            className: 'custom-icon',
-            html: '<div style="background: #ff6600; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30]
-        });
+    // Fonction utilitaire : vérifie que lat/lon sont valides
+    function isValidCoord(lat, lon) {
+        return lat !== null && lon !== null && lat !== "" && lon !== ""
+            && !isNaN(lat) && !isNaN(lon);
+    }
 
-        // Icône verte pour la destination
-        var greenIcon = L.divIcon({
-            className: 'custom-icon',
-            html: '<div style="background: #00cc66; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30]
-        });
+    // Récupération depuis les variables PHP
+    const depart = {
+        name: <?= json_encode($departData['name']) ?>,
+        lat: parseFloat(<?= json_encode($departData['lat']) ?>),
+        lon: parseFloat(<?= json_encode($departData['lon']) ?>)
+    };
 
-        // Données PHP injectées en JS
-        var departLat = <?= $departData['lat'] ?>;
-        var departLon = <?= $departData['lon'] ?>;
-        var departName = <?= json_encode($departData['name']) ?>;
+    const destination = {
+        name: <?= json_encode($destinationData['name']) ?>,
+        lat: parseFloat(<?= json_encode($destinationData['lat']) ?>),
+        lon: parseFloat(<?= json_encode($destinationData['lon']) ?>)
+    };
 
-        var destLat = <?= $destinationData['lat'] ?>;
-        var destLon = <?= $destinationData['lon'] ?>;
-        var destName = <?= json_encode($destinationData['name']) ?>;
+    const markers = [];
 
-        // Ajout des marqueurs
-        L.marker([departLat, departLon], {icon: orangeIcon})
-            .addTo(map)
-            .bindPopup('<b>Départ:</b><br>' + departName);
+    // Affichage du marqueur de départ
+    if (isValidCoord(depart.lat, depart.lon)) {
+        markers.push(
+            L.marker([depart.lat, depart.lon])
+                .addTo(map)
+                .bindPopup("Départ : " + depart.name)
+        );
+    }
 
-        L.marker([destLat, destLon], {icon: greenIcon})
-            .addTo(map)
-            .bindPopup('<b>Destination:</b><br>' + destName);
+    // Affichage du marqueur de destination
+    if (isValidCoord(destination.lat, destination.lon)) {
+        markers.push(
+            L.marker([destination.lat, destination.lon])
+                .addTo(map)
+                .bindPopup("Destination : " + destination.name)
+        );
+    }
 
-        // Tracer une ligne entre les deux points
-        L.polyline([
-            [departLat, departLon],
-            [destLat, destLon]
-        ], {
-            color: '#ff6600',
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '10, 10'
-        }).addTo(map);
+    // Tracé de la ligne + recentrage automatique
+    if (isValidCoord(depart.lat, depart.lon) && isValidCoord(destination.lat, destination.lon)) {
+        const latlngs = [
+            [depart.lat, depart.lon],
+            [destination.lat, destination.lon]
+        ];
 
-        // Centrer la carte sur les deux points
-        var bounds = L.latLngBounds([
-            [departLat, departLon],
-            [destLat, destLon]
-        ]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-    </script>
+        L.polyline(latlngs, { color: "red", weight: 4 }).addTo(map);
+
+        map.fitBounds(latlngs, { padding: [50, 50] });
+    } else {
+        // Sinon recentrage standard
+        map.setView([49.8942, 2.2957], 13);
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
 
     <section class="hero">
         <div class="card">
@@ -210,9 +208,6 @@ $destinationData = $locations[$destination] ?? $locations['gare'];
                     </select>
                 </div>
 
-
-                
-            </form>
         </div>
     </section>
 
@@ -223,7 +218,8 @@ $destinationData = $locations[$destination] ?? $locations['gare'];
                         <span class="checkmark"></span>
                     </label>
      </div>
-     <?php if (!empty($errors)): ?>
+
+                <?php if (!empty($errors)): ?>
                     <div class="errors">
                         <?php foreach ($errors as $error): ?>
                             <p style="color: red;"><?= htmlspecialchars($error) ?></p>
@@ -238,9 +234,12 @@ $destinationData = $locations[$destination] ?? $locations['gare'];
                 <?php endif; ?>
 
                 <div class="actions">
-                    <button class="secondary" type="reset">Réinitialiser</button>
+                   <button class="secondary" type="submit" name="action" value="reset">
+                        Réinitialiser
+                    </button>
                     <button class="primary" type="submit">Créer le trajet</button>
                 </div>
+               </form>
 
     <div class="full-image">
         <img src="https://img.freepik.com/vecteurs-libre/illustration-concept-abstrait-stylo-numerique_335657-2281.jpg">

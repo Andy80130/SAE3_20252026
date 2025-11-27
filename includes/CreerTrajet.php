@@ -5,29 +5,84 @@ session_start();
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
 
 switch ($action) {
+
+
+
+
     
     // BOUTON POUR SWITCHER LES VALEURS
-    case "swap":
-        $depart = $_POST['depart'] ?? 'iut';
-        $destination = $_POST['destination'] ?? 'gare';
-        $date = $_POST['date'] ?? '';
-        $start = $_POST['start'] ?? '';
-        $end = $_POST['end'] ?? '';
-        $places = $_POST['places'] ?? '1';
-        
-        // Construction de l'URL avec tous les paramètres
-        $params = http_build_query([
-            'depart' => $destination,  // INVERSION ICI
-            'destination' => $depart,  // INVERSION ICI
-            'date' => $date,
-            'start' => $start,
-            'end' => $end,
-            'places' => $places
-        ]);
-        
-        header("Location: creerTrajet.php?" . $params);
-        exit();
+   case "swap":
+    $depart = $_POST['depart'] ?? '';
+    $destination = $_POST['destination'] ?? '';
+    $depart_lat = $_POST['depart_lat'] ?? '';
+    $depart_lon = $_POST['depart_lon'] ?? '';
+    $destination_lat = $_POST['destination_lat'] ?? '';
+    $destination_lon = $_POST['destination_lon'] ?? '';
+    $date = $_POST['date'] ?? '';
+    $start = $_POST['start'] ?? '';
+    $end = $_POST['end'] ?? '';
+    $places = $_POST['places'] ?? '1';
+
+    $params = http_build_query([
+        'depart' => $destination,
+        'depart_lat' => $destination_lat,
+        'depart_lon' => $destination_lon,
+        'destination' => $depart,
+        'destination_lat' => $depart_lat,
+        'destination_lon' => $depart_lon,
+        'date' => $date,
+        'start' => $start,
+        'end' => $end,
+        'places' => $places
+    ]);
+
+    header("Location: creerTrajet.php?" . $params);
+    exit();
+
+
+
+
+
+
+
+
+
+
+
+
+    //Bouton pour reset les chamos et donc la page. 
+    case "reset":
+    unset($_POST,$_GET);
+
+    // Toutes les variables à vide
+    $depart = '';
+    $destination = '';
+    $date = '';
+    $start = '';
+    $end = '';
+    $places = '1';
+    $departData = ['name'=>'','lat'=>null,'lon'=>null];
+    $destinationData = ['name'=>'','lat'=>null,'lon'=>null];
     
+    // Supprimer les messages
+    $errors = [];
+    $success = false;
+
+
+
+    // Redirection vers la page avec des valeurs vides (optionnel)
+    header("Location: creerTrajet.php");
+    exit();
+
+
+
+
+
+
+
+
+    
+
     // CRÉATION D'UN TRAJET
     case "create":
         // Vérifier la connexion
