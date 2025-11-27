@@ -330,3 +330,29 @@ footer {
         padding: 15px;
     }
 }
+
+
+
+
+
+
+
+/* CSS de JS*/
+
+.suggestions {
+    border: 1px solid #ccc;
+    background: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #f0f0f0;
+}
