@@ -11,10 +11,9 @@
 <body>
     <?php require("../includes/header.php") ?>
 
-    <h1 class="Titre">Profil_Picture</h1>
+    <h1 class="Titre">Profil</h1>
     <div class="profile-container">
 
-    <!-- Partie haute : photo + nom + icône notification -->
     <div class="profile-header">
         <img src="../images/Profil_Picture.png" alt="Photo de profil" class="profile-photo">
 
@@ -32,12 +31,12 @@
 
         <div class="input-group">
             <label for="annee">Modèle</label>
-            <input type="number" id="annee" name="annee" value="">
+            <input type="String" id="annee" name="annee" value="">
         </div>
 
         <div class="input-group">
             <label for="annee">Couleur</label>
-            <input type="number" id="annee" name="annee" value="">
+            <input type="String" id="annee" name="annee" value="">
         </div>
 
         <button type="submit" class="save-btn">Enregistrer</button>
