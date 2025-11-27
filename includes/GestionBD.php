@@ -4,7 +4,7 @@
     function GlobalSelect(string $table){
         global $db;
         if (!in_array($table, ['Users', 'Journeys', 'Notes','Reports','BlackList','Reservations'])) {
-            throw new Exception("Table non autorisée.");
+            throw new Exception("Table non autorisï¿½e.");
         }
         $stmt = $db->prepare("SELECT * FROM $table");
         try{
@@ -12,7 +12,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection : " . $e->getMessage();
             return [];
         }
     }
@@ -21,14 +21,13 @@
 	function AddUser(string $lastName, string $firstName, string $mail, string $phoneNumber, string $hashed_password): bool {
         global $db;
 		$stmt = $db->prepare("INSERT INTO Users(last_name,first_name,mail,phone_number,password,role) 
-                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password,:role)");
+                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password, 0)");
 		try{
 			$stmt->bindParam(':last_name', $lastName);
 			$stmt->bindParam(':first_name', $firstName);
 			$stmt->bindParam(':mail', $mail);
 			$stmt->bindParam(':phone_number', $phoneNumber);
 			$stmt->bindParam(':hashed_password', $hashed_password);
-			$stmt->bindParam(':role',0, PDO::PARAM_INT);
 
 			return $stmt->execute();
 		}
@@ -61,7 +60,7 @@
         try {
             $db->beginTransaction(); 
 
-            //Suppression des Réservations
+            //Suppression des Rï¿½servations
             $stmt_reservation = $db->prepare("DELETE FROM Reservation WHERE user_id = :user_id");
             $stmt_reservation->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt_reservation->execute();
@@ -127,7 +126,7 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la vérification dans la blacklist : " . $e->getMessage();
+            echo "Erreur lors de la vï¿½rification dans la blacklist : " . $e->getMessage();
             return false;
         }
     }
@@ -160,7 +159,7 @@
             return $stmt->fetch(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection du trajet : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection du trajet : " . $e->getMessage();
             return null;
         }
     }
@@ -170,7 +169,7 @@
         try{
             $db->beginTransaction();
 
-            //Suppression des Réservations
+            //Suppression des Rï¿½servations
             $stmt =$db->prepare("DELETE FROM Reservation WHERE journey_id = :journey_id");
             $stmt->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt->execute();
@@ -183,7 +182,7 @@
             return true;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la suppression des réservations du trajet : " . $e->getMessage();
+            echo "Erreur lors de la suppression des rï¿½servations du trajet : " . $e->getMessage();
             return false;
         }
     }
@@ -199,7 +198,7 @@
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'insertion de la réservation : " . $e->getMessage();
+            echo "Erreur lors de l'insertion de la rï¿½servation : " . $e->getMessage();
             return false;
         }
     }
@@ -213,7 +212,7 @@
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'annulation de la réservation : " . $e->getMessage();
+            echo "Erreur lors de l'annulation de la rï¿½servation : " . $e->getMessage();
             return false;
         }
     }
@@ -227,7 +226,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection des réservations : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection des rï¿½servations : " . $e->getMessage();
             return [];
         }
     }
@@ -235,13 +234,13 @@
     function RemainingSeats(int $journey_id): int {
         global $db;
         try {
-            // Récupérer le nombre total de places pour le trajet
+            // Rï¿½cupï¿½rer le nombre total de places pour le trajet
             $stmt_total = $db->prepare("SELECT number_place FROM Journeys WHERE journey_id = :journey_id");
             $stmt_total->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_total->execute();
             $total_places = $stmt_total->fetchColumn();
 
-            // Récupérer le nombre de réservations pour le trajet
+            // Rï¿½cupï¿½rer le nombre de rï¿½servations pour le trajet
             $stmt_reserved = $db->prepare("SELECT COUNT(*) FROM Reservation WHERE journey_id = :journey_id");
             $stmt_reserved->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_reserved->execute();
@@ -298,7 +297,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection des notes : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection des notes : " . $e->getMessage();
             return [];
         }
     }
@@ -329,7 +328,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection des reports : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection des reports : " . $e->getMessage();
             return [];
         }
     }
@@ -342,7 +341,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la sélection des reports en attente : " . $e->getMessage();
+            echo "Erreur lors de la sï¿½lection des reports en attente : " . $e->getMessage();
             return [];
         }
     }

@@ -2,12 +2,12 @@
 
 $dbname='studygo_bd';
 $host='mysql-studygo.alwaysdata.net';
-$port='3306';
+$port=3306;
 $nom_utilisateur='studygo';
 $mdp='SAEStudyGo3?';
 
 try{
-    $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8",
+    $db = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
         $nom_utilisateur,
         $mdp
     );
