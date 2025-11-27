@@ -20,44 +20,6 @@ body {
   color: var(--text-dark);
 }
 
-/* Header */
-header {
-  background-color: #fff;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 20px solid var(--primary-orange);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #d32f2f;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.header-icons {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  color: var(--primary-orange);
-  font-size: 1.2rem;
-}
-
-.create-btn {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: var(--primary-orange);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 /* Main Content */
 main {
   max-width: 600px;
