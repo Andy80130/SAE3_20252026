@@ -9,17 +9,23 @@ header {
     top: 0;
     z-index: 999;
     border-bottom: 8px solid #ff6600;
-
 }
 
 .logo {
     display: flex;
     align-items: center;
+    gap: 15px;
 }
 
 .Logo_StudyGo {
     width: 150px;
     height: auto;
+}
+
+.Icone_Reservation {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
 }
 
 .header-actions {
@@ -35,11 +41,8 @@ header {
     cursor: pointer;
 }
 
-.Icone_Créertrajet{
+.Icone_Créertrajet {
     width: 150px;
     height: auto;
     cursor: pointer;
 }
-
-
-

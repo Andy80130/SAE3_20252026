@@ -110,7 +110,8 @@
             <p>• 5 trajets effectués</p>
         </div>
 
-        <button class="view-trips-btn" onclick="return false;">Voir mes trajets</button>
+   <button class="view-trips-btn" onclick="window.location.href='reservation.php';">Voir mes trajets</button>
+
     </section>
 
     <!-- About Section -->
