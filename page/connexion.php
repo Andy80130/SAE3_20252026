@@ -1,3 +1,9 @@
+<?php
+include('../includes/GestionBD.php');
+
+//verifier les infos saisies et se connecter
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,13 +20,8 @@
         </div>
     </header>
     <section class="shadow p-4 rounded saisie-infos">
-        <?php endif; ?>
 
-        <?php if (isset($errorMessage)) : ?>
-        <div class="d-flex justify-content-center alert alert-danger text-center"><?php echo $errorMessage; ?></div>
-        <?php endif; ?>
-
-        <form method="connexion.php" action="POST">
+        <form method="POST" action="../includes/GestionBD.php">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required />
 
@@ -40,7 +41,7 @@
 
         <div class="text-center">
             <p class="fs-6 form-text">Vous n'avez pas de compte ?
-                <a href="creerCompte.php" class="text-decoration-none">Créer un compte !</a>
+                <a href="inscription.php" class="text-decoration-none">Créer un compte !</a>
             </p>
         </div>
 

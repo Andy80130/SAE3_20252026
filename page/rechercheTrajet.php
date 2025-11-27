@@ -81,7 +81,7 @@
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" width="50px" class="image">
+                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->
@@ -112,7 +112,7 @@
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" width="50px" class="image">
+                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->

@@ -1,13 +1,13 @@
-<?php include('../includes/validerChamps.php');
-
-$errors = []; // Initialise le tableau des erreurs
+<?php
+include('../includes/validerChamps.php');
+include('../includes/GestionBD.php');
 
 // Traitement de la requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     global $errors;
 
     try {
-        // Stockage des données dans la session
+        // Stockage des données
         $data['nom'] = $_POST['nom'] ?? '';
         $data['prenom'] = $_POST['prenom'] ?? '';
         $data['email'] = $_POST['email'] ?? '';
@@ -20,6 +20,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validateField($data, 'prenom', 'Prenom', ['required' => true]);
         validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
         validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_value' => 10]);
+
+        //addUser
+
+        //Envoi du mail
+        $to = $data['email'];
+        $subject = "Bienvenue sur mon application !";
+        $message = "
+                    <html>
+                    <head><title>Bienvenue</title></head>
+                    <body>
+                    <h2>Merci pour votre inscription 🎉</h2>
+                    <p>Nous sommes très heureux de vous compter parmi nous.</p>
+                    </body>
+                    </html>
+                    ";
+        $headers  = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
+
+        mail($to, $subject, $message, $headers);
     } catch (Exception $e) {
         // Capture de l'exception et ajout d'un message d'erreur
         $errors[] = $e->getMessage();
@@ -30,13 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($errors as $error) {
             echo "<p style='color:red;'>$error</p>";
         }
-    }
-}
-
-// Affichage des erreurs (si nécessaire)
-if (!empty($errors)) {
-    foreach ($errors as $error) {
-        echo "<p style='color:red;'>$error</p>";
     }
 }
 ?>
@@ -100,7 +113,7 @@ if (!empty($errors)) {
 
             <div class="text-center">
                 <p class="fs-6 form-text">Vous avez déjà un compte ?
-                    <a href="connexion.html" class="text-decoration-none">Se connecter</a>
+                    <a href="connexion.php" class="text-decoration-none">Se connecter</a>
                 </p>
             </div>
 
