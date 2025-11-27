@@ -1,47 +1,4 @@
-﻿/* Header */
-header {
-    background: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    color: #333;
-}
-
-.car-icon {
-    color: #ff6600;
-    font-size: 24px;
-}
-
-.header-actions {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.search-icon, .user-icon {
-    color: #ff6600;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.create-trip {
-    color: #ff6600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
+﻿
 
 /* --- NOUVEAU STYLE POUR LE CONTENU À PROPOS (Version Collée aux bords) --- */
 

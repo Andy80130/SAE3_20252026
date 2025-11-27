@@ -1,0 +1,45 @@
+header {
+    background: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    border-bottom: 8px solid #ff6600;
+
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.Logo_StudyGo {
+    width: 150px;
+    height: auto;
+}
+
+.header-actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.Icone_Recherche,
+.profile-photo {
+    width: 40px;
+    height: auto;
+    cursor: pointer;
+}
+
+.Icone_Créertrajet{
+    width: 150px;
+    height: auto;
+    cursor: pointer;
+}
+
+
+

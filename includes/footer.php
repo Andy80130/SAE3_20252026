@@ -1,4 +1,5 @@
 <footer>
+    <link rel="stylesheet" href="../css/styleFooter.css">
     <div class="footer-content">
         <div class="footer-section">
             <div class="footer-logo">

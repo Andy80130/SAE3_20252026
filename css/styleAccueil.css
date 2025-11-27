@@ -9,52 +9,6 @@ body {
     color: #333;
 }
 
-/* Header */
-header {
-    background: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-bottom: 4px solid #ff6600;
-    border-bottom: 8px solid #ff6600;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    color: #333;
-}
-
-.car-icon {
-    color: #ff6600;
-    font-size: 24px;
-}
-
-.header-actions {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.search-icon, .user-icon {
-    color: #ff6600;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.create-trip {
-    color: #ff6600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
 /* Hero Section */
 .hero {
     background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23f4a460" width="1200" height="400"/></svg>');
@@ -350,82 +304,6 @@ header {
     font-weight: bold;
 }
 
-/* Footer */
-footer {
-    background: #2c3e50;
-    color: white;
-    padding: 40px 20px;
-}
-
-.footer-content {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    max-width: 1000px;
-    margin: 0 auto;
-    gap: 30px;
-}
-
-.footer-section h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-}
-
-.footer-section ul {
-    list-style: none;
-}
-
-.footer-section ul li {
-    margin-bottom: 10px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.footer-section ul li:hover {
-    text-decoration: underline;
-}
-
-.footer-bottom {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #445566;
-    font-size: 12px;
-    color: #aaa;
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 24px;
-    }
-
-    .search-form {
-        flex-direction: column;
-        border-radius: 15px;
-        padding: 15px;
-    }
-
-    .search-form input {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .search-btn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .about-content {
-        flex-direction: column;
-    }
-}
 
 /* ----------- PROFILE CARD ----------- */
 
