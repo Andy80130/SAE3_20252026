@@ -9,6 +9,10 @@
             <a href="rechercheTrajet.php">
             <img src="../images/Icone_Recherche.png" alt="Rechercher" class="Icone_Recherche"></a>
         </div>
+        <div class=reservation-icon>
+        <a href="reservation.php">
+            <img src="../images/Icone_Reservation.png" alt="Réservation" class="Icone_Reservation"></a>
+        </div>
         <div class="create-trip">
             <a href="creerTrajet.php">
             <img src="../images/Icone_Créertrajet.png" alt="Créertrajet" class="Icone_Créertrajet">
