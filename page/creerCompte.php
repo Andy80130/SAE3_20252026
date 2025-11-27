@@ -1,3 +1,46 @@
+<?php include('../includes/validerChamps.php');
+
+$errors = []; // Initialise le tableau des erreurs
+
+// Traitement de la requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    global $errors;
+
+    try {
+        // Stockage des données dans la session
+        $data['nom'] = $_POST['nom'] ?? '';
+        $data['prenom'] = $_POST['prenom'] ?? '';
+        $data['email'] = $_POST['email'] ?? '';
+        $data['telephone'] = $_POST['telephone'] ?? '';
+        $data['password'] = $_POST['password'] ?? '';
+        $data['verifPassword'] = $_POST['verifPassword'] ?? '';
+
+        // Validation des champs
+        validateField($data, 'nom', 'Nom', ['required' => true]);
+        validateField($data, 'prenom', 'Prenom', ['required' => true]);
+        validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
+        validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_value' => 10]);
+    } catch (Exception $e) {
+        // Capture de l'exception et ajout d'un message d'erreur
+        $errors[] = $e->getMessage();
+    }
+
+    // Affichage des erreurs (si nécessaire)
+    if (!empty($errors)) {
+        foreach ($errors as $error) {
+            echo "<p style='color:red;'>$error</p>";
+        }
+    }
+}
+
+// Affichage des erreurs (si nécessaire)
+if (!empty($errors)) {
+    foreach ($errors as $error) {
+        echo "<p style='color:red;'>$error</p>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -17,13 +60,6 @@
             </div>
         </header>
         <section class="shadow p-4 rounded saisie-infos">
-            <?php if (isset($successMessage)) ?>
-                <div class="text-center"><?php echo $successMessage; ?></div>
-            <?php endif; ?>
-
-            <?php if (isset($errorMessage)) : ?>
-            <div class="text-center"><?php echo $errorMessage; ?></div>
-            <?php endif; ?>
 
             <form method="creerCompte.php" action="POST">
                 <div class="row">
@@ -37,8 +73,16 @@
                     </div>
                 </div>
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required />
+                <div class="row">
+                    <div class="col">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
+                    <div class="col">
+                        <label for="telephone">Téléphone</label>
+                        <input type="text" id="telephone" name="telephone" placeholder="0699994810" required />
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col">
