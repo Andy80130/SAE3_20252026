@@ -20,8 +20,9 @@
 
                 <div class="question-mark">?</div>
 
-                <div class="car-illustration">
-                    🚗
+                <img src="../images/Logo_StudyGo.png"
+                     alt="Logo StudyGo"
+                     class="car-illustration logo-studygo-apropos">
                 </div>
             </div>
         </section>
