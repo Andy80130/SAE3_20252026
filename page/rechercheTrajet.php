@@ -24,7 +24,7 @@
                 Voyager avec la communauté devient rapide, économique et
                 pratique.
             </p>
-            <img src="..\images\MarioThumbsUp.png" height="200px">
+            <img src="..\images\rechercheTrajetIntro.png" height="200px">
         </div>
     </section>
 
@@ -81,7 +81,7 @@
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" height="50px">
+                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->
@@ -95,7 +95,7 @@
         </div>
         <!-- Boutons -->
         <div class="buttons">
-            <button class="search-btn" onclick="infosVoiture()">
+            <button class="search-btn" onclick="infosVoiture('voiture1')">
                 Informations voiture
             </button>
             <button class=search-btn onclick="voirCarte([49.8942, 2.2957], [49.8892, 2.3057])">
@@ -105,14 +105,14 @@
         </div>
 
         <!-- Infos voiture -->
-        <div id="infosVoiture"></div>
+        <div id="voiture1"></div>
     </section>
 
     <section class="searchedJourney">
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" height="50px">
+                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->
@@ -126,7 +126,7 @@
         </div>
         <!-- Boutons -->
         <div class="buttons">
-            <button class="search-btn" onclick="infosVoiture()">
+            <button class="search-btn" onclick="infosVoiture('voiture2')">
                 Informations voiture
             </button>
             <button class=search-btn onclick="voirCarte([49.8992, 2.2857], [49.8850, 2.2900])">
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Infos voiture -->
-        <div id="infosVoiture"></div>
+        <div id="voiture2"></div>
     </section>
 
     <!-- Rien -->
@@ -144,7 +144,7 @@
     <section class="orangeBackground">
         <p>Aucun trajet ne correspond pour le moment. Essayez d’ajuster vos
             filtres de recherche ou réessayez un peu plus tard.</p>
-        <img src="..\images\MarioSad.png" height="150px">
+        <img src="..\images\rechercheTrajetFin.png" height="250px">
     </section>
 
     <!-- Footer -->
@@ -174,14 +174,14 @@
         });
         var arrayMarkers=[];
 
-        function infosVoiture() {
-            if(document.getElementById("infosVoiture").innerHTML == ""){
-                document.getElementById("infosVoiture").innerHTML = "<p>Modèle :</p> <p>Couleur :</p>"
-                document.getElementById("infosVoiture").style = "border-style: solid; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; padding-top: 5px; padding-bottom: 5px; padding-left: 5px;";
+        function infosVoiture(className) {
+            if(document.getElementById(className).innerHTML == ""){
+                document.getElementById(className).innerHTML = "<p>Modèle :</p> <p>Couleur :</p>"
+                document.getElementById(className).style = "border-style: solid; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; padding-top: 5px; padding-bottom: 5px; padding-left: 5px;";
             }
             else{
-                document.getElementById("infosVoiture").innerHTML = "";
-                document.getElementById("infosVoiture").style = "border: none;";
+                document.getElementById(className).innerHTML = "";
+                document.getElementById(className).style = "border: none;";
             }
         }
         function voirCarte(positionBgn, positionEnd){

@@ -59,13 +59,10 @@ body, html {
     margin: 0 20px; /* Un peu d'espace autour */
 }
 
-/* Ajustement pour l'emoji voiture si besoin */
 .car-illustration {
-    font-size: 60px;
-}
-
-.car-illustration {
-    font-size: 50px;
+    height: 60px;
+    width: auto;
+    display: block;
 }
 
 /* 2. Cartes de contenu (Base) */

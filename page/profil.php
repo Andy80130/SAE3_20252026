@@ -11,12 +11,12 @@
 <body>
     <?php require("../includes/header.php") ?>
 
-    <h1 class="Titre">Profil</h1>
+    <h1 class="Titre">Profil_Picture</h1>
     <div class="profile-container">
 
     <!-- Partie haute : photo + nom + icône notification -->
     <div class="profile-header">
-        <img src="../images/Icone_Profil.png" alt="Photo de profil" class="profile-photo">
+        <img src="../images/Profil_Picture.png" alt="Photo de profil" class="profile-photo">
 
         <div class="profile-name">
             Alexandre Trufin
