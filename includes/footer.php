@@ -3,8 +3,7 @@
     <div class="footer-content">
         <div class="footer-section">
             <div class="footer-logo">
-                <span style="color: #ff6600;">🚗</span>
-                <span>StudyGo</span>
+                <img src="../images/Logo_StudyGo_Dark_Background.png" alt="Logo StudyGo" class="Logo_StudyGo">
             </div>
         </div>
 
