@@ -10,8 +10,7 @@
         <div class="footer-section">
             <h3>À PROPOS DE NOUS</h3>
             <ul>
-                <li onclick="return false;">Création</li>
-                <li onclick="return false;">L'équipe</li>
+                <li><a href="../page/Apropos.php">L'équipe</a></li>
             </ul>
         </div>
 
