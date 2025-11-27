@@ -38,7 +38,6 @@
     justify-content: center;
 
     margin: 15px;
-    padding-left: 50px;
     padding-top: 20px;
     padding-bottom: 20px;
 }
@@ -70,4 +69,36 @@
 
 footer{
     margin-top: 50px;
+}
+
+
+
+.image{
+    height: auto;
+}
+
+
+#noResults, #intro{
+    color : white;
+    background-color: #ff6600;
+    padding: 10px;
+    font-size: 150%;
+
+    display: flex;
+}
+/* PC */
+@media screen and (min-width: 1024px) {
+    #noResults, #intro{
+        justify-content: space-between;
+    }
+}
+/* Téléphone */
+@media screen and (max-width: 767px) {
+    #noResults, #intro, .search{
+        flex-direction: column;
+        align-items: center;
+    }
+    .search{
+        padding-left: 5px;
+    }
 }

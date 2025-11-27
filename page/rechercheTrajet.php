@@ -16,7 +16,7 @@
     <!-- Introduction Section -->
     <section>
         <h1 class="title">Rejoindre un trajet</h1>
-        <div class="orangeBackground">
+        <div id="intro">
             <p>
                 Rejoignez un trajet en un instant grâce à notre recherche
                 intuitive. Trouvez un conducteur qui se rend dans la même
@@ -24,7 +24,7 @@
                 Voyager avec la communauté devient rapide, économique et
                 pratique.
             </p>
-            <img src="..\images\rechercheTrajetIntro.png" height="200px">
+            <img src="..\images\rechercheTrajetIntro.png" width="300px" class="image">
         </div>
     </section>
 
@@ -45,20 +45,20 @@
             <div class="horaires">
                 <p>Horaires :</p>
                 <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>Du :</p>
+                    <p>  Du :</p>
                     <input type="date">
                 </label>
                 <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>Au :</p>
+                    <p>  Au :</p>
                     <input type="date">
                 </label>
                 <p>Heure :</p>
                 <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>Du :</p>
+                    <p>  Du :</p>
                     <input type="time" id="appt" name="appt">
                 </label>
                 <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>à :</p>
+                    <p>  à :</p>
                     <input type="time" id="appt" name="appt">
                 </label>
             </div>
@@ -81,7 +81,7 @@
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" height="50px">
+                <img class="user-icon" src="..\images\MarioPFP.png" width="50px" class="image">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->
@@ -112,7 +112,7 @@
         <!-- Profil -->
         <div class="user">
             <div>
-                <img class="user-icon" src="..\images\MarioPFP.png" height="50px">
+                <img class="user-icon" src="..\images\MarioPFP.png" width="50px" class="image">
                 <p class="name">Placeholder Name</p>
             </div>
             <!-- Infos trajet -->
@@ -139,13 +139,13 @@
         <div id="voiture2"></div>
     </section>
 
-    <!-- Rien -->
+    <!-- Aucun résultats -->
     <h1 class="orangeBackground">Vous ne trouvez pas ce que vous voulez ?</h1>
-    <section class="orangeBackground">
+    <div id="noResults">
         <p>Aucun trajet ne correspond pour le moment. Essayez d’ajuster vos
             filtres de recherche ou réessayez un peu plus tard.</p>
-        <img src="..\images\rechercheTrajetFin.png" height="250px">
-    </section>
+        <img src="..\images\rechercheTrajetFin.png" width="350px" class="image">
+    </div>
 
     <!-- Footer -->
     <?php require ('../includes/footer.php'); ?>
