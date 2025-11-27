@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 </head>
 <body>
-    <!-- Header -->
+
     <?php require ('../includes/header.php'); ?>
 
     <!-- Introduction Section -->

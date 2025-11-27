@@ -7,6 +7,7 @@
     <title>À propos - StudyGo</title>
 </head>
 <body>
+
 <?php require("../includes/header.php")?>
 
     <main class="about-container">
