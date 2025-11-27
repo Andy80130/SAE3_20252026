@@ -28,6 +28,14 @@ footer {
     cursor: pointer;
 }
 
+.footer-section ul li a,
+.footer-section ul li a:link,
+.footer-section ul li a:visited,
+.footer-section ul li a:hover,
+.footer-section ul li a:active {
+    color: white;
+}
+
 .footer-section ul li:hover {
     text-decoration: underline;
 }
