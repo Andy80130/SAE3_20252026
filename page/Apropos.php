@@ -7,7 +7,7 @@
     <title>À propos - StudyGo</title>
 </head>
 <body>
-<?php require("../includes/header.php")?>
+<?php require("../includes/header.php") ?>
 
     <main class="about-container">
         <section class="intro-banner">
@@ -72,6 +72,6 @@
         </section>
     </main>
 
-    <?php require("../includes/footer.php")?>
+    <?php require("../includes/footer.php") ?>
 </body>
 </html>
