@@ -10,18 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="logo">
-            <span class="car-icon">🚗</span>
-            <span>StudyGo</span>
-        </div>
-        <div class="header-actions">
-            <div class="search-icon">🔍</div>
-            <div class="create-trip"><a href="creerTrajet.html">➕ Créer un trajet</a></div>
-            <div class="user-icon"><a href="profil.html"> 👤</a></div>
-        </div>
-    </header>
+
+    <?php require ('../includes/header.php'); ?>
 
     <!-- Introduction Section -->
     <section>
@@ -118,12 +108,6 @@
         <div id="infosVoiture"></div>
     </section>
 
-
-
-
-
-
-
     <section class="searchedJourney">
         <!-- Profil -->
         <div class="user">
@@ -155,14 +139,6 @@
         <div id="infosVoiture"></div>
     </section>
 
-
-
-
-
-
-
-
-
     <!-- Rien -->
     <h1 class="orangeBackground">Vous ne trouvez pas ce que vous voulez ?</h1>
     <section class="orangeBackground">
@@ -172,46 +148,7 @@
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <span style="color: #ff6600;">🚗</span>
-                    <span>StudyGo</span>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>À PROPOS DE NOUS</h3>
-                <ul>
-                    <li onclick="return false;">Création</li>
-                    <li onclick="return false;">L'équipe</li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>BESOIN D'AIDE ?</h3>
-                <ul>
-                    <li onclick="return false;">Nous contacter</li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3>UTILISATION</h3>
-                <ul>
-                    <li onclick="return false;">Conditions d'utilisation</li>
-                    <li onclick="return false;">Paramétrez les cookies</li>
-                    <li onclick="return false;">Politique de confidentialité</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            © 2025 StudyGo - Projet Covoiturage Étudiant
-        </div>
-    </footer>
-
-
+    <?php require ('../includes/footer.php'); ?>
 
 
     <script>

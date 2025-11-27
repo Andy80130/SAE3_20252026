@@ -7,7 +7,8 @@
     <title>À propos - StudyGo</title>
 </head>
 <body>
-<?php require("../includes/header.php") ?>
+
+<?php require("../includes/header.php")?>
 
     <main class="about-container">
         <section class="intro-banner">
@@ -48,7 +49,7 @@
                 <h2>Remerciement</h2>
                 <p>
                     Le développement du site a été soutenu par l'UPJV, qui
-                    nous a donné toute les connaissances nécessaires afin de
+                    nous a donné toutes les connaissances nécessaires afin de
                     le réaliser. Il est important de remercier toute l'équipe
                     de développement de ce projet, qui a travaillé dur pour
                     le mener à bien dans les délais impartis.
@@ -63,7 +64,7 @@
             <h3>Réalisé par :</h3>
             <ul>
                 <li>BENRABAH TARIK RAMI</li>
-                <li>HERBERT ANDY</li>
+                <li>HAINAUT ANDY</li>
                 <li>PASQUIER THEO</li>
                 <li>SANDLI ILYES</li>
                 <li>THEVENET JAMY</li>
@@ -72,6 +73,6 @@
         </section>
     </main>
 
-    <?php require("../includes/footer.php") ?>
+    <?php require("../includes/footer.php")?>
 </body>
 </html>
