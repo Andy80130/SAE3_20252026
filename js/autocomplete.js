@@ -22,7 +22,7 @@ function setupAutocomplete(inputId, suggestionsId, latId, lonId) {
             return;
         }
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+        const url = `../includes/nominatim-proxy.php?q=${encodeURIComponent(query)}&limit=5`;
 
         try {
             const response = await fetch(url);
@@ -53,7 +53,7 @@ function setupAutocomplete(inputId, suggestionsId, latId, lonId) {
         }
     };
 
-    input.addEventListener('input', debounce(runSearch, 300)); // ⬅️ évite le blocage
+    input.addEventListener('input', debounce(runSearch, 1200)); // ⬅️ évite le blocage
 }
 
 
