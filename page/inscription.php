@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             validateField($data, 'nom', 'Nom', ['required' => true]);
             validateField($data, 'prenom', 'Prenom', ['required' => true]);
             validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
-            validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_value' => 10]);
+            validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_length' => 10, 'validate_float' => true]);
             validateField($data, 'password', 'Mot de passe', ['required' => true]);
             validateField($data, 'verifPassword', '2ème mot de passe', ['required' => true, 'verify_password' => true]);
 
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 }
             } else {
-                throw new Exception("Erreur de soumission du formulaire.");
+                throw new Exception("Un compte existe déjà avec cet email.");
             }
         } else {
             throw new Exception("Une erreur s'est produite.");

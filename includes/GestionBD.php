@@ -32,8 +32,7 @@
 			return $stmt->execute();
 		}
 		catch (PDOException $e){
-			echo "Veuillez utilisez votre mail UPJV";
-			return false;
+			throw new Exception("Veuillez utilisez votre mail UPJV");
 		}
 	}
 
@@ -109,8 +108,7 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Vous avez déjà un compte";
-            return false;
+            throw new Exception("Vous avez déjà un compte");
         }
     }
 
