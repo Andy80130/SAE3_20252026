@@ -20,8 +20,8 @@
     //Users
 	function AddUser(string $lastName, string $firstName, string $mail, string $phoneNumber, string $hashed_password): bool {
         global $db;
-		$stmt = $db->prepare("INSERT INTO Users(last_name,first_name,mail,phone_number,password,role) 
-                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password, 0)");
+		$stmt = $db->prepare("INSERT INTO Users(last_name,first_name,mail,phone_number,password) 
+                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password)");
 		try{
 			$stmt->bindParam(':last_name', $lastName);
 			$stmt->bindParam(':first_name', $firstName);
@@ -213,6 +213,53 @@
         catch (PDOException $e){
             echo "Erreur lors de la suppression des r�servations du trajet : " . $e->getMessage();
             return false;
+        }
+    }
+
+    function GetOrganizedJourneys(int $driver_id) {
+        global $db;
+        $stmt = $db->prepare("SELECT * FROM Journeys WHERE driver_id = :uid ORDER BY start_date ASC");
+        try {
+            $stmt->execute([':uid' => $driver_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération trajets organisés : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function GetJourneyParticipants(int $journey_id) {
+        global $db;
+        $sql = "SELECT U.first_name, U.last_name 
+                FROM Reservation R 
+                JOIN Users U ON R.user_id = U.user_id 
+                WHERE R.journey_id = :jid";
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':jid' => $journey_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération participants : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function GetReservedJourneysDetails(int $user_id) {
+        global $db;
+        // Jointure pour récupérer les infos du trajet ET le nom du conducteur
+        $sql = "SELECT J.*, U.first_name, U.last_name 
+                FROM Reservation R
+                JOIN Journeys J ON R.journey_id = J.journey_id
+                JOIN Users U ON J.driver_id = U.user_id
+                WHERE R.user_id = :uid
+                ORDER BY J.start_date ASC";
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':uid' => $user_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération trajets réservés : " . $e->getMessage();
+            return [];
         }
     }
 

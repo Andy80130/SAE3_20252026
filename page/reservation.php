@@ -1,92 +1,93 @@
 <?php
-// 1. Bouton "Trajets Organisés"
-$trajets_organises = [
-    [
-        'nom' => 'Alexandre Trubin',
-        'avatar' => 'https://cyberschool.univ-rennes.fr/app/uploads/2024/05/etudiant-double-diplomation-cyberschool-1024x699.jpg',
-        'nb' => 1,
-        'depart' => "IUT d'Amiens",
-        'arrivee' => "Rue 3 Cailloux",
-        'date' => "18:10 à 18:30, Vendredi 17 Octobre",
-        'participants' => [] // Vide
-    ],
-    [
-        'nom' => 'Alexandre Trubin',
-        'avatar' => 'https://cyberschool.univ-rennes.fr/app/uploads/2024/05/etudiant-double-diplomation-cyberschool-1024x699.jpg',
-        'nb' => 3,
-        'depart' => "IUT d'Amiens",
-        'arrivee' => "Rue 3 Cailloux",
-        'date' => "18:10 à 18:30, Lundi 20 Octobre",
-        'participants' => ['Florian Diego', 'Maxime Cahier', 'Charlotte Bigard'] // Liste remplie
-    ]
-];
+session_start();
 
-// 2. Bouton "Trajets Réservés"
-$trajets_reserves = [
-    [
-        'nom' => 'Rodrigue Malibo', 
-        'avatar' => 'https://i.pravatar.cc/150?u=rodrigue', // Image unique
-        'nb' => 1, 
-        'depart' => "IUT d'Amiens", 
-        'arrivee' => "24 Rue Paul Langevin", 
-        'date' => "14:15, Ven 14 Nov"
-    ],
-    [
-        'nom' => 'Jamy Dufeuille', 
-        'avatar' => 'https://i.pravatar.cc/150?u=jamy', // Image unique
-        'nb' => 2, 
-        'depart' => "IUT d'Amiens", 
-        'arrivee' => "24 Rue Paul Langevin", 
-        'date' => "18:10, Jeu 13 Nov"
-    ]
-];
+// 1. Sécurité connexion
+if (!isset($_SESSION['user_id'])) {
+    header('Location: connexion.php');
+    exit();
+}
 
-// 3. Demandes en Attente (IMAGES AJOUTÉES ICI)
-$demandes_attente = [
-    [
-        'nom' => 'Sophian Kalaris', 
-        'avatar' => 'https://storage.letudiant.fr/mediatheque/letudiant/8/3/2971583-tests-et-certifications-pour-etudier-en-france-en-tant-que-marocaine-632x421.jpeg',
-        'date' => '7:30, Ven 17 Oct'
-    ],
-    [
-        'nom' => 'Brunot Marcie', 
-        'avatar' => 'https://www.leparisien.fr/resizer/MVt_dTt7_E4tIUmyWfhYx3kEcnk=/932x582/cloudfront-eu-central-1.images.arcpublishing.com/leparisien/7LQOT63RHRAJZFDUEJAUWDRED4.jpg',
-        'date' => '7:20, Ven 17 Oct'
-    ],
-    [
-        'nom' => 'Frédérique Carlotin', 
-        'avatar' => 'https://lh5.googleusercontent.com/InCRmf2nKCjSHVPh7rwtf-y_KK_PHk90CWUenmaGIhu9T7F8gUEOEc-R9rJn5hMgsvCeMBIn4RSXzLWdHRjYiqYzqPMbIlmKsmtNvh9IEhYRyKeqeIkPpvUKe0R5hc30MzqeThRmt52VXUaOno0BORg',
-        'date' => '18:10, Mar 4 Nov'
-    ]
-];
+require("../includes/GestionBD.php");
+$userId = $_SESSION['user_id'];
 
-// D. Demandes Reçues (IMAGES AJOUTÉES ICI)
-$demandes_recues = [
-    [
-        'nom' => 'Mathis Arnaud', 
-        'avatar' => 'https://i.pravatar.cc/150?u=mathis', // <--- Image différente pour Mathis
-        'date' => '18:10, Ven 17 Oct'
-    ],
-    [
-        'nom' => 'Corentin Delasalle', 
-        'avatar' => 'https://www.gerinter.fr/wp-content/uploads/2023/11/etudiant_interim_gerinter_0.png', // <--- Image différente pour Corentin
-        'date' => '18:10, Ven 17 Oct'
-    ]
-];
+// 2. Traitement des formulaires (Annulations)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action']) && isset($_POST['journey_id'])) {
+        $jId = intval($_POST['journey_id']);
+        
+        if ($_POST['action'] === 'delete_trip') {
+            // L'organisateur supprime le trajet
+            deleteJourney($jId);
+        } 
+        elseif ($_POST['action'] === 'cancel_reservation') {
+            // Le passager annule sa réservation
+            cancelReservation($userId, $jId);
+        }
+        
+        // On recharge la page pour voir les changements immédiatement
+        header("Location: reservation.php");
+        exit();
+    }
+}
 
-function afficherCarte($data, $typeBouton = 'standard') {
-    // Si l'avatar est défini dans le tableau, on l'utilise. Sinon, image par défaut.
-    $avatar = $data['avatar'] ?? 'https://i.pravatar.cc/150'; 
-    $depart = $data['depart'] ?? "Gare du Nord"; 
-    $arrivee = $data['arrivee'] ?? "IUT d'Amiens";
+// 3. Récupération des données pour l'affichage
+$currentUser = GetUserInfo($_SESSION['mail']);
+$myFullName = $currentUser ? $currentUser['first_name'] . ' ' . $currentUser['last_name'] : "Moi";
+
+// Trajets organisés
+$trajets_organises = GetOrganizedJourneys($userId);
+foreach ($trajets_organises as &$trajet) {
+    $trajet['liste_participants'] = GetJourneyParticipants($trajet['journey_id']);
+    $trajet['nom_affichage'] = $myFullName;
+}
+unset($trajet);
+
+// Trajets réservés
+$trajets_reserves = GetReservedJourneysDetails($userId);
+foreach ($trajets_reserves as &$res) {
+    $res['nom_affichage'] = $res['first_name'] . ' ' . $res['last_name'];
+    $res['liste_participants'] = [];
+}
+unset($res);
+
+// Fonction date en français
+function dateToFrench($dateSQL) {
+    $timestamp = strtotime($dateSQL);
+    $jours = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    $mois = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    $jourSemaine = $jours[date('w', $timestamp)];
+    $jourMois = date('d', $timestamp);
+    $moisStr = $mois[date('n', $timestamp)];
+    $heure = date('H:i', $timestamp);
+    
+    return "$heure, $jourSemaine $jourMois $moisStr";
+}
+
+// Fonction d'affichage d'une carte
+function afficherCarte($data, $isOrganizer = false) {
+    $dateStr = dateToFrench($data['start_date']);
+    
+    $avatar = '../images/Profil_Picture.png';
+    
+    $nom = htmlspecialchars($data['nom_affichage']);
+    $depart = htmlspecialchars($data['start_adress']);
+    $arrivee = htmlspecialchars($data['arrival_adress']);
+    $nbInscrits = count($data['liste_participants']);
+    $nbPlaces = $data['number_place'];
+    $journeyId = $data['journey_id'];
     
     echo '<article class="card">';
     echo '  <div class="card-header">';
     echo '    <div class="organizer">';
-    echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de '.$data['nom'].'" />';
+    echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de profil" />';
     echo '      <div class="organizer-info">';
-    echo '        <h3>'.$data['nom'].'</h3>';
-    if(isset($data['nb'])) echo '<span class="participants-count">Inscrits : '.$data['nb'].'</span>';
+    echo '        <h3>'.$nom.'</h3>';
+    
+    if ($isOrganizer) {
+        echo '<span class="participants-count">Inscrits : '.$nbInscrits.' / '.$nbPlaces.'</span>';
+    }
+    
     echo '      </div>';
     echo '    </div>';
     echo '  </div>';
@@ -94,28 +95,45 @@ function afficherCarte($data, $typeBouton = 'standard') {
     echo '  <div class="trip-details">';
     echo '    <p><strong>Départ :</strong> '.$depart.'</p>';
     echo '    <p><strong>Arrivée :</strong> '.$arrivee.'</p>';
-    echo '    <p><strong>Date :</strong> '.$data['date'].'</p>';
+    echo '    <p><strong>Date :</strong> '.$dateStr.'</p>';
     echo '  </div>';
 
     echo '  <div class="card-actions">';
-    if ($typeBouton == 'validation') {
-        echo '    <button class="btn btn-accept">Accepter</button>';
-        echo '    <button class="btn btn-refuse">Refuser</button>';
-    } else {
-        echo '    <button class="btn btn-outline">Annuler</button>';
-        echo '    <button class="btn btn-outline">Infos</button>';
+    
+    if ($isOrganizer) {
+        // FORMULAIRE ANNULATION TRAJET (Organisateur)
+        echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer ce trajet ? Cela annulera toutes les réservations associées.\');">';
+        echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
+        echo '  <input type="hidden" name="action" value="delete_trip">';
+        echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler le trajet</button>';
+        echo '</form>';
         
-        // Bouton participant (plein si la liste existe, sinon vide)
-        $style = !empty($data['participants']) ? 'btn-filled' : 'btn-outline';
-        echo '    <button class="btn '.$style.' toggle-btn">Participants</button>';
+        // BOUTON VOIR PARTICIPANTS
+        $styleBtn = ($nbInscrits > 0) ? 'btn-filled' : 'btn-outline';
+        // Note: Le bouton est en dehors du formulaire
+        echo '    <button class="btn '.$styleBtn.' toggle-btn" style="flex:1;">Voir Participants</button>';
+        
+    } else {
+        // FORMULAIRE ANNULATION RESERVATION (Passager)
+        echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir annuler votre réservation ?\');">';
+        echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
+        echo '  <input type="hidden" name="action" value="cancel_reservation">';
+        echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler réservation</button>';
+        echo '</form>';
+        
+        echo '    <button class="btn btn-filled" style="flex:1;">Contacter</button>';
     }
+
     echo '  </div>';
     
-    // Affichage liste participants si elle existe
-    if (!empty($data['participants'])) {
+    // LISTE DES PARTICIPANTS (Cachée par défaut)
+    if ($isOrganizer && $nbInscrits > 0) {
         echo '<div class="participants-list" style="display:none;">';
-        foreach($data['participants'] as $p) {
-            echo '<div class="participant"><i class="fas fa-user-circle"></i> <span>'.$p.'</span></div>';
+        foreach($data['liste_participants'] as $p) {
+            echo '<div class="participant">';
+            echo '  <img src="../images/Profil_Picture.png" class="avatar-small" alt="Avatar"/>';
+            echo '  <span>'.htmlspecialchars($p['first_name'].' '.$p['last_name']).'</span>';
+            echo '</div>';
         }
         echo '</div>';
     }
@@ -132,32 +150,45 @@ function afficherCarte($data, $typeBouton = 'standard') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="stylesheet" href="../css/styleReservation.css" />
     <style>
-        .section-contenu { display: none; } /* Tout caché par défaut */
-        .section-contenu.active { display: block; } /* Sauf si active */
-        .sous-menu { display: none; }
-        .sous-menu.visible { display: flex; }
+        .section-contenu { display: none; }
+        .section-contenu.active { display: block; }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        /* Petit correctif pour aligner les formulaires et boutons */
+        .card-actions form {
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
     </style>
 </head>
 <body>
     <?php require("../includes/header.php") ?>
 
     <main>
-        <h1 class="page-title">Mes trajets et reservations</h1>
+        <h1 class="page-title">Mes trajets et réservations</h1>
 
         <div class="tabs-primary">
-            <button class="tab active" onclick="changerOnglet('avenir', this)">Trajets à venir</button>
-            <button class="tab" onclick="changerOnglet('attente', this)">Demandes en attente</button>
-            <button class="tab" onclick="changerOnglet('recues', this)">Demande reçues</button>
-        </div>
-
-        <div id="sous-menu-container" class="tabs-secondary sous-menu visible">
-            <button class="tab active" onclick="changerSousOnglet('organises', this)">Mes trajets organisés</button>
-            <button class="tab" onclick="changerSousOnglet('reserves', this)">Mes trajets réservés</button>
+            <button class="tab active" onclick="changerOnglet('organises', this)">Mes trajets organisés</button>
+            <button class="tab" onclick="changerOnglet('reserves', this)">Mes trajets réservés</button>
         </div>
 
         <div id="bloc-organises" class="section-contenu active">
-            <h2 class="section-title">Nombre de trajets : <?php echo count($trajets_organises); ?></h2>
-            <?php foreach($trajets_organises as $trajet) { afficherCarte($trajet); } ?>
+            <h2 class="section-title">Vous organisez <?php echo count($trajets_organises); ?> trajet(s)</h2>
+            
+            <?php 
+            if (count($trajets_organises) > 0) {
+                foreach($trajets_organises as $trajet) { 
+                    afficherCarte($trajet, true); 
+                }
+            } else {
+                echo '<p class="empty-message">Aucun trajet organisé pour le moment.</p>';
+            }
+            ?>
              
              <div class="illustration-container">
                  <img src="https://cdni.iconscout.com/illustration/premium/thumb/carpooling-service-app-illustration-download-in-svg-png-gif-file-formats--online-booking-sharing-share-ride-taxi-pack-vehicle-illustrations-4609653.png?f=webp" alt="Illustration Trajet" />
@@ -165,28 +196,20 @@ function afficherCarte($data, $typeBouton = 'standard') {
         </div>
 
         <div id="bloc-reserves" class="section-contenu">
-            <h2 class="section-title">Nombre de trajets : <?php echo count($trajets_reserves); ?></h2>
-            <?php foreach($trajets_reserves as $trajet) { afficherCarte($trajet); } ?>
-            </div>
-
-        <div id="bloc-attente" class="section-contenu">
-            <h2 class="section-title">Nombre de demandes en attente : <?php echo count($demandes_attente); ?></h2>
-            <?php foreach($demandes_attente as $demande) { afficherCarte($demande); } ?>
-             
-             <div class="illustration-container">
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/checklist-illustration-download-in-svg-png-gif-file-formats--task-list-clipboard-business-miscellaneous-pack-illustrations-3025686.png" alt="Illustration Attente" style="max-width:200px"/>
-            </div>
-        </div>
-
-        <div id="bloc-recues" class="section-contenu">
-            <h2 class="section-title">Nombre de demandes reçues : <?php echo count($demandes_recues); ?></h2>
-            <?php 
-                // On précise 'validation' pour avoir les boutons vert/rouge
-                foreach($demandes_recues as $demande) { afficherCarte($demande, 'validation'); } 
-            ?>
+            <h2 class="section-title">Vous avez réservé <?php echo count($trajets_reserves); ?> trajet(s)</h2>
             
+            <?php 
+            if (count($trajets_reserves) > 0) {
+                foreach($trajets_reserves as $trajet) { 
+                    afficherCarte($trajet, false); 
+                }
+            } else {
+                echo '<p class="empty-message">Aucune réservation en cours.</p>';
+            }
+            ?>
+
             <div class="illustration-container">
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/email-marketing-illustration-download-in-svg-png-gif-file-formats--mail-message-envelope-newsletter-business-pack-illustrations-3698042.png" alt="Illustration Reçues" style="max-width:200px" />
+                <img src="../images/RechercheTrajetFin.png" alt="Illustration Réservation" style="max-width:200px"/>
             </div>
         </div>
 
@@ -195,71 +218,35 @@ function afficherCarte($data, $typeBouton = 'standard') {
     <?php require("../includes/footer.php") ?>
 
     <script>
-
+        // Gestion des onglets
         function changerOnglet(choix, boutonClique) {
-            // 1. Gestion de la couleur des boutons
             document.querySelectorAll('.tabs-primary .tab').forEach(btn => btn.classList.remove('active'));
             boutonClique.classList.add('active');
-
-            // 2. Cacher tout le contenu principal
             document.querySelectorAll('.section-contenu').forEach(div => div.classList.remove('active'));
-
-            // 3. Gestion Spéciale "Trajets à venir"
-            const sousMenu = document.getElementById('sous-menu-container');
-            
-            if(choix === 'avenir') {
-                sousMenu.classList.add('visible'); // Montrer le sous-menu
-                // On active le premier sous-onglet par défaut (Organisés)
-                document.getElementById('bloc-organises').classList.add('active');
-                // Réinitialiser visuellement le sous-menu sur le 1er bouton
-                document.querySelectorAll('.tabs-secondary .tab').forEach(b => b.classList.remove('active'));
-                document.querySelector('.tabs-secondary .tab:first-child').classList.add('active');
-            } 
-            else if (choix === 'attente') {
-                sousMenu.classList.remove('visible'); // Cacher sous-menu
-                document.getElementById('bloc-attente').classList.add('active');
-            }
-            else if (choix === 'recues') {
-                sousMenu.classList.remove('visible'); // Cacher sous-menu
-                document.getElementById('bloc-recues').classList.add('active');
-            }
-        }
-
-        function changerSousOnglet(choix, boutonClique) {
-            // Gestion des boutons du sous-menu
-            document.querySelectorAll('.tabs-secondary .tab').forEach(btn => btn.classList.remove('active'));
-            boutonClique.classList.add('active');
-
-            // Cacher les deux sous-sections
-            document.getElementById('bloc-organises').classList.remove('active');
-            document.getElementById('bloc-reserves').classList.remove('active');
-
-            // Afficher la bonne
             document.getElementById('bloc-' + choix).classList.add('active');
         }
 
-        // Script pour ouvrir/fermer la liste des participants
+        // Gestion du bouton "Voir Participants"
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Trouver la liste DANS la même carte
-                    const liste = this.closest('.card').querySelector('.participants-list');
+            document.body.addEventListener('click', function(e) {
+                // On vérifie si l'élément cliqué a la classe toggle-btn
+                if (e.target && e.target.classList.contains('toggle-btn')) {
+                    e.preventDefault(); // Empêche un comportement par défaut si c'était un lien
+                    
+                    const btn = e.target;
+                    const card = btn.closest('.card');
+                    const liste = card.querySelector('.participants-list');
+                    
                     if(liste) {
-                        // Basculer l'affichage
-                        if (liste.style.display === 'none' || liste.style.display === '') {
-                            liste.style.display = 'block';
-                            this.classList.remove('btn-outline');
-                            this.classList.add('btn-filled');
+                        if (getComputedStyle(liste).display === 'none') {
+                            liste.style.display = 'flex'; // Flex pour correspondre au CSS
+                            btn.textContent = 'Masquer';
                         } else {
                             liste.style.display = 'none';
-                            this.classList.add('btn-outline');
-                            this.classList.remove('btn-filled');
+                            btn.textContent = 'Voir Participants';
                         }
-                    } else {
-                        // Optionnel : Message si pas de participants
-                        // alert('Aucun participant à afficher.');
                     }
-                });
+                }
             });
         });
     </script>
