@@ -1,31 +1,18 @@
 ﻿<?php
-
-
-
-
-
-//début du script
 require "pdoSAE3.php";
 session_start();
-
-
-die("Fonction appelée !");
-
-
 
 
 // Router
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
 
 $routes = [
+    'afficher' => 'afficheTrajet',
     'permut'   => 'InverseDepDest',
-    'reinitialiser'  => ' ',
-    'creation' => ' '
+    'reinitialiser'  => 'reinitialiserTrajet',
+    'creation' => 'creerTrajet'
 ];
 //A faire
-
-
-
 
 
 
@@ -39,8 +26,9 @@ if (isset($routes[$action])) {
 
 
 
+//Afficher trajet
 //inverser départ/destination
-function InverseDepDest() {
+function afficheTrajet() {
     $depart = $_POST['depart'] ?? '';
     $destination = $_POST['destination'] ?? '';
     $depart_lat = $_POST['depart_lat'] ?? '';
@@ -53,12 +41,12 @@ function InverseDepDest() {
     $places = $_POST['places'] ?? '1';
 
     $params = http_build_query([
-        'depart' => $destination,
-        'depart_lat' => $destination_lat,
-        'depart_lon' => $destination_lon,
-        'destination' => $depart,
-        'destination_lat' => $depart_lat,
-        'destination_lon' => $depart_lon,
+        'depart' => $depart,
+        'depart_lat' => $depart_lat,
+        'depart_lon' => $depart_lon,
+        'destination' => $destination,
+        'destination_lat' => $destination_lat,
+        'destination_lon' => $destination_lon,
         'date' => $date,
         'start' => $start,
         'end' => $end,
@@ -70,107 +58,76 @@ function InverseDepDest() {
 
 }
 
-/*
 
-//Reset
-function handleReset() {
-    header("Location: creerTrajet.php");
-    exit();
-}
 
-// 🛣️ Fonction pour créer un trajet
-function handleCreate() {
-    global $db;
+function validateTrajetForm($data) {
 
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: accueil.html");
-        exit();
-    }
-
-    $depart = $_POST['depart'] ?? '';
-    $destination = $_POST['destination'] ?? '';
-    $date = $_POST['date'] ?? '';
-    $start = $_POST['start'] ?? '';
-    $end = $_POST['end'] ?? '';
-    $places = $_POST['places'] ?? '';
-    $certify = isset($_POST['certify']);
-
-    $errors = validateTrip($depart, $destination, $date, $start, $end, $certify);
-
-    if (!empty($errors)) {
-        redirectToForm([
-            'depart' => $depart,
-            'destination' => $destination,
-            'date' => $date,
-            'start' => $start,
-            'end' => $end,
-            'places' => $places,
-            'errors' => implode('|', $errors)
-        ]);
-    }
-
-    try {
-        $sql = "INSERT INTO journeys (user_id, depart, destination, date_trajet, heure_debut, heure_fin, nb_places, date_creation)
-                VALUES (:u, :d, :dst, :dt, :hd, :hf, :nb, NOW())";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([
-            ':u' => $_SESSION['user_id'],
-            ':d' => $depart,
-            ':dst' => $destination,
-            ':dt' => $date,
-            ':hd' => $start,
-            ':hf' => $end,
-            ':nb' => $places
-        ]);
-
-        header("Location: creerTrajet.php?success=1");
-        exit();
-    } catch (PDOException $e) {
-        $errors[] = "Erreur lors de la création du trajet.";
-        redirectToForm([
-            'depart' => $depart,
-            'destination' => $destination,
-            'date' => $date,
-            'start' => $start,
-            'end' => $end,
-            'places' => $places,
-            'errors' => implode('|', $errors)
-        ]);
-    }
-}
-
-// ✅ Validation des champs
-function validateTrip($depart, $destination, $date, $start, $end, $certify) {
     $errors = [];
 
-    if ($depart === $destination) {
-        $errors[] = "Départ et destination identiques.";
+    if (empty($data['depart'])){
+        $errors[] = "Le champ 'Départ' est requis.";
+    }            
+
+    if (empty($data['destination'])){
+        $errors[] = "Le champ 'Destination' est requis.";
     }
-    if (!$date) {
-        $errors[] = "Date obligatoire.";
+
+    if (empty($data['depart_lat']) || empty($data['depart_lon'])){
+        $errors[] = "Les coordonnées du départ sont manquantes.";
+
     }
-    if (!$start) {
-        $errors[] = "Heure début obligatoire.";
+
+    if (empty($data['destination_lat']) || empty($data['destination_lon'])){
+        $errors[] = "Les coordonnées de la destination sont manquantes.";
+
     }
-    if (!$end) {
-        $errors[] = "Heure fin obligatoire.";
+
+    if (empty($data['date'])){
+        $errors[] = "Veuillez renseigner une date.";
+    }             
+
+    if (empty($data['start']) || empty($data['end'])){
+        $errors[] = "Veuillez saisir une plage horaire.";
     }
-    if ($start >= $end) {
-        $errors[] = "Heure début après l'heure de fin.";
-    }
-    if (!$certify) {
-        $errors[] = "Veuillez certifier les informations.";
-    }
+
+    if (empty($data['places'])){
+        $errors[] = "Le nombre de places est obligatoire.";
+    }            
+    if (!isset($data['certify'])){
+        $errors[] = "Vous devez certifier que les informations sont exactes.";
+    }          
 
     return $errors;
 }
 
-// 🔁 Redirection vers le formulaire avec paramètres
-function redirectToForm($params = []) {
-    $query = !empty($params) ? '?' . http_build_query($params) : '';
-    header("Location: creerTrajet.php" . $query);
+
+function creerTrajet() {
+
+    $errors = validateTrajetForm($_POST);
+
+    if (!empty($errors)) {
+        $params = http_build_query([
+            'errors' => implode('|', $errors),
+            'depart' => $_POST['depart'] ?? '',
+            'destination' => $_POST['destination'] ?? '',
+            'depart_lat' => $_POST['depart_lat'] ?? '',
+            'depart_lon' => $_POST['depart_lon'] ?? '',
+            'destination_lat' => $_POST['destination_lat'] ?? '',
+            'destination_lon' => $_POST['destination_lon'] ?? '',
+            'date' => $_POST['date'] ?? '',
+            'start' => $_POST['start'] ?? '',
+            'end' => $_POST['end'] ?? '',
+            'places' => $_POST['places'] ?? '1'
+        ]);
+
+        header("Location: creerTrajet.php?$params");
+        exit();
+    }
+
+    // Ajouter le trajet à la base de données( je ferais après)
+
+
+    header("Location: creerTrajet.php?success=1");
     exit();
 }
-
-
 

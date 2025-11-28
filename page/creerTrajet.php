@@ -2,16 +2,12 @@
 
 session_start();
 
-
- $depart = $_POST['depart'] ?? '';
+$depart = $_POST['depart'] ?? '';
 $destination = $_POST['destination'] ?? '';
 $date = $_POST['date'] ?? '';
 $start = $_POST['start'] ?? '';
 $end = $_POST['end'] ?? '';
 $places = $_POST['places'] ?? '1';
-
-
-
 
 
 
@@ -72,10 +68,6 @@ $destinationData = [
                     <input type="hidden" id="depart_lon" name="depart_lon" value="<?= htmlspecialchars($departData['lon']) ?>">
                 </div>
 
-                <div class="swap">
-                    <button type="submit" name="action" value="permut" title="Inverser"> ⇄ </button>
-                </div>
-
                 <div class="field">
                     <div class="labelOrange">Destination</div>
                     <input type="text" id="destination" name="destination" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($destination) ?>">
@@ -83,9 +75,18 @@ $destinationData = [
                     <input type="hidden" id="destination_lat" name="destination_lat" value="<?= htmlspecialchars($destinationData['lat']) ?>">
                     <input type="hidden" id="destination_lon" name="destination_lon" value="<?= htmlspecialchars($destinationData['lon']) ?>">
                 </div>
+
+                <div class="affiche">
+                    <button type="submit" name="action" value="permut" title="Inverser"> Afficher le trajet </button>
+                </div>
+
             </form>
         </div>
     </section>
+
+
+
+
 
 
 
@@ -93,9 +94,6 @@ $destinationData = [
     // Autocomplétion ?>
 
     <script src="../js/autocomplete.js"></script>
-
-
-
 
 
 
@@ -155,7 +153,7 @@ $destinationData = [
             [destination.lat, destination.lon]
         ];
 
-        L.polyline(latlngs, { color: "red", weight: 4 }).addTo(map);
+        L.polyline(latlngs, { color: "orange", weight: 3 }).addTo(map);
 
         map.fitBounds(latlngs, { padding: [50, 50] });
     } else {
@@ -165,6 +163,69 @@ $destinationData = [
 </script>
 
 
+
+
+
+
+
+
+
+
+
+<?php // NECESSAIRE DE BOUGER ça DES QUE POSSIBLE CAR PAS BEAU ICI ?>
+<?php //duree appoximatived du trajet selon depart/destination?>
+
+<section class="hero">
+        
+    <?php
+
+$Pointdepart = [
+    'lat' => $_POST['depart_lat'],
+    'lon' => $_POST['depart_lon']
+];
+$Pointdestination = [
+    'lat' => $_POST['destination_lat'],
+    'lon' => $_POST['destination_lon']
+];
+
+    function calculerDistanceKm($lat1, $lon1, $lat2, $lon2) {
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+
+        $rayonTerre = 6371;
+        $deltaLat = $lat2 - $lat1;
+        $deltaLon = $lon2 - $lon1;
+
+
+        //Magie noir de copilot
+        $a = sin($deltaLat/2) * sin($deltaLat/2) +
+        cos($lat1) * cos($lat2) *
+        sin($deltaLon/2) * sin($deltaLon/2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        //fin de la magie noire
+
+        return $rayonTerre * $c;
+    }
+
+    $dureeMinutes = "--";
+        if ($departData['lat'] && $departData['lon'] && $destinationData['lat'] && $destinationData['lon']) {
+            $distanceKm = calculerDistanceKm($departData['lat'], $departData['lon'], $destinationData['lat'], $destinationData['lon']);
+            $dureeMinutes = round(($distanceKm / 30) * 60);
+            $dureeMinutes*=1.5;
+        }
+?>
+
+    <div class="card">
+        <div class="title">Durée approximative du trajet</div>
+        <div id="dureeTrajet">
+        <?= $dureeMinutes ?> minutes
+        </div>
+    </div>
+
+</section>
 
 
 
@@ -246,7 +307,9 @@ $destinationData = [
                 <?php endif; ?>
 
                 <div class="actions">
-                   <button class="secondary" type="submit" name="action" value="reinitialiser">Réinitialiser</button>
+                    <button type="button" class="secondary" onclick="reinitialiserDonnees()">Réinitialiser</button>
+                    
+
                     <button class="primary" type="submit" name="action" value="creation">Créer le trajet</button>
                 </div>
                </form>
@@ -260,7 +323,12 @@ $destinationData = [
 
 
 
+    <script src="../js/reinitialiser.js"></script> <?php //Pour réinitialiser les données du form ?>
+    <script src="../js/CreerTrajet.js"></script> <?php //CreerTrajet  ?>"
+
 
     <?php require("../includes/footer.php")?>
+
+
 </body>
 </html>
