@@ -1,6 +1,6 @@
 <?php
 include('../includes/GestionBD.php');
-
+session_start();
 //verifier les infos saisies et se connecter
 ?>
 

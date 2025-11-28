@@ -99,6 +99,35 @@
         }
     }
 
+    function MailExist(string $mail): bool {
+        global $db;
+        $stmt = $db->prepare("SELECT COUNT(*) FROM Users WHERE mail = :mail");
+        try{
+            $stmt->bindParam(':mail', $mail);
+            $stmt->execute();
+            $count = $stmt->fetchColumn();
+            return $count > 0;
+        }
+        catch (PDOException $e){
+            echo "Erreur lors de la verification de l'email : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    function GetUserInfo(string $mail){
+        global $db;
+        $stmt = $db->prepare("SELECT * FROM Users WHERE mail = :mail");
+        try{
+            $stmt->bindParam(':mail', $mail);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        catch (PDOException $e){
+            echo "Erreur lors de la selection de l'utilisateur : " . $e->getMessage();
+            return null;
+        }
+    }
+
     //BlackList
     function AddMailBL(string $mail,string $reason,string $date): bool {
         global $db;

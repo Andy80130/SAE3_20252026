@@ -1,0 +1,261 @@
+/* --- styleProfil.css --- */
+
+/* 1. Reset Global & Police */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+/* 2. Styles spécifiques au Profil */
+
+.Titre {
+    text-align: center;
+    color: #ff6600;
+    margin: 20px 0;
+}
+
+.profile-container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    border: 4px solid #d9d9d9;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Header du profil */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Photo */
+.profile-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Nom */
+.profile-name {
+    font-weight: bold;
+    font-size: 18px;
+    color: #ff6600;
+}
+
+/* Section Véhicule */
+.vehicle-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #ff6600;
+    border-radius: 12px;
+}
+
+    .vehicle-info h2 {
+        color: #ff6600;
+        margin-bottom: 15px;
+    }
+
+/* Formulaires */
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .input-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .input-group input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+        font-size: 15px;
+        transition: border-color 0.2s ease;
+    }
+
+        .input-group input:focus {
+            border-color: #ff6600;
+        }
+
+.save-btn {
+    margin-top: 10px;
+    padding: 10px 18px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+    .save-btn:hover {
+        background: #e45700;
+    }
+
+/* --- Ajouts pour la Notation et les Commentaires --- */
+
+/* Bloc Info Profil (Nom + Note) */
+.profile-info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Conteneur des voitures */
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cars-wrapper {
+    display: flex;
+    gap: 4px;
+}
+
+/* Style des voitures */
+.car-icon {
+    font-size: 18px;
+}
+
+    .car-icon.filled {
+        color: #ff6600;
+    }
+
+    .car-icon.empty {
+        color: #e0e0e0;
+    }
+
+.rating-number {
+    font-weight: bold;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Section Commentaires */
+.comments-section {
+    margin-top: 30px;
+    border-top: 2px solid #f0f0f0;
+    padding-top: 20px;
+}
+
+    .comments-section h2 {
+        color: #ff6600;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-card {
+    background-color: #f9f9f9;
+    border-left: 4px solid #ff6600;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* En-tête du commentaire (contenant les infos et le bouton signaler) */
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Groupe Note + Auteur */
+.comment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comment-note {
+    font-weight: bold;
+    color: #d35400;
+    background: #ffe0cc;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.comment-author {
+    color: #888;
+    font-style: italic;
+}
+
+/* Nouveau bouton Signaler dans les commentaires */
+.comment-report-btn {
+    background: transparent;
+    border: none;
+    color: #ccc; /* Gris discret par défaut */
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    transition: color 0.3s ease;
+}
+
+    .comment-report-btn:hover {
+        color: #ff3333; /* Rouge au survol */
+    }
+
+.comment-text {
+    font-size: 15px;
+    color: #444;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+.no-comments {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* --- Style de la Modale (Pop-up) --- */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
