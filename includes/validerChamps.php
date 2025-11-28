@@ -1,6 +1,5 @@
 <?php
 function validateField($data, $field, $label, $rules) {
-    global $errors;
 
     foreach ($rules as $rule => $value) {
         switch ($rule) {
@@ -34,6 +33,10 @@ function validateField($data, $field, $label, $rules) {
                     throw new Exception("$label doit être un nombre décimal");
                 }
                 break;
+            case 'verify_password':
+                if($data[$field] != $data['password']) {
+                    throw new Exception("$label est différent de ton mot de passe !");
+                }
             case 'email':
                 // Vérification si l'email est valide
                 if (!filter_var($data[$field], FILTER_VALIDATE_EMAIL) && empty($data['phone'])) {

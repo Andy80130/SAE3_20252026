@@ -1,6 +1,7 @@
 <?php
 include('../includes/validerChamps.php');
 include('../includes/GestionBD.php');
+include('../includes/cryptage.php');
 
 // Traitement de la requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -20,13 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validateField($data, 'prenom', 'Prenom', ['required' => true]);
         validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
         validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_value' => 10]);
+        validateField($data, 'password', 'Mot de passe', ['required' => true]);
+        validateField($data, 'verifPassword', '2ème mot de passe', ['required' => true]);
 
         //addUser
+        if(empty($errors) && !IsMailBL($data['email']) && !MailExist($data['email'])) {
+            AddUser($data['nom'], $data['prenom'], $data['email'], $data['telephone'], $data['password']);
 
-        //Envoi du mail
-        $to = $data['email'];
-        $subject = "Bienvenue sur mon application !";
-        $message = "
+            //Envoi du mail
+            $to = $data['email'];
+            $subject = "Bienvenue sur mon application !";
+            $message = "
                     <html>
                     <head><title>Bienvenue</title></head>
                     <body>
@@ -35,11 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </body>
                     </html>
                     ";
-        $headers  = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
+            $headers  = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+            $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
 
-        mail($to, $subject, $message, $headers);
+            mail($to, $subject, $message, $headers);
+        } else {
+            throw new Exception($errors);
+        }
+
+
     } catch (Exception $e) {
         // Capture de l'exception et ajout d'un message d'erreur
         $errors[] = $e->getMessage();

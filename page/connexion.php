@@ -24,18 +24,8 @@ session_start();
         <form method="POST" action="../includes/GestionBD.php">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required />
-
-            <div class="row">
-                <div class="col">
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" required />
-                </div>
-                <div class="col">
-                    <label for="verifPassword">Confirmer votre mot de passe</label>
-                    <input type="password" id="verifPassword" name="verifPassword" required />
-                </div>
-            </div>
-
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" required />
             <button type="submit">Connexion</button>
         </form>
 
