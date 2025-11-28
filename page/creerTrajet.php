@@ -2,16 +2,23 @@
 
 session_start();
 
-// RÉCUPÉRATION DES PARAM. 
-$depart = $_POST['depart'] ?? '';
+
+ $depart = $_POST['depart'] ?? '';
 $destination = $_POST['destination'] ?? '';
 $date = $_POST['date'] ?? '';
 $start = $_POST['start'] ?? '';
 $end = $_POST['end'] ?? '';
 $places = $_POST['places'] ?? '1';
 
+
+
+
+
+
 $errors = isset($_GET['errors']) ? explode('|', $_GET['errors']) : [];
-$success = isset($_GET['success']);
+$success = isset($_GET['success']);//success pr afficher message si trajet créé
+
+
 
 // Récupération des coordonnées envoyées par le formulaire
 $departData = [
@@ -25,6 +32,8 @@ $destinationData = [
     'lat'  => $_POST['destination_lat'] ?? null,
     'lon'  => $_POST['destination_lon'] ?? null
 ];
+
+
 ?>
 
 
@@ -64,7 +73,7 @@ $destinationData = [
                 </div>
 
                 <div class="swap">
-                    <button type="submit" name="action" value="swap" title="Inverser"> ⇄ </button>
+                    <button type="submit" name="action" value="permut" title="Inverser"> ⇄ </button>
                 </div>
 
                 <div class="field">
@@ -80,8 +89,9 @@ $destinationData = [
 
 
 
+    <?PHP
+    // Autocomplétion ?>
 
-    <!-- Autocomplétion -->
     <script src="../js/autocomplete.js"></script>
 
 
@@ -91,21 +101,16 @@ $destinationData = [
 
 
 
-
-
-
-
-    <!-- Carte -->
     <div class="map-container"><div id="map"></div></div>
     <script>
-    // Initialisation de la carte
+    // Initialisation
     const map = L.map('map').setView([49.8942, 2.2957], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Fonction utilitaire : vérifie que lat/lon sont valides
+    // Fonction utilitaire de vérif.
     function isValidCoord(lat, lon) {
         return lat !== null && lon !== null && lat !== "" && lon !== ""
             && !isNaN(lat) && !isNaN(lon);
@@ -126,7 +131,7 @@ $destinationData = [
 
     const markers = [];
 
-    // Affichage du marqueur de départ
+    // Affichage du marq.
     if (isValidCoord(depart.lat, depart.lon)) {
         markers.push(
             L.marker([depart.lat, depart.lon])
@@ -135,7 +140,6 @@ $destinationData = [
         );
     }
 
-    // Affichage du marqueur de destination
     if (isValidCoord(destination.lat, destination.lon)) {
         markers.push(
             L.marker([destination.lat, destination.lon])
@@ -144,7 +148,7 @@ $destinationData = [
         );
     }
 
-    // Tracé de la ligne + recentrage automatique
+    // Tracé ligne 
     if (isValidCoord(depart.lat, depart.lon) && isValidCoord(destination.lat, destination.lon)) {
         const latlngs = [
             [depart.lat, depart.lon],
@@ -176,7 +180,7 @@ $destinationData = [
             <div class="title">Informations de trajet</div>
 
             <form class="trip-form" method="post" action="CreerTrajet.php">
-                <input type="hidden" name="action" value="create">
+                <input type="hidden" name="action" value="creation">
                 <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
                 <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
                 
@@ -211,13 +215,21 @@ $destinationData = [
         </div>
     </section>
 
+
+
+
+
+
+
+
+
     <div class="infosCertif">
-                    <div class="petittitle">Je certifie que les informations ci-dessus sont exactes</div>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="certify">
-                        <span class="checkmark"></span>
-                    </label>
-     </div>
+        <div class="petittitle">Je certifie que les informations ci-dessus sont exactes</div>
+            <label class="custom-checkbox">
+                <input type="checkbox" name="certify">
+                <span class="checkmark"></span>
+            </label>
+        </div>
 
                 <?php if (!empty($errors)): ?>
                     <div class="errors">
@@ -234,16 +246,20 @@ $destinationData = [
                 <?php endif; ?>
 
                 <div class="actions">
-                   <button class="secondary" type="submit" name="action" value="reset">
-                        Réinitialiser
-                    </button>
-                    <button class="primary" type="submit">Créer le trajet</button>
+                   <button class="secondary" type="submit" name="action" value="reinitialiser">Réinitialiser</button>
+                    <button class="primary" type="submit" name="action" value="creation">Créer le trajet</button>
                 </div>
                </form>
+
+
+
 
     <div class="full-image">
         <img src="https://img.freepik.com/vecteurs-libre/illustration-concept-abstrait-stylo-numerique_335657-2281.jpg">
     </div>
+
+
+
 
     <?php require("../includes/footer.php")?>
 </body>
