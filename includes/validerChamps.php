@@ -37,9 +37,10 @@ function validateField($data, $field, $label, $rules) {
                 if($data[$field] != $data['password']) {
                     throw new Exception("$label est différent de ton mot de passe !");
                 }
+                break;
             case 'email':
                 // Vérification si l'email est valide
-                if (!filter_var($data[$field], FILTER_VALIDATE_EMAIL) && empty($data['phone'])) {
+                if (!filter_var($data[$field], FILTER_VALIDATE_EMAIL)) {
                     throw new Exception("$label doit être un email valide !");
                 }
                 break;

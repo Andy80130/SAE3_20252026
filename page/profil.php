@@ -3,9 +3,6 @@ session_start();
 require("../includes/GestionBD.php"); 
 
 // --- 1. SÉCURITÉ & DONNÉES SESSION ---
-// Données de test (à retirer plus tard si géré par page de connexion)
-$_SESSION['user_id'] = 2;
-$_SESSION['mail'] = 'jamy.thevenet@etud.u-picardie.fr';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['mail'])) {
     header('Location: connexion.php');
