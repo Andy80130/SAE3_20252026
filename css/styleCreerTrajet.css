@@ -124,20 +124,35 @@ input[type="time"] {
     font-size: 14px;
 }
 
-.swap {
+.affiche {
     display: grid;
     place-items: center;
 }
 
-    .swap button {
+    .affiche button {
         border: none;
         background: darkorange;
         color: #fff;
-        border-radius: 50%;
-        padding: 12px;
+        border-radius: 8px; 
+        padding: 10px 14px;
         cursor: pointer;
-        box-shadow: 0 6px 14px rgba(255,122,0,0.35);
+        box-shadow: 0 4px 12px rgba(255, 122, 0, 0.35);
+        transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+        font-size: 18px;
     }
+
+       
+.affiche button:hover {
+    background: #cc6f00;
+    box-shadow: 0 4px 16px rgba(255, 122, 0, 0.45);
+}
+
+  
+.affiche button:active {
+      background: #b86300;
+      transform: scale(0.96);
+      box-shadow: 0 2px 8px rgba(255, 122, 0, 0.25);
+}
 
 
 
@@ -355,4 +370,14 @@ footer {
 
 .suggestion-item:hover {
     background: #f0f0f0;
+}
+
+
+
+#dureeTrajet {
+    color: darkorange;
+    font-size: 13px;
+    text-align: center;
+    display: block; 
+    margin: 0 auto; 
 }
