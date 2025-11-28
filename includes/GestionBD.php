@@ -32,7 +32,7 @@
 			return $stmt->execute();
 		}
 		catch (PDOException $e){
-			echo "Erreur lors de l'insertion : " . $e->getMessage();
+			echo "Veuillez utilisez votre mail UPJV";
 			return false;
 		}
 	}
@@ -109,7 +109,7 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la verification de l'email : " . $e->getMessage();
+            echo "Vous avez déjà un compte";
             return false;
         }
     }
