@@ -34,10 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(empty($errors) && !IsMailBL($data['email']) && !MailExist($data['email'])) {
                 AddUser($data['nom'], $data['prenom'], $data['email'], $data['telephone'], $password);
 
-                //Envoi du mail
-                $to = $data['email'];
-                $subject = "Bienvenue sur mon application !";
-                $message = "
+                $userInfo = GetUserInfo($data['email']);
+
+                if($userInfo) {
+                    $_SESSION['user_id'] = $userInfo['user_id'];
+                    $_SESSION['mail'] = $userInfo['mail'];
+
+                    //Envoi du mail
+                    $to = $data['email'];
+                    $subject = "Bienvenue sur mon application !";
+                    $message = "
                     <html>
                     <head><title>Bienvenue</title></head>
                     <body>
@@ -46,15 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </body>
                     </html>
                     ";
-                $headers = "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
+                    $headers = "MIME-Version: 1.0" . "\r\n";
+                    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                    $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
 
-                @mail($to, $subject, $message, $headers);
-
-                $userInfo = GetUserInfo($data['email']);
-                $_SESSION['user_id'] = $userInfo['user_id'];
-                $_SESSION['mail'] = $userInfo['mail'];
+                    @mail($to, $subject, $message, $headers);
+                }
 
                 if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
                     header('Location: accueil.php');
