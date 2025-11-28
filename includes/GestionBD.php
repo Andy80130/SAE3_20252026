@@ -131,7 +131,7 @@
     //BlackList
     function AddMailBL(string $mail,string $reason,string $date): bool {
         global $db;
-        $stmt = $db->prepare("INSERT INTO Blacklist(mail,reason,ban_date) 
+        $stmt = $db->prepare("INSERT INTO BlackList(mail,reason,ban_date) 
                                 VALUES (:mail,:reason,:date)");
         try{
             $stmt->bindParam(':mail', $mail);
@@ -147,7 +147,7 @@
 
     function IsMailBL(string $mail): bool {
         global $db;
-        $stmt = $db->prepare("SELECT COUNT(*) FROM Blacklist WHERE mail = :mail");
+        $stmt = $db->prepare("SELECT COUNT(*) FROM BlackList WHERE mail = :mail");
         try{
             $stmt->bindParam(':mail', $mail);
             $stmt->execute();
