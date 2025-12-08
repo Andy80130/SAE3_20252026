@@ -1,0 +1,300 @@
+/* --- styleAdminBoard.css --- */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+}
+
+.admin-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.Titre {
+    text-align: center;
+    color: #ff6600;
+    margin-bottom: 40px;
+    font-size: 2.5em;
+}
+
+/* --- Alertes --- */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+.alert.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* --- Sections --- */
+.admin-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border: 1px solid #ddd;
+    margin-bottom: 40px;
+}
+
+.admin-section h2 {
+    color: #333;
+    border-bottom: 3px solid #ff6600;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+/* --- Signalements (Cards) --- */
+.reports-grid {
+    display: grid;
+    gap: 20px;
+    /* 1 colonne sur mobile, auto-fit sur desktop */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.user-report-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background: #fff;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Header de la carte utilisateur */
+.user-report-header {
+    background-color: #fafafa;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-identity img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-identity h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #ff6600;
+}
+
+.user-mail {
+    font-size: 12px;
+    color: #777;
+}
+
+.user-actions-header {
+    display: flex;
+    gap: 8px;
+}
+
+/* Boutons Icones (Mail, Ban) */
+.btn-icon {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    transition: opacity 0.2s;
+    text-decoration: none;
+}
+.btn-icon:hover { opacity: 0.8; }
+.btn-icon.blue { background-color: #3498db; }
+.btn-icon.red { background-color: #e74c3c; }
+
+/* Liste des reports internes */
+.reports-list {
+    padding: 15px;
+    /* Enlever le max-height fixe pour laisser l'accordéon pousser la carte */
+}
+
+/* Items de signalement */
+.report-item {
+    background-color: #fff4e6; /* Fond orange très clair pour 'En attente' */
+    border-left: 4px solid #ff6600;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.report-content {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+/* Petits boutons d'action */
+.btn-small {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-small.orange { background-color: #ff6600; }
+.btn-small.green { background-color: #27ae60; }
+.btn-small.grey { background-color: #7f8c8d; }
+
+/* --- ACCORDÉON HISTORIQUE (NOUVEAU) --- */
+
+.history-details {
+    margin-top: 15px;
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}
+
+.history-summary {
+    list-style: none; /* Cache la flèche par défaut */
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #7f8c8d;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.history-summary::-webkit-details-marker {
+    display: none; /* Cache flèche Chrome/Safari */
+}
+
+.history-summary:hover {
+    background-color: #f0f0f0;
+    color: #ff6600;
+}
+
+/* Rotation de la flèche personnalisée */
+.history-details[open] .arrow-icon {
+    transform: rotate(180deg);
+}
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+.history-content {
+    margin-top: 10px;
+    padding-left: 5px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style spécifique pour les items traités */
+.report-item.processed {
+    background-color: #f9f9f9; /* Gris très clair */
+    border-left-color: #ccc;   /* Bordure grise */
+    color: #666;
+}
+
+/* --- Table Liste Noire --- */
+.table-container {
+    overflow-x: auto;
+}
+
+.blacklist-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: white;
+}
+
+.blacklist-table th, .blacklist-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.blacklist-table th {
+    background-color: #333;
+    color: white;
+}
+
+.blacklist-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.btn-unban {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: background 0.3s;
+}
+.btn-unban:hover {
+    background-color: #219150;
+}
+
+/* Responsive Mobile */
+@media (max-width: 600px) {
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-report-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .user-actions-header {
+        align-self: flex-end;
+    }
+
+    .blacklist-table th, .blacklist-table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
