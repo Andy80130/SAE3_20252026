@@ -63,6 +63,7 @@ $userNotes = UserNotes($ViewUserId);
     <h1 class="Titre">Profil de <?= htmlspecialchars($viewUserInfo['first_name'] ?? 'Utilisateur')?></h1>
     
     <div class="profile-container">
+        <img src="../images/Profil_Picture.png" alt="Photo" class="profile-photo">
 
         <div class="profile-header">
             <div class="profile-info-block">
@@ -81,7 +82,7 @@ $userNotes = UserNotes($ViewUserId);
                         }
                         ?>
                     </div>
-                    <span class="rating-number"><?php echo number_format($averageNote, 1); ?>/5</span>
+                    <span class="rating-number">Note : <?php echo number_format($averageNote, 1); ?>/5</span>
                 </div>
 
                 </div>
