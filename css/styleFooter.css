@@ -20,6 +20,8 @@ footer {
 
 .footer-section ul {
     list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .footer-section ul li {
@@ -28,12 +30,9 @@ footer {
     cursor: pointer;
 }
 
-.footer-section ul li a,
-.footer-section ul li a:link,
-.footer-section ul li a:visited,
-.footer-section ul li a:hover,
-.footer-section ul li a:active {
+.footer-section ul li a {
     color: white;
+    text-decoration: none;
 }
 
 .footer-section ul li:hover {
@@ -56,28 +55,68 @@ footer {
     margin-bottom: 20px;
 }
 
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
+    /* Hero */
     .hero h1 {
-        font-size: 24px;
+        font-size: 28px;
     }
 
     .search-form {
         flex-direction: column;
-        border-radius: 15px;
-        padding: 15px;
+        align-items: center;
     }
 
-    .search-form input {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
+    .search-form input,
     .search-btn {
         width: 100%;
-        justify-content: center;
+        max-width: 300px;
     }
 
+    /* About Section */
     .about-content {
         flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .about-image img {
+        max-width: 250px;
+    }
+
+    /* Footer */
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .footer-section {
+        width: 100%;
+    }
+    
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 22px;
+    }
+
+    .about-image img {
+        max-width: 200px;
+    }
+
+    .footer-section h3 {
+        font-size: 14px;
+    }
+
+    .footer-section ul li {
+        font-size: 12px;
+    }
+
+    .footer-bottom {
+        font-size: 10px;
+        padding-top: 15px;
     }
 }
