@@ -37,6 +37,7 @@ $viewUserInfo = null;
 // [3] CORRECTION : Utiliser $ViewUserMail
 if($ViewUserMail){ 
     $viewUserInfo = GetUserInfo($ViewUserMail);
+    //UPDATE
     if(!$viewUserInfo){
         die("Utilisateur non trouvé.");
     }
@@ -78,6 +79,48 @@ $userNotes = UserNotes($ViewUserId);
             <p>Modèle : <strong><?= htmlspecialchars($viewUserInfo['vehicle_model'] ?? 'Non renseigné') ?></strong></p>
             <p>Couleur : <strong><?= htmlspecialchars($viewUserInfo['vehicle_color'] ?? 'Non renseigné') ?></strong></p>
         </section>
+
+        <section class="comments-section">
+            <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
+            <?php if (count($userNotes) > 0): ?>
+                <div class="comments-list">
+                    <?php foreach ($userNotes as $note): ?>
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <div class="comment-info">
+                                    <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
+                                    <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
+                                </div>
+                                <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </button>
+                            </div>
+                            <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="no-comments">Aucun avis pour le moment.</p>
+            <?php endif; ?>
+        </section>
+
+    </div>
+
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReportModal()">&times;</span>
+            <h2>Signaler un commentaire</h2>
+            <p>Pourquoi souhaitez-vous signaler cet avis ?</p>
+            
+            <form action="" method="post">
+                <input type="hidden" id="modal_reported_user_id" name="reported_user_id" value="">
+                
+                <textarea name="reason" rows="4" placeholder="Insultes, spam, contenu inapproprié..." required></textarea>
+                
+                <button type="submit" name="btn_send_report" class="modal-submit-btn">Envoyer le signalement</button>
+            </form>
+        </div>
+    </div>
 
         </div>
     </body>
