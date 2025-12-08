@@ -43,36 +43,6 @@ $pos3 = strpos($chaineTravail, ',', $pos2 + 1);
 
 
 
-
-
-
-
-function calculerDistanceKm($lat1, $lon1, $lat2, $lon2) {
-    if (empty($lat1) || empty($lon1) || empty($lat2) || empty($lon2)) return null;
-
-    $r_lat1 = deg2rad((float)$lat1);
-    $r_lon1 = deg2rad((float)$lon1);
-    $r_lat2 = deg2rad((float)$lat2);
-    $r_lon2 = deg2rad((float)$lon2);
-
-    $rayonTerre = 6371; // km
-    $deltaLat = $r_lat2 - $r_lat1;
-    $deltaLon = $r_lon2 - $r_lon1;
-
-    $a = sin($deltaLat/2) * sin($deltaLat/2) +
-         cos($r_lat1) * cos($r_lat2) *
-         sin($deltaLon/2) * sin($deltaLon/2);
-
-    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-
-    return $rayonTerre * $c;
-}
-
-
-
-
-
-
 //ERREURS
 $errors = isset($_GET['errors']) ? explode('|', $_GET['errors']) : [];
 $success = isset($_GET['success']);
@@ -111,19 +81,6 @@ $destinationData = [
 
 
 
-// Calcul de la durée
-$dureeMinutes = "--";
-if ($departData['lat'] && $destinationData['lat']) {
-    $distanceKm = calculerDistanceKm($departData['lat'], $departData['lon'], $destinationData['lat'], $destinationData['lon']);
-    if ($distanceKm !== null) {
-        // Estimation : 30km/h de moyenne * 1.5 pour marge d'erreur/traffic
-        $dureeMinutes = round(($distanceKm / 30) * 60 * 1.5);
-    }
-}
-
-
-
-
 
 
 
@@ -141,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
 
 
 
-    //verifier la date d'heure valides ( par rappport à mtnt): 
+    //verif la date d'heure valides ( par rappport à mtnt): 
     $date_actuelle = new DateTime();
     $trajet_date = $date . ' ' . $start;
     $start_trajet = new DateTime($date . ' ' . $start);
@@ -154,6 +111,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     if($start_trajet >= $end_trajet){
         $errors_submit[] = "L'heure de fin doit être supérieure à l'heure de début.";
     }
+
+
+
+
+
+
 
     //pas + de 15min d'attente
     if($start_trajet < $end_trajet){
@@ -174,7 +137,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         }
     }
 
-    // Vérification des adresses
+
+
+
+
+
+
+    // Vérif des adresses
     $IUT_Address = "IUT Amiens, Avenue des Facultés, Salouël, Amiens, Somme, Hauts-de-France, France métropolitaine, 80480, France";
 
     if(trim($depart) === trim($destination)){
@@ -188,16 +157,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
 
 
 
-
-
-
-
-
-
     // Récupération ID
     $driver_id = $_SESSION['user_id'] ?? 1;
+    $driver_mail = $_SESSION['mail'] ?? '';
 
-    if (empty($errors_submit)) {
+    if(!empty($driver_mail))
+    {
+        $userInfo = GetUserInfo($driver_mail);
+        if($userInfo == null || empty($userInfo['vehicle_model'])){
+                        $errors_submit[] = "Vous devez posséder un véhicule pour créer un trajet. Veuillez en ajouter un dans votre profil.";
+        }
+    } 
+    
+
+    //Verif de si il possède bien un véhicule
+
+
+    if (empty($error_submit)) {
         $start_datetime = $date . ' ' . $end . ':00';
 
         $valDepBD  = tronqueAdressePourBD($depart);
@@ -212,11 +188,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         }
     }
 
+
+
+
+
+
     // Gère les erreurs
     if (!empty($errors_submit)) {
         $errors = $errors_submit;
     }
 }
+
+
+// Calcul de la durée
+$dureeMinutes = "--";
+if ($departData['lat'] && $destinationData['lat']) {
+        $dureeMinutes = 1;
+}
+
 
 ?>
 
@@ -283,16 +272,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         <div id="map"></div>
     </div>
 
-    <?php if ($dureeMinutes !== "--"): ?>
-    <section class="hero">
-        <div class="card">
-            <div class="title">Durée approximative</div>
-            <div id="dureeTrajet" style="font-size: 1.2em; font-weight: bold; color: #333;">
-                <?= $dureeMinutes ?> minutes
-            </div>
+    <?php//STOP MODIF?>
+
+    <section class="hero" id="sectionDuree" style="display:none;">
+    <div class="card">
+        <div class="title">Durée approximative</div>
+        <div id="dureeTrajet" style="font-size: 1.2em; font-weight: bold; color: #333;">
+            ...
         </div>
-    </section>
-    <?php endif; ?>
+    </div>
+</section>
 
     <section class="hero">
         <div class="card">
@@ -372,81 +361,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     <script src="../js/CreerTrajet.js"></script>
 
     <script>
+document.addEventListener('DOMContentLoaded', function() {
 
+    // Initialisation de la carte
+    const map = L.map('map').setView([49.8942, 2.2957], 13);
 
-        // Map leaflet ( openmaps)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialisation centrée par défaut (Amiens ou autre)
-            const map = L.map('map').setView([49.8942, 2.2957], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+    // Données PHP injectées dans JS
+    const depart = {
+        name: <?= json_encode($departData['name']) ?>,
+        lat: <?= json_encode($departData['lat']) ?>,
+        lon: <?= json_encode($departData['lon']) ?>
+    };
 
-            // Données PHP injectées dans JS
-            const depart = {
-                name: <?= json_encode($departData['name']) ?>,
-                lat: <?= json_encode($departData['lat']) ?>,
-                lon: <?= json_encode($departData['lon']) ?>
-            };
+    const destination = {
+        name: <?= json_encode($destinationData['name']) ?>,
+        lat: <?= json_encode($destinationData['lat']) ?>,
+        lon: <?= json_encode($destinationData['lon']) ?>
+    };
 
-            const destination = {
-                name: <?= json_encode($destinationData['name']) ?>,
-                lat: <?= json_encode($destinationData['lat']) ?>,
-                lon: <?= json_encode($destinationData['lon']) ?>
-            };
+    // Validation coordonnées
+    function hasCoords(pt) {
+        return pt.lat && pt.lon && !isNaN(pt.lat) && !isNaN(pt.lon);
+    }
 
-            function hasCoords(pt) {
-                return pt.lat && pt.lon && !isNaN(pt.lat) && !isNaN(pt.lon);
-            }
+    const latlngs = [];
 
-            const markers = [];
-            const latlngs = [];
+    // Marker Départ
+    if (hasCoords(depart)) {
+        L.marker([depart.lat, depart.lon])
+            .addTo(map)
+            .bindPopup("Départ : " + depart.name);
 
-            // Marker Départ
-            if (hasCoords(depart)) {
-                const mk1 = L.marker([depart.lat, depart.lon]).addTo(map).bindPopup("Départ : " + depart.name);
-                markers.push(mk1);
-                latlngs.push([depart.lat, depart.lon]);
-            }
+        latlngs.push([depart.lat, depart.lon]);
+    }
 
-            // Marker Destination
-            if (hasCoords(destination)) {
-                const mk2 = L.marker([destination.lat, destination.lon]).addTo(map).bindPopup("Destination : " + destination.name);
-                markers.push(mk2);
-                latlngs.push([destination.lat, destination.lon]);
-            }
+    // Marker Destination
+    if (hasCoords(destination)) {
+        L.marker([destination.lat, destination.lon])
+            .addTo(map)
+            .bindPopup("Destination : " + destination.name);
 
-            // Tracé
-            if (latlngs.length === 2) {
-            // Utilisation de Leaflet Routing Machine pour un tracé routier réaliste
-            L.Routing.control({
+        latlngs.push([destination.lat, destination.lon]);
+    }
+
+    // Trace si 2 points
+    if (latlngs.length === 2) {
+
+        const routing = L.Routing.control({
             waypoints: [
                 L.latLng(depart.lat, depart.lon),
                 L.latLng(destination.lat, destination.lon)
             ],
-        // Style tracé
-        lineOptions: {
-            styles: [{ color: 'red', opacity: 0.8, weight: 3 }]
-        },
-        show: false, 
+            lineOptions: {
+                styles: [{ color: 'red', opacity: 0.8, weight: 3 }]
+            },
+            show: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: 'smart'
+        })
+        .on('routesfound', function(e) {
+            const route = e.routes[0];
+            const dureeSec = route.summary.totalTime;
+            const dureeMin = Math.round(dureeSec / 60);
 
+            // Affichage durée
+            document.getElementById('dureeTrajet').textContent = dureeMin + " minutes";
+            document.getElementById('sectionDuree').style.display = "block";
+        })
+        .addTo(map);
 
+    } else if (latlngs.length === 1) {
+        map.setView(latlngs[0], 14);
+    }
 
-        // Empêcher l'ajout ou le déplacement
-        addWaypoints: false, 
-        draggableWaypoints: false,
-        // Centrer
-        fitSelectedRoutes: 'smart' 
-    }).addTo(map);
-
-    // Note : Le L.Routing.control gère déjà le centrage (fitBounds).
-    
-} else if (latlngs.length === 1) {
-    // Si un seul point est déf
-    map.setView(latlngs[0], 14);
-}
-        });
-    </script>
+});
+</script>
 </body>
 </html>
