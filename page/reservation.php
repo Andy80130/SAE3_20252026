@@ -76,10 +76,20 @@ function afficherCarte($data, $isOrganizer = false) {
     $nbInscrits = count($data['liste_participants']);
     $nbPlaces = $data['number_place'];
     $journeyId = $data['journey_id'];
+
+    //NEW
+    $DriverID = $data['driver_id'] ?? 0;
+    $profilURL = "profilOther.php?user_id=" . urlencode($DriverID);
+    //FIN NEW
     
     echo '<article class="card">';
     echo '  <div class="card-header">';
     echo '    <div class="organizer">';
+
+    //NEW
+    echo ' <a href="'.$profilURL.'" title="Voir le profil de '.$nom.'">';
+    //FIN NEW
+
     echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de profil" />';
     echo '      <div class="organizer-info">';
     echo '        <h3>'.$nom.'</h3>';
@@ -89,6 +99,11 @@ function afficherCarte($data, $isOrganizer = false) {
     }
     
     echo '      </div>';
+
+    //NEW
+    echo ' </a>';
+    //FIN NEW
+
     echo '    </div>';
     echo '  </div>';
     
