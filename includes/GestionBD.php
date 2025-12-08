@@ -158,6 +158,28 @@
         }
     }
 
+    function GetAllBlacklist() {
+        global $db;
+        try {
+            $stmt = $db->prepare("SELECT * FROM BlackList ORDER BY ban_date DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    function RemoveFromBlacklist(string $mail): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM BlackList WHERE mail = :mail");
+            $stmt->bindParam(':mail', $mail);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     //Journeys
     function AddJourney(string $start,string $arrival, string $date,int $nbPlace,int $driver_id): bool{
         global $db;
@@ -376,6 +398,29 @@
         }
     }
 
+    function DeleteUserNotes(int $userId): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM Notes WHERE author_note = :uid");
+            $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    function DeleteTargetedNote(int $authorId, int $affectedUserId): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM Notes WHERE author_note = :author AND affected_user = :affected");
+            $stmt->bindParam(':author', $authorId, PDO::PARAM_INT);
+            $stmt->bindParam(':affected', $affectedUserId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     //Reports
     function AddReport(string $reason,int $reported_user,int $reporter):bool{
         global $db;
@@ -417,6 +462,36 @@
         catch (PDOException $e){
             echo "Erreur lors de la s�lection des reports en attente : " . $e->getMessage();
             return [];
+        }
+    }
+
+    function GetAllReportsWithDetails() {
+        global $db;
+        try {
+            $stmt = $db->prepare("SELECT Rep.reporting_id, Rep.report_cause, Rep.status, Rep.user_reported, Rep.reporter_id,
+                       U.first_name AS reported_firstname, U.last_name AS reported_lastname, U.mail AS reported_mail,
+                       R.first_name AS reporter_firstname, R.last_name AS reporter_lastname
+                FROM Reports Rep
+                JOIN Users U ON Rep.user_reported = U.user_id
+                JOIN Users R ON Rep.reporter_id = R.user_id
+                ORDER BY Rep.user_reported ASC, Rep.reporting_id DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération signalements : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function UpdateReportStatus(int $reportId, int $newStatus): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("UPDATE Reports SET status = :status WHERE reporting_id = :id");
+            $stmt->bindParam(':status', $newStatus, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $reportId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
         }
     }
 ?>

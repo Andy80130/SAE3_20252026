@@ -1,159 +1,301 @@
 <?php
 session_start();
+require("../includes/GestionBD.php");
 
-// 1. SÈcuritÈ connexion
-if (!isset($_SESSION['user_id'])) {
-    header('Location: connexion.php');
+// S√âCURIT√â : V√©rification Admin
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['admin_flag']) || $_SESSION['admin_flag'] !== 'Y') {
+    header('Location: accueil.php');
     exit();
 }
 
-require("../includes/GestionBD.php");
-$userId = $_SESSION['user_id'];
+$currentAdminId = $_SESSION['user_id']; // ID de l'admin connect√©
+$msgSuccess = "";
+$msgError = "";
 
-// 2. Traitement des formulaires (Annulations)
+// TRAITEMENT DES FORMULAIRES
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action']) && isset($_POST['journey_id'])) {
-        $jId = intval($_POST['journey_id']);
-        
-        if ($_POST['action'] === 'delete_trip') {
-            // L'organisateur supprime le trajet
-            deleteJourney($jId);
-        } 
-        elseif ($_POST['action'] === 'cancel_reservation') {
-            // Le passager annule sa rÈservation
-            cancelReservation($userId, $jId);
+    
+    // 1. R√©cup√©ration des IDs communs
+    $reportId = isset($_POST['reporting_id']) ? intval($_POST['reporting_id']) : 0;
+    $reportedId = isset($_POST['reported_id']) ? intval($_POST['reported_id']) : 0;
+
+    // 2. S√âCURIT√â CRITIQUE : Un admin ne peut pas agir sur lui-m√™me
+    if ($reportedId === $currentAdminId) {
+        $msgError = "S√âCURIT√â : Vous ne pouvez pas traiter un signalement vous concernant (Conflit d'int√©r√™ts).";
+    } 
+    else {
+        // A. Actions Signalements
+        if (isset($_POST['action_report'])) {
+            $action = $_POST['action_report'];
+            
+            // Changer statut (En attente <-> Trait√©)
+            if ($action === 'toggle_status') {
+                $currentStatus = intval($_POST['current_status']);
+                $newStatus = ($currentStatus === 0) ? 1 : 0;
+                UpdateReportStatus($reportId, $newStatus);
+            }
+            
+            // Supprimer UNIQUEMENT l'avis signal√©
+            if ($action === 'delete_notes') {
+                if (isset($_POST['reporter_id'])) {
+                    $reporterId = intval($_POST['reporter_id']);
+                    
+                    if (DeleteTargetedNote($reportedId, $reporterId)) {
+                        $msgSuccess = "L'avis signal√© a √©t√© supprim√©.";
+                        UpdateReportStatus($reportId, 1);
+                    } else {
+                        $msgError = "Erreur lors de la suppression de l'avis.";
+                    }
+                } else {
+                    $msgError = "Erreur technique : ID du signalant manquant.";
+                }
+            }
+
+            // --- BLACKLISTER ---
+            if ($action === 'blacklist_user') {
+                $mailToBan = $_POST['user_mail'];
+                
+                $reasonInput = isset($_POST['ban_reason']) ? trim($_POST['ban_reason']) : '';
+                $reason = !empty($reasonInput) ? $reasonInput : "Suite √† de multiples signalements et violation des CGU.";
+                
+                $date = date('Y-m-d');
+
+                if (AddMailBL($mailToBan, $reason, $date)) {
+                    if (deleteUser($reportedId)) {
+                        $msgSuccess = "Utilisateur blacklist√© et donn√©es supprim√©es avec succ√®s.";
+                    } else {
+                        $msgError = "Utilisateur ajout√© √† la Blacklist, mais erreur lors de la suppression des donn√©es.";
+                    }
+                } else {
+                    $msgError = "Erreur : Utilisateur d√©j√† blacklist√© ou probl√®me technique.";
+                }
+            }
         }
-        
-        // On recharge la page pour voir les changements immÈdiatement
-        header("Location: reservation.php");
-        exit();
-    }
-}
 
-// 3. RÈcupÈration des donnÈes pour l'affichage
-$currentUser = GetUserInfo($_SESSION['mail']);
-$myFullName = $currentUser ? $currentUser['first_name'] . ' ' . $currentUser['last_name'] : "Moi";
-
-// Trajets organisÈs
-$trajets_organises = GetOrganizedJourneys($userId);
-foreach ($trajets_organises as &$trajet) {
-    $trajet['liste_participants'] = GetJourneyParticipants($trajet['journey_id']);
-    $trajet['nom_affichage'] = $myFullName;
-}
-unset($trajet);
-
-// Trajets rÈservÈs
-$trajets_reserves = GetReservedJourneysDetails($userId);
-foreach ($trajets_reserves as &$res) {
-    $res['nom_affichage'] = $res['first_name'] . ' ' . $res['last_name'];
-    $res['liste_participants'] = [];
-}
-unset($res);
-
-// Fonction date en franÁais
-function dateToFrench($dateSQL) {
-    $timestamp = strtotime($dateSQL);
-    $jours = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    $mois = ['', 'Jan', 'FÈv', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Ao˚t', 'Sep', 'Oct', 'Nov', 'DÈc'];
-    
-    $jourSemaine = $jours[date('w', $timestamp)];
-    $jourMois = date('d', $timestamp);
-    $moisStr = $mois[date('n', $timestamp)];
-    $heure = date('H:i', $timestamp);
-    
-    return "$heure, $jourSemaine $jourMois $moisStr";
-}
-
-// Fonction d'affichage d'une carte
-function afficherCarte($data, $isOrganizer = false) {
-    $dateStr = dateToFrench($data['start_date']);
-    
-    $avatar = '../images/Profil_Picture.png';
-    
-    $nom = htmlspecialchars($data['nom_affichage']);
-    $depart = htmlspecialchars($data['start_adress']);
-    $arrivee = htmlspecialchars($data['arrival_adress']);
-    $nbInscrits = count($data['liste_participants']);
-    $nbPlaces = $data['number_place'];
-    $journeyId = $data['journey_id'];
-    
-    echo '<article class="card">';
-    echo '  <div class="card-header">';
-    echo '    <div class="organizer">';
-    echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de profil" />';
-    echo '      <div class="organizer-info">';
-    echo '        <h3>'.$nom.'</h3>';
-    
-    if ($isOrganizer) {
-        echo '<span class="participants-count">Inscrits : '.$nbInscrits.' / '.$nbPlaces.'</span>';
-    }
-    
-    echo '      </div>';
-    echo '    </div>';
-    echo '  </div>';
-    
-    echo '  <div class="trip-details">';
-    echo '    <p><strong>DÈpart :</strong> '.$depart.'</p>';
-    echo '    <p><strong>ArrivÈe :</strong> '.$arrivee.'</p>';
-    echo '    <p><strong>Date :</strong> '.$dateStr.'</p>';
-    echo '  </div>';
-
-    echo '  <div class="card-actions">';
-    
-    if ($isOrganizer) {
-        // FORMULAIRE ANNULATION TRAJET (Organisateur)
-        echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\' tes-vous s˚r de vouloir supprimer ce trajet ? Cela annulera toutes les rÈservations associÈes.\');">';
-        echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
-        echo '  <input type="hidden" name="action" value="delete_trip">';
-        echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler le trajet</button>';
-        echo '</form>';
-        
-        // BOUTON VOIR PARTICIPANTS
-        $styleBtn = ($nbInscrits > 0) ? 'btn-filled' : 'btn-outline';
-        // Note: Le bouton est en dehors du formulaire
-        echo '    <button class="btn '.$styleBtn.' toggle-btn" style="flex:1;">Voir Participants</button>';
-        
-    } else {
-        // FORMULAIRE ANNULATION RESERVATION (Passager)
-        echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\' tes-vous s˚r de vouloir annuler votre rÈservation ?\');">';
-        echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
-        echo '  <input type="hidden" name="action" value="cancel_reservation">';
-        echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler rÈservation</button>';
-        echo '</form>';
-        
-        echo '    <button class="btn btn-filled" style="flex:1;">Contacter</button>';
-    }
-
-    echo '  </div>';
-    
-    // LISTE DES PARTICIPANTS (CachÈe par dÈfaut)
-    if ($isOrganizer && $nbInscrits > 0) {
-        echo '<div class="participants-list" style="display:none;">';
-        foreach($data['liste_participants'] as $p) {
-            echo '<div class="participant">';
-            echo '  <img src="../images/Profil_Picture.png" class="avatar-small" alt="Avatar"/>';
-            echo '  <span>'.htmlspecialchars($p['first_name'].' '.$p['last_name']).'</span>';
-            echo '</div>';
+        // --- D√âBANNIR ---
+        if (isset($_POST['action_blacklist']) && $_POST['action_blacklist'] === 'unban') {
+            $mailToUnban = $_POST['mail_unban'];
+            
+            if (RemoveFromBlacklist($mailToUnban)) {
+                $msgSuccess = "Utilisateur $mailToUnban retir√© de la liste noire.";
+            } else {
+                $msgError = "Erreur lors du d√©bannissement.";
+            }
         }
-        echo '</div>';
     }
-    echo '</article>';
 }
+
+// R√âCUP√âRATION DONN√âES
+$rawReports = GetAllReportsWithDetails();
+$groupedReports = [];
+
+foreach ($rawReports as $report) {
+    $uId = $report['user_reported'];
+    if (!isset($groupedReports[$uId])) {
+        $groupedReports[$uId] = [
+            'user_info' => [
+                'id' => $uId,
+                'name' => $report['reported_firstname'] . ' ' . $report['reported_lastname'],
+                'mail' => $report['reported_mail']
+            ],
+            'reports' => []
+        ];
+    }
+    $groupedReports[$uId]['reports'][] = $report;
+}
+
+$blacklist = GetAllBlacklist();
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyGo - Mes Trajets</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <link rel="stylesheet" href="../css/styleAdminBoard.css" />
-        }
-    </style>
+    <title>StudyGo - Administration</title>
+    <link rel="stylesheet" href="../css/styleAdminBoard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    
     <?php require("../includes/header.php") ?>
+
+    <div class="admin-container">
+        <h1 class="Titre">Panneau d'Administration</h1>
+
+        <?php if($msgSuccess): ?>
+            <div class="alert success"><?php echo $msgSuccess; ?></div>
+        <?php endif; ?>
+        <?php if($msgError): ?>
+            <div class="alert error"><?php echo $msgError; ?></div>
+        <?php endif; ?>
+
+        <section class="admin-section">
+            <h2><i class="fa-solid fa-triangle-exclamation"></i> Gestion des Signalements</h2>
+            
+            <?php if (empty($groupedReports)): ?>
+                <p class="empty-state" style="text-align:center; padding:20px; color:#777;">Aucun signalement en cours.</p>
+            <?php else: ?>
+                <div class="reports-grid">
+                    <?php foreach ($groupedReports as $group): ?>
+                        <?php 
+                            $uInfo = $group['user_info']; 
+                            // S√©paration des statuts
+                            $pendingReports = array_filter($group['reports'], fn($r) => $r['status'] == 0);
+                            $processedReports = array_filter($group['reports'], fn($r) => $r['status'] == 1);
+                            
+                            // V√©rification : Est-ce l'admin connect√© ?
+                            $isSelf = ($uInfo['id'] === $currentAdminId);
+                        ?>
+                        
+                        <div class="user-report-card">
+                            <div class="user-report-header">
+                                <div class="user-identity">
+                                    <img src="../images/Profil_Picture.png" alt="User">
+                                    <div>
+                                        <h3>
+                                            <?php echo htmlspecialchars($uInfo['name']); ?>
+                                            <?php if($isSelf) echo " <small style='color:red'>(Vous)</small>"; ?>
+                                        </h3>
+                                        <span class="user-mail"><?php echo htmlspecialchars($uInfo['mail']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="user-actions-header">
+                                    <?php if ($isSelf): ?>
+                                        <span style="font-size:12px; color:#999; font-style:italic;">
+                                            <i class="fa-solid fa-lock"></i> Gestion impossible
+                                        </span>
+                                    <?php else: ?>
+                                        <form method="post" onsubmit="let reason = prompt('Veuillez saisir le motif du bannissement pour <?php echo addslashes($uInfo['name']); ?> :'); if(reason === null) return false; this.ban_reason.value = reason; return true;">
+                                            <input type="hidden" name="action_report" value="blacklist_user">
+                                            <input type="hidden" name="user_mail" value="<?php echo htmlspecialchars($uInfo['mail']); ?>">
+                                            <input type="hidden" name="reported_id" value="<?php echo $uInfo['id']; ?>">
+                                            <input type="hidden" name="reporting_id" value="0">
+                                            <input type="hidden" name="ban_reason" value="">
+                                            
+                                            <button type="submit" class="btn-icon red" title="Blacklister et Supprimer">
+                                                <i class="fa-solid fa-ban"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="reports-list">
+                                <?php foreach ($pendingReports as $rep): ?>
+                                    <div class="report-item">
+                                        <div class="report-content">
+                                            <strong>Raison :</strong> "<?php echo htmlspecialchars($rep['report_cause']); ?>"<br>
+                                            <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
+                                        </div>
+                                        
+                                        <div class="report-actions">
+                                            <?php if ($isSelf): ?>
+                                                <span style="font-size:12px; color:#aaa;">Conflit d'int√©r√™ts</span>
+                                            <?php else: ?>
+                                                <form method="post">
+                                                    <input type="hidden" name="action_report" value="toggle_status">
+                                                    <input type="hidden" name="reporting_id" value="<?php echo $rep['reporting_id']; ?>">
+                                                    <input type="hidden" name="reported_id" value="<?php echo $uInfo['id']; ?>">
+                                                    <input type="hidden" name="current_status" value="0">
+                                                    <button type="submit" class="btn-small orange">
+                                                        <i class="fa-solid fa-clock"></i> En attente
+                                                    </button>
+                                                </form>
+                                                
+                                                <form method="post" onsubmit="return confirm('Supprimer uniquement cet avis ?');">
+                                                    <input type="hidden" name="action_report" value="delete_notes">
+                                                    <input type="hidden" name="reporting_id" value="<?php echo $rep['reporting_id']; ?>">
+                                                    <input type="hidden" name="reported_id" value="<?php echo $uInfo['id']; ?>">
+                                                    <input type="hidden" name="reporter_id" value="<?php echo $rep['reporter_id']; ?>">
+                                                    
+                                                    <button type="submit" class="btn-small grey" title="Supprimer l'avis signal√©">
+                                                        <i class="fa-solid fa-trash-can"></i> Avis
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+
+                                <?php if (!empty($processedReports)): ?>
+                                    <details class="history-details">
+                                        <summary class="history-summary">
+                                            <span><i class="fa-solid fa-history"></i> Historique trait√© (<?php echo count($processedReports); ?>)</span>
+                                            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                                        </summary>
+                                        <div class="history-content">
+                                            <?php foreach ($processedReports as $rep): ?>
+                                                <div class="report-item processed">
+                                                    <div class="report-content">
+                                                        <strong>Raison :</strong> "<?php echo htmlspecialchars($rep['report_cause']); ?>"<br>
+                                                        <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
+                                                    </div>
+                                                    
+                                                    <div class="report-actions">
+                                                        <?php if (!$isSelf): ?>
+                                                            <form method="post">
+                                                                <input type="hidden" name="action_report" value="toggle_status">
+                                                                <input type="hidden" name="reporting_id" value="<?php echo $rep['reporting_id']; ?>">
+                                                                <input type="hidden" name="reported_id" value="<?php echo $uInfo['id']; ?>">
+                                                                <input type="hidden" name="current_status" value="1">
+                                                                <button type="submit" class="btn-small green">
+                                                                    <i class="fa-solid fa-check"></i> Trait√©
+                                                                </button>
+                                                            </form>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </details>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <section class="admin-section">
+            <h2><i class="fa-solid fa-skull"></i> Liste Noire (Utilisateurs Bannis)</h2>
+            <div class="table-container">
+                <table class="blacklist-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Raison</th>
+                            <th>Date du ban</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($blacklist) > 0): ?>
+                            <?php foreach ($blacklist as $banned): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($banned['mail']); ?></td>
+                                    <td><?php echo htmlspecialchars($banned['reason']); ?></td>
+                                    <td><?php echo htmlspecialchars($banned['ban_date']); ?></td>
+                                    <td>
+                                        <form method="post" onsubmit="return confirm('D√©bannir cet utilisateur ?');">
+                                            <input type="hidden" name="action_blacklist" value="unban">
+                                            <input type="hidden" name="mail_unban" value="<?php echo htmlspecialchars($banned['mail']); ?>">
+                                            <button type="submit" class="btn-unban">
+                                                <i class="fa-solid fa-unlock"></i> D√©bannir
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:15px;">La liste noire est vide.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
     <?php require("../includes/footer.php") ?>
 </body>
 </html>
