@@ -22,4 +22,12 @@
             <img src="../images/Icone_Profil.png" alt="Photo de profil" class="profile-photo"></a>
         </div>
     </div>
+
+    <script>
+        const header = document.querySelector("header");
+
+        window.addEventListener("scroll", () => {
+            header.classList.toggle("not-top", window.scrollY > 0);
+        });
+    </script>
 </header>
