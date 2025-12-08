@@ -7,26 +7,80 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require __DIR__ . '/../vendor/autoload.php';
 require("../includes/GestionBD.php");
 $userId = $_SESSION['user_id'];
 
-// 2. Traitement des formulaires (Annulations)
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// 2. Traitement des formulaires
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // A. Annulations (Trajet ou Réservation)
     if (isset($_POST['action']) && isset($_POST['journey_id'])) {
         $jId = intval($_POST['journey_id']);
-        
+
         if ($_POST['action'] === 'delete_trip') {
             // L'organisateur supprime le trajet
             deleteJourney($jId);
-        } 
+        }
         elseif ($_POST['action'] === 'cancel_reservation') {
             // Le passager annule sa réservation
             cancelReservation($userId, $jId);
         }
-        
+
         // On recharge la page pour voir les changements immédiatement
         header("Location: reservation.php");
         exit();
+    }
+
+    // B. Envoi d'un message (Contacter)
+    if (isset($_POST['btn_send_Contact'])) {
+        $mail = new PHPMailer(true);
+        // On récupère l'email du destinataire via le champ caché du modal
+        $destinataire = $_POST['Contact_user_id'];
+
+        try {
+            // Configuration SMTP
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'StudyGoSAE@gmail.com';
+            $mail->Password = 'eqvj gioa rcko rddi';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+
+            // Infos de l'expéditeur (Session)
+            $nomExp = isset($_SESSION['nom']) ? $_SESSION['nom'] : 'Utilisateur';
+            $prenomExp = isset($_SESSION['prenom']) ? $_SESSION['prenom'] : '';
+            $mailExp = isset($_SESSION['mail']) ? $_SESSION['mail'] : '';
+
+            // Destinataire et contenu
+            $mail->setFrom($mail->Username, 'StudyGo');
+            $mail->addAddress($destinataire);
+            $mail->Subject = 'Vous avez un message de '. $nomExp . ' ' . $prenomExp .' !';
+            $mail->isHTML(true);
+
+            $messageContent = htmlspecialchars(trim($_POST['message']));
+            $mail->Body = htmlspecialchars($messageContent . ' Pour le recontacter, 
+            vous pouvez lui envoyer un mail a : ' . $mailExp .
+                " Cordialement, l'equipe de StudyGo.");
+
+            $mail->send();
+            header("Location: reservation.php?msg=mailSucces");
+            exit();
+        } catch (Exception $e) {
+            header("Location: reservation.php?msg=mailFailed");
+            exit();
+        }
     }
 }
 
@@ -55,43 +109,43 @@ function dateToFrench($dateSQL) {
     $timestamp = strtotime($dateSQL);
     $jours = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
     $mois = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    
+
     $jourSemaine = $jours[date('w', $timestamp)];
     $jourMois = date('d', $timestamp);
     $moisStr = $mois[date('n', $timestamp)];
     $heure = date('H:i', $timestamp);
-    
+
     return "$heure, $jourSemaine $jourMois $moisStr";
 }
 
 // Fonction d'affichage d'une carte
 function afficherCarte($data, $isOrganizer = false) {
     $dateStr = dateToFrench($data['start_date']);
-    
     $avatar = '../images/Profil_Picture.png';
-    
+
     $nom = htmlspecialchars($data['nom_affichage']);
+    $mail = htmlspecialchars($data['mail']);
     $depart = htmlspecialchars($data['start_adress']);
     $arrivee = htmlspecialchars($data['arrival_adress']);
     $nbInscrits = count($data['liste_participants']);
     $nbPlaces = $data['number_place'];
     $journeyId = $data['journey_id'];
-    
+
     echo '<article class="card">';
     echo '  <div class="card-header">';
     echo '    <div class="organizer">';
     echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de profil" />';
     echo '      <div class="organizer-info">';
     echo '        <h3>'.$nom.'</h3>';
-    
+
     if ($isOrganizer) {
         echo '<span class="participants-count">Inscrits : '.$nbInscrits.' / '.$nbPlaces.'</span>';
     }
-    
+
     echo '      </div>';
     echo '    </div>';
     echo '  </div>';
-    
+
     echo '  <div class="trip-details">';
     echo '    <p><strong>Départ :</strong> '.$depart.'</p>';
     echo '    <p><strong>Arrivée :</strong> '.$arrivee.'</p>';
@@ -99,33 +153,37 @@ function afficherCarte($data, $isOrganizer = false) {
     echo '  </div>';
 
     echo '  <div class="card-actions">';
-    
+
     if ($isOrganizer) {
-        // FORMULAIRE ANNULATION TRAJET (Organisateur)
+        // --- ORGANISATEUR ---
+
+        // FORMULAIRE ANNULATION TRAJET
         echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer ce trajet ? Cela annulera toutes les réservations associées.\');">';
         echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
         echo '  <input type="hidden" name="action" value="delete_trip">';
         echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler le trajet</button>';
         echo '</form>';
-        
+
         // BOUTON VOIR PARTICIPANTS
         $styleBtn = ($nbInscrits > 0) ? 'btn-filled' : 'btn-outline';
-        // Note: Le bouton est en dehors du formulaire
         echo '    <button class="btn '.$styleBtn.' toggle-btn" style="flex:1;">Voir Participants</button>';
-        
+
     } else {
-        // FORMULAIRE ANNULATION RESERVATION (Passager)
+        // --- PASSAGER ---
+
+        // FORMULAIRE ANNULATION RESERVATION
         echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir annuler votre réservation ?\');">';
         echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
         echo '  <input type="hidden" name="action" value="cancel_reservation">';
         echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler réservation</button>';
         echo '</form>';
-        
-        echo '    <button class="btn btn-filled" style="flex:1;">Contacter</button>';
+
+        // BOUTON CONTACTER (Corrigé : Pas de <form>, ajout des quotes JS)
+        echo '    <button type="button" class="btn btn-filled" style="flex:1;" onclick="openContactModal(\''.$mail.'\')">Contacter</button>';
     }
 
     echo '  </div>';
-    
+
     // LISTE DES PARTICIPANTS (Cachée par défaut)
     if ($isOrganizer && $nbInscrits > 0) {
         echo '<div class="participants-list" style="display:none;">';
@@ -158,7 +216,6 @@ function afficherCarte($data, $isOrganizer = false) {
             margin-top: 20px;
             font-style: italic;
         }
-        /* Petit correctif pour aligner les formulaires et boutons */
         .card-actions form {
             margin: 0;
             padding: 0;
@@ -167,88 +224,129 @@ function afficherCarte($data, $isOrganizer = false) {
     </style>
 </head>
 <body>
-    <?php require("../includes/header.php") ?>
+<?php require("../includes/header.php") ?>
 
-    <main>
-        <h1 class="page-title">Mes trajets et réservations</h1>
+<?php if (isset($_GET['msg']) && $_GET['msg'] === 'mailSucces'): ?>
+    <div class="msg-success" style="background:green; color:white; padding:10px; text-align:center; margin-bottom:15px;">
+        <p>Message envoyé !</p>
+    </div>
+<?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'mailFailed'): ?>
+    <div class="msg-success" style="background:red; color:white; padding:10px; text-align:center; margin-bottom:15px;">
+        <p>Echec de l'envoi du message.</p>
+    </div>
+<?php endif; ?>
 
-        <div class="tabs-primary">
-            <button class="tab active" onclick="changerOnglet('organises', this)">Mes trajets organisés</button>
-            <button class="tab" onclick="changerOnglet('reserves', this)">Mes trajets réservés</button>
-        </div>
+<main>
+    <h1 class="page-title">Mes trajets et réservations</h1>
 
-        <div id="bloc-organises" class="section-contenu active">
-            <h2 class="section-title">Vous organisez <?php echo count($trajets_organises); ?> trajet(s)</h2>
-            
-            <?php 
-            if (count($trajets_organises) > 0) {
-                foreach($trajets_organises as $trajet) { 
-                    afficherCarte($trajet, true); 
-                }
-            } else {
-                echo '<p class="empty-message">Aucun trajet organisé pour le moment.</p>';
+    <div class="tabs-primary">
+        <button class="tab active" onclick="changerOnglet('organises', this)">Mes trajets organisés</button>
+        <button class="tab" onclick="changerOnglet('reserves', this)">Mes trajets réservés</button>
+    </div>
+
+    <div id="bloc-organises" class="section-contenu active">
+        <h2 class="section-title">Vous organisez <?php echo count($trajets_organises); ?> trajet(s)</h2>
+
+        <?php
+        if (count($trajets_organises) > 0) {
+            foreach($trajets_organises as $trajet) {
+                afficherCarte($trajet, true);
             }
-            ?>
-             
-             <div class="illustration-container">
-                 <img src="https://cdni.iconscout.com/illustration/premium/thumb/carpooling-service-app-illustration-download-in-svg-png-gif-file-formats--online-booking-sharing-share-ride-taxi-pack-vehicle-illustrations-4609653.png?f=webp" alt="Illustration Trajet" />
-             </div>
-        </div>
-
-        <div id="bloc-reserves" class="section-contenu">
-            <h2 class="section-title">Vous avez réservé <?php echo count($trajets_reserves); ?> trajet(s)</h2>
-            
-            <?php 
-            if (count($trajets_reserves) > 0) {
-                foreach($trajets_reserves as $trajet) { 
-                    afficherCarte($trajet, false); 
-                }
-            } else {
-                echo '<p class="empty-message">Aucune réservation en cours.</p>';
-            }
-            ?>
-
-            <div class="illustration-container">
-                <img src="../images/RechercheTrajetFin.png" alt="Illustration Réservation" style="max-width:200px"/>
-            </div>
-        </div>
-
-    </main>
-
-    <?php require("../includes/footer.php") ?>
-
-    <script>
-        // Gestion des onglets
-        function changerOnglet(choix, boutonClique) {
-            document.querySelectorAll('.tabs-primary .tab').forEach(btn => btn.classList.remove('active'));
-            boutonClique.classList.add('active');
-            document.querySelectorAll('.section-contenu').forEach(div => div.classList.remove('active'));
-            document.getElementById('bloc-' + choix).classList.add('active');
+        } else {
+            echo '<p class="empty-message">Aucun trajet organisé pour le moment.</p>';
         }
+        ?>
 
-        // Gestion du bouton "Voir Participants"
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.addEventListener('click', function(e) {
-                // On vérifie si l'élément cliqué a la classe toggle-btn
-                if (e.target && e.target.classList.contains('toggle-btn')) {
-                    e.preventDefault(); // Empêche un comportement par défaut si c'était un lien
-                    
-                    const btn = e.target;
-                    const card = btn.closest('.card');
-                    const liste = card.querySelector('.participants-list');
-                    
-                    if(liste) {
-                        if (getComputedStyle(liste).display === 'none') {
-                            liste.style.display = 'flex'; // Flex pour correspondre au CSS
-                            btn.textContent = 'Masquer';
-                        } else {
-                            liste.style.display = 'none';
-                            btn.textContent = 'Voir Participants';
-                        }
+        <div class="illustration-container">
+            <img src="https://cdni.iconscout.com/illustration/premium/thumb/carpooling-service-app-illustration-download-in-svg-png-gif-file-formats--online-booking-sharing-share-ride-taxi-pack-vehicle-illustrations-4609653.png?f=webp" alt="Illustration Trajet" />
+        </div>
+    </div>
+
+    <div id="bloc-reserves" class="section-contenu">
+        <h2 class="section-title">Vous avez réservé <?php echo count($trajets_reserves); ?> trajet(s)</h2>
+
+        <?php
+        if (count($trajets_reserves) > 0) {
+            foreach($trajets_reserves as $trajet) {
+                afficherCarte($trajet, false);
+            }
+        } else {
+            echo '<p class="empty-message">Aucune réservation en cours.</p>';
+        }
+        ?>
+
+        <div class="illustration-container">
+            <img src="../images/RechercheTrajetFin.png" alt="Illustration Réservation" style="max-width:200px"/>
+        </div>
+    </div>
+
+    <div id="ContactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeContactModal()">&times;</span>
+            <h2>Envoyer un mail</h2>
+
+            <form action="" method="post">
+                <input type="hidden" id="modal_Contact_user_id" name="Contact_user_id" value="">
+
+                <textarea name="message" rows="10" placeholder="Bonjour..." required></textarea>
+
+                <button type="submit" name="btn_send_Contact" class="modal-submit-btn">Envoyer le mail</button>
+            </form>
+        </div>
+    </div>
+
+</main>
+
+<?php require("../includes/footer.php") ?>
+
+<script>
+    // Gestion des onglets
+    function changerOnglet(choix, boutonClique) {
+        document.querySelectorAll('.tabs-primary .tab').forEach(btn => btn.classList.remove('active'));
+        boutonClique.classList.add('active');
+        document.querySelectorAll('.section-contenu').forEach(div => div.classList.remove('active'));
+        document.getElementById('bloc-' + choix).classList.add('active');
+    }
+
+    // Gestion du bouton "Voir Participants"
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('toggle-btn')) {
+                e.preventDefault();
+                const btn = e.target;
+                const card = btn.closest('.card');
+                const liste = card.querySelector('.participants-list');
+
+                if(liste) {
+                    if (getComputedStyle(liste).display === 'none') {
+                        liste.style.display = 'flex';
+                        btn.textContent = 'Masquer';
+                    } else {
+                        liste.style.display = 'none';
+                        btn.textContent = 'Voir Participants';
                     }
                 }
-            });
+            }
         });
-    </script>
+    });
+
+    // Fermeture Modal au clic en dehors
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("ContactModal")) {
+            closeContactModal();
+        }
+    }
+
+    function closeContactModal() {
+        document.getElementById("ContactModal").style.display = "none";
+    }
+
+    function openContactModal(mail) {
+        // Affiche le modal
+        document.getElementById("ContactModal").style.display = "block";
+        // Injecte l'email dans le champ caché
+        document.getElementById("modal_Contact_user_id").value = mail;
+    }
+</script>
 </body>
 </html>
