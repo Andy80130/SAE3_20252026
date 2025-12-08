@@ -218,7 +218,7 @@
         try{
             $db->beginTransaction();
 
-            //Suppression des R�servations
+            //Suppression des Reservations
             $stmt =$db->prepare("DELETE FROM Reservation WHERE journey_id = :journey_id");
             $stmt->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt->execute();
@@ -283,6 +283,53 @@
         }
     }
 
+    /**
+     * Recherche des trajets selon critères dynamiques
+     * @param string|null $depart (optionnel) Ville de départ (recherche partielle)
+     * @param string|null $arrivee (optionnel) Ville d'arrivée (recherche partielle)
+     * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
+     */
+    function SearchJourneys(?string $depart, ?string $arrivee, ?string $date) {
+        global $db;
+        $sql = "SELECT J.*, U.first_name, U.last_name, U.photo_path 
+                FROM Journeys J
+                JOIN Users U ON J.driver_id = U.user_id
+                WHERE J.start_date >= CURDATE()";
+
+        $conditions = [];
+        $params = [];
+        
+        if (!empty($depart)) {
+            $conditions[] = "J.start_adress LIKE :depart";
+            $params[':depart'] = "%" . $depart . "%";
+        }
+
+        if (!empty($arrivee)) {
+            $conditions[] = "J.arrival_adress LIKE :arrivee";
+            $params[':arrivee'] = "%" . $arrivee . "%";
+        }
+
+        if (!empty($date)) {
+            $conditions[] = "DATE(J.start_date) = :date";
+            $params[':date'] = $date;
+        }
+
+        if (count($conditions) > 0) {
+            $sql .= " AND " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY J.start_date ASC";
+
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur lors de la recherche : " . $e->getMessage();
+            return [];
+        }
+    }
+
     //Reservation
     function AddReservation(int $user_id,int $journey_id):bool{
         global $db;
@@ -330,19 +377,16 @@
     function RemainingSeats(int $journey_id): int {
         global $db;
         try {
-            // R�cup�rer le nombre total de places pour le trajet
             $stmt_total = $db->prepare("SELECT number_place FROM Journeys WHERE journey_id = :journey_id");
             $stmt_total->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_total->execute();
             $total_places = $stmt_total->fetchColumn();
 
-            // R�cup�rer le nombre de r�servations pour le trajet
             $stmt_reserved = $db->prepare("SELECT COUNT(*) FROM Reservation WHERE journey_id = :journey_id");
             $stmt_reserved->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_reserved->execute();
             $reserved_places = $stmt_reserved->fetchColumn();
 
-            // Calculer les places restantes
             return max(0, $total_places - $reserved_places);
         } 
         catch (PDOException $e) {
