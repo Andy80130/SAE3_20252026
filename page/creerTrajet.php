@@ -136,48 +136,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     // Valid
     if (empty($depart) || empty($destination)) $errors_submit[] = "Les adresses de départ et d'arrivée sont requises.";
     if (empty($date)) $errors_submit[] = "La date est requise.";
-    if (empty($start)) $errors_submit[] = "L'heure de départ est requise.";
+    if (empty($start)) $errors_submit[] = "L'heure d'attente et de départ est requise.";
     if (!isset($_POST['certify'])) $errors_submit[] = "Veuillez certifier l'exactitude des informations.";
 
 
-    // Vérif
-    if (empty($departData['lat']) || empty($destinationData['lat'])) {
-        $errors_submit[] = "Veuillez sélectionner des adresses valides proposées.";
+
+    //verifier la date d'heure valides ( par rappport à mtnt): 
+    $date_actuelle = new DateTime();
+    $trajet_date = $date . ' ' . $start;
+    $start_trajet = new DateTime($date . ' ' . $start);
+    $end_trajet = new DateTime($date . ' ' . $end);
+
+    if (new DateTime($trajet_date) <= $date_actuelle) {
+        $errors_submit[] = "La date et l'heure du trajet doivent supérieur à la date actuelle.";
     }
+
+    if($start_trajet >= $end_trajet){
+        $errors_submit[] = "L'heure de fin doit être supérieure à l'heure de début.";
+    }
+
+    //pas + de 15min d'attente
+    if($start_trajet < $end_trajet){
+        $interval = $start_trajet->diff($end_trajet);
+        $minutes_diff = ($interval->h * 60) + $interval->i;
+
+        if($minutes_diff > 15){
+            $errors_submit[] = "Le temps d'attente ne peut pas dépasser 15 minutes.";
+        }
+    }
+
+    //pas au moins 5min d'attente
+    if($start_trajet < $end_trajet){
+        $interval = $start_trajet->diff($end_trajet);
+        $minutes_diff = ($interval->h * 60) + $interval->i;
+        if($minutes_diff < 5){
+            $errors_submit[] = "Le temps d'attente doit être au moins de 5 minutes.";
+        }
+    }
+
+    // Vérification des adresses
+    $IUT_Address = "IUT Amiens, Avenue des Facultés, Salouël, Amiens, Somme, Hauts-de-France, France métropolitaine, 80480, France";
+
+    if(trim($depart) === trim($destination)){
+        $errors_submit[] = "Le départ et la destination ne peuvent pas être identiques.";
+    }
+
+    if(trim($depart) !== $IUT_Address && trim($destination) !== $IUT_Address){
+        $errors_submit[] = "Le départ ou la destination doit etre l'iut d'amiens";
+    }
+
+
+
+
+
+
 
 
 
 
     // Récupération ID
-    $driver_id = $_SESSION['user_id'] ?? 1; 
+    $driver_id = $_SESSION['user_id'] ?? 1;
 
     if (empty($errors_submit)) {
-        $start_datetime = $date . ' ' . $start . ':00';
-        
+        $start_datetime = $date . ' ' . $end . ':00';
 
-        //Je transforme mes chaines dep et arrivée pour avoir
-        //de beaux affichages en BD
+        $valDepBD  = tronqueAdressePourBD($depart);
+        $valDestBD = tronqueAdressePourBD($destination);
 
-
-
-        $valDepBD=tronqueAdressePourBD($depart);
-        $valDestBD=tronqueAdressePourBD($destination);
-
-
-        //AJOUT
         $result = AddJourney($valDepBD, $valDestBD, $start_datetime, (int)$places, (int)$driver_id);
         if ($result) {
             header('Location: CreerTrajet.php?success=1');
             exit;
         } else {
-            $errors_submit[] = "Erreur technique lors de l'enregistrement en base de données.";
+            $errors_submit[] = "Veuillez vous connectez à votre compte pour créer un trajet";
         }
-
-
-
-
     }
-    //Gere les erreurs
+
+    // Gère les erreurs
     if (!empty($errors_submit)) {
         $errors = $errors_submit;
     }
