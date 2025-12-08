@@ -19,7 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_update_vehicle']))
     $couleur = htmlspecialchars(trim($_POST['couleur']));
 
     if (UpdateVehicleInfo($userId, $modele, $couleur)) {
-        // On redirige vers la même page pour éviter de renvoyer le formulaire si on actualise (F5)
         header("Location: profil.php?succes=vehicule");
         exit();
     } else {
@@ -100,6 +99,13 @@ $userNotes = UserNotes($userId);
                     <span class="rating-number"><?php echo number_format($averageNote, 1); ?>/5</span>
                 </div>
             </div>
+
+            <?php if (isset($_SESSION['admin_flag']) && $_SESSION['admin_flag'] === 'Y'): ?>
+                <a href="AdminBoard.php" class="admin-dashboard-btn">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> AdminBoard
+                </a>
+            <?php endif; ?>
+
         </div>
 
         <section class="vehicle-info">

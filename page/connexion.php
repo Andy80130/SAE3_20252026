@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($password) {
                     $_SESSION['user_id'] = $userInfo['user_id'];
                     $_SESSION['mail'] = $userInfo['mail'];
+                    $_SESSION['admin_flag'] = $userInfo['admin_flag'];
 
                     if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
                         header('Location: accueil.php');
