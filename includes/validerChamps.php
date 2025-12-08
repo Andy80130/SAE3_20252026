@@ -9,7 +9,7 @@ function validateField($data, $field, $label, $rules) {
                 }
                 break;
             case 'min_length':
-                if (empty($data['email']) && strlen($data[$field]) < $value) {
+                if (strlen($data[$field]) < $value) {
                     throw new Exception("$label doit contenir au moins $value caractères");
                 }
                 break;
@@ -28,18 +28,23 @@ function validateField($data, $field, $label, $rules) {
                     throw new Exception("$label ne doit pas être en dessous de $value");
                 }
                 break;
+            case 'max_value':
+                if ($data[$field] > $value) {
+                    throw new Exception("$label ne doit pas être au dessus de $value");
+                }
+                break;
             case 'validate_float':
-                if (filter_var($data[$field], FILTER_VALIDATE_FLOAT) === false && empty($data['email'])) {
-                    throw new Exception("$label doit être un nombre décimal");
+                if (filter_var($data[$field], FILTER_VALIDATE_FLOAT) === false) {
+                    throw new Exception("$label ne doit être composé que de chiffres");
                 }
                 break;
             case 'verify_password':
                 if($data[$field] != $data['password']) {
                     throw new Exception("$label est différent de ton mot de passe !");
                 }
+                break;
             case 'email':
-                // Vérification si l'email est valide
-                if (!filter_var($data[$field], FILTER_VALIDATE_EMAIL) && empty($data['phone'])) {
+                if (!filter_var($data[$field], FILTER_VALIDATE_EMAIL)) {
                     throw new Exception("$label doit être un email valide !");
                 }
                 break;

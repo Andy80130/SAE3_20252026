@@ -1,309 +1,419 @@
+/* --- styleAccueil.css (VERSION FINALE CORRIGÉE) --- */
+
+/* 1. RESET GLOBAL */
 * {
-    margin: 0;
+  box-sizing: border-box;
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: "Arial", sans-serif;
+  color: #333;
+  background: #fff;
+}
+main {
+  width: 100%;
+}
+footer {
+  width: 100% !important;
+}
+
+/* --- TYPOGRAPHIE & COULEURS --- */
+.title-orange {
+  color: #ff6600;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+.section-title-white {
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.text-gray {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.white-text {
+  color: white;
+}
+.justified {
+  text-align: justify;
+}
+.left-align {
+  text-align: left;
+}
+.icon-orange {
+  color: #ff6600;
+}
+
+/* --- CLASSES UTILITAIRES SECTIONS --- */
+.orange-section {
+  background: #ff6600;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+/* ================= SECTION HERO (BIENVENUE) ================= */
+.hero-banner {
+  text-align: center;
+  padding: 30px 20px;
+  background: #fff;
+  max-width: 1200px;
+  margin: 0 auto 30px auto; /* Marge bas réduite pour rapprocher de la carte */
+}
+
+.hero-text h1 {
+  color: #ff6600;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+.hero-text p {
+  color: #ff6600;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Image Voiture */
+.hero-image-container {
+  width: 100%;
+  margin-top: 20px;
+}
+.hero-img {
+  width: 100%;
+  height: 200px; /* HAUTEUR FIXE POUR BANDEAU */
+  object-fit: cover;
+  object-position: center;
+  border-radius: 20px; /* COINS ARRONDIS */
+  display: block;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ================= SECTION CARTE + RECHERCHE (CORRIGÉ) ================= */
+.search-section-container {
+  position: relative;
+  height: 350px;
+  max-width: 1200px;
+  margin: 0 auto 80px auto; /* Marge bas importante pour l'espace de la barre */
+  background: transparent;
+  /* overflow: hidden; SUPPRIMÉ pour ne pas couper la barre */
+}
+
+#map-hero {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  border-radius: 20px; /* Arrondi sur la carte */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar-wrapper {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 900px;
+  z-index: 100;
+}
+
+.main-search-form {
+  background: white;
+  border-radius: 50px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  padding: 5px;
+  border: 2px solid #ff6600;
+  width: 100%;
+}
+
+.search-input-group {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  min-width: 0; /* Permet aux inputs de rétrécir si besoin */
+}
+.search-input-group.middle {
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+}
+.search-input-group.date-group {
+  flex: 1;
+}
+
+.search-input-group input {
+  border: none;
+  outline: none;
+  padding: 15px 5px;
+  width: 100%;
+  font-size: 16px;
+  color: #555;
+  background: transparent;
+}
+
+.btn-search-main {
+  background: #ff6600;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-search-main:hover {
+  background: #e65c00;
+}
+
+/* ================= SECTION TRAJETS PROCHES ================= */
+.trajets-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.trajet-card-link {
+  text-decoration: none;
+}
+.trajet-card {
+  background: white;
+  border-radius: 50px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: transform 0.2s;
+}
+.trajet-card:hover {
+  transform: translateX(5px);
+}
+.avatar-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+.trajet-infos-line {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.trajet-route {
+  font-weight: bold;
+  color: #ff6600;
+  font-size: 15px;
+}
+.trajet-time {
+  color: #888;
+  font-size: 14px;
+}
+.arrow-icon {
+  color: #333;
+}
+.btn-see-more {
+  display: block;
+  margin: 20px auto 0;
+  background: none;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ================= SECTION TRAJETS POPULAIRES ================= */
+.trajets-populaires {
+  background: #e65c00;
+}
+.pop-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pop-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 25px;
+}
+.pop-link {
+  background: white;
+  border-radius: 50px;
+  padding: 15px 25px;
+  text-decoration: none;
+  color: #ff6600;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s;
+}
+.pop-link:hover {
+  transform: translateX(5px);
+}
+.pop-link i.fa-arrow-right-long {
+  margin: 0 10px;
+  color: #333;
+}
+.chevron-end {
+  color: #333;
+}
+
+/* ================= SECTION DASHBOARD PERSO ================= */
+.dashboard-perso-section {
+  padding: 60px 20px;
+  background: #fff;
+}
+.dashboard-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+.illustration-col {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.dash-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 20px;
+  border: 4px solid #ff6600;
+}
+.content-col {
+  flex: 1;
+  text-align: right;
+}
+.stats-bloc-orange {
+  background: #ff6600;
+  border-radius: 20px;
+  padding: 25px;
+  color: white;
+  margin-top: 30px;
+  text-align: center;
+}
+.stat-line {
+  padding: 15px 0;
+  font-size: 15px;
+}
+.stat-line.middle {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+.btn-voir-trajets {
+  display: block;
+  width: 100%;
+  background: #e65c00;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 15px;
+  border-radius: 50px;
+  margin-top: 20px;
+  transition: background 0.2s;
+  border: 2px solid white;
+}
+.btn-voir-trajets:hover {
+  background: white;
+  color: #ff6600;
+}
+
+/* ================= SECTION À PROPOS ================= */
+.about-container-flex {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.about-img-col {
+  flex: 1;
+}
+.about-img {
+  width: 100%;
+  border-radius: 20px;
+  border: 4px solid white;
+}
+.about-text-col {
+  flex: 1;
+}
+.btn-savoir-plus {
+  display: inline-block;
+  background: white;
+  color: #ff6600;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 12px 30px;
+  border-radius: 50px;
+  margin-top: 25px;
+  transition: transform 0.2s;
+}
+.btn-savoir-plus:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .main-search-form {
+    flex-direction: column;
+    border-radius: 25px;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    margin-top: 90px;
-
-    font-family: Arial, sans-serif;
-    color: #333;
-}
-
-/* Hero Section */
-.hero {
-    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23f4a460" width="1200" height="400"/></svg>');
-    background-size: cover;
-    background-position: center;
-    padding: 60px 20px;
-    text-align: center;
-    color: white;
-    position: relative;
-    min-height: 250px;
-}
-
-.hero h1 {
-    font-size: 32px;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-/* Search Form */
-.search-form {
-    background: white;
-    border-radius: 50px;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    max-width: 800px;
-    margin: 0 auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.search-form input {
-    border: none;
-    padding: 10px 15px;
-    flex: 1;
-    outline: none;
-    font-size: 14px;
-}
-
-.search-form input::placeholder {
-    color: #999;
-}
-
-.search-btn {
-    background: #ff6600;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.search-btn:hover {
-    background: #e55a00;
-}
-
-/* Map Section */
-.map-container {
-    height: 350px;
-    position: relative;
-}
-
-#map {
-    width: 100%;
-    height: 100%;
-}
-
-/* Nearby Trips */
-.nearby-trips {
-    background: #ff6600;
-    padding: 20px;
-}
-
-.nearby-trips h2 {
-    color: white;
-    font-size: 20px;
-    margin-bottom: 15px;
-}
-
-.trip-card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.trip-card:hover {
-    transform: translateX(5px);
-}
-
-.trip-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-
-.avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #ddd;
-}
-
-.trip-details {
-    flex: 1;
-}
-
-.trip-route {
-    font-weight: bold;
-    color: #ff6600;
-    margin-bottom: 5px;
-}
-
-.trip-time {
-    font-size: 13px;
-    color: #666;
-}
-
-.arrow {
-    color: #ff6600;
-    font-size: 20px;
-}
-
-.see-more {
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-    padding: 10px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-    margin: 15px auto;
-    display: block;
-    font-weight: bold;
-}
-
-.see-more:hover {
-    background: white;
-    color: #ff6600;
-}
-
-/* Popular Routes */
-.popular-routes {
-    background: #fff5e6;
-    padding: 30px 20px;
-}
-
-.popular-routes h2 {
-    color: #ff6600;
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.popular-routes p {
-    color: #666;
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-
-.route-card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    border: 2px solid #ff6600;
-    transition: transform 0.2s;
-}
-
-.route-card:hover {
-    transform: translateX(5px);
-}
-
-.route-text {
-    font-weight: bold;
-    color: #333;
-}
-
-/* Illustration Section */
-.illustration-section {
-    background: white;
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.illustration {
-    max-width: 300px;
-    margin: 0 auto 30px;
-}
-
-.illustration-section h2 {
-    color: #ff6600;
-    font-size: 22px;
-    margin-bottom: 15px;
-}
-
-.illustration-section p {
-    color: #666;
-    margin-bottom: 20px;
-    line-height: 1.6;
-}
-
-.info-box {
-    background: #fff5e6;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: left;
-}
-
-.info-box p {
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-.view-trips-btn {
-    background: #ff6600;
-    color: white;
-    border: none;
-    padding: 12px 40px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.view-trips-btn:hover {
-    background: #e55a00;
-}
-
-/* About Section */
-.about-section {
-    background: white;
-    padding: 40px 20px;
-}
-
-.about-content {
-    display: flex;
-    gap: 30px;
-    align-items: center;
-    max-width: 1000px;
-    margin: 0 auto;
-    flex-wrap: wrap;
-}
-
-.about-image {
-    flex: 1;
-    min-width: 250px;
-    border-radius: 10px;
     overflow: hidden;
-}
-
-.about-image img {
+  }
+  .search-input-group {
     width: 100%;
-    height: auto;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 10px 15px;
+  }
+  .search-input-group.middle {
+    border: none;
+    border-bottom: 1px solid #eee;
+  }
+  .search-input-group.date-group {
+    border-bottom: none;
+  }
+  .btn-search-main {
+    width: 100%;
+    border-radius: 0 0 23px 23px;
+    padding: 20px;
+  }
+  .search-bar-wrapper {
+    bottom: -110px;
+  }
+  .search-section-container {
+    margin-bottom: 130px;
+  }
+
+  /* Dashboard & About : Passage en colonne */
+  .dashboard-container,
+  .about-container-flex {
+    flex-direction: column;
+    gap: 30px;
+  }
+  .content-col,
+  .about-text-col {
+    text-align: center;
+  }
+  .pop-link,
+  .trajet-card {
+    font-size: 14px;
+  }
+  .hero-img {
+    height: 150px;
+  }
 }
-
-.about-text {
-    flex: 1;
-    min-width: 300px;
-}
-
-.about-text h2 {
-    color: #ff6600;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.about-text p {
-    color: #666;
-    line-height: 1.8;
-    margin-bottom: 20px;
-}
-
-.learn-more-btn {
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-    padding: 10px 30px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-

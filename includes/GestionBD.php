@@ -20,8 +20,8 @@
     //Users
 	function AddUser(string $lastName, string $firstName, string $mail, string $phoneNumber, string $hashed_password): bool {
         global $db;
-		$stmt = $db->prepare("INSERT INTO Users(last_name,first_name,mail,phone_number,password,role) 
-                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password, 0)");
+		$stmt = $db->prepare("INSERT INTO Users(last_name,first_name,mail,phone_number,password) 
+                                VALUES (:last_name,:first_name,:mail,:phone_number,:hashed_password)");
 		try{
 			$stmt->bindParam(':last_name', $lastName);
 			$stmt->bindParam(':first_name', $firstName);
@@ -32,8 +32,7 @@
 			return $stmt->execute();
 		}
 		catch (PDOException $e){
-			echo "Erreur lors de l'insertion : " . $e->getMessage();
-			return false;
+			throw new Exception("Veuillez utilisez votre mail UPJV");
 		}
 	}
 
@@ -109,8 +108,7 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la verification de l'email : " . $e->getMessage();
-            return false;
+            throw new Exception("Vous avez déjà un compte");
         }
     }
 
@@ -131,7 +129,7 @@
     //BlackList
     function AddMailBL(string $mail,string $reason,string $date): bool {
         global $db;
-        $stmt = $db->prepare("INSERT INTO Blacklist(mail,reason,ban_date) 
+        $stmt = $db->prepare("INSERT INTO BlackList(mail,reason,ban_date) 
                                 VALUES (:mail,:reason,:date)");
         try{
             $stmt->bindParam(':mail', $mail);
@@ -147,7 +145,7 @@
 
     function IsMailBL(string $mail): bool {
         global $db;
-        $stmt = $db->prepare("SELECT COUNT(*) FROM Blacklist WHERE mail = :mail");
+        $stmt = $db->prepare("SELECT COUNT(*) FROM BlackList WHERE mail = :mail");
         try{
             $stmt->bindParam(':mail', $mail);
             $stmt->execute();
@@ -156,6 +154,28 @@
         }
         catch (PDOException $e){
             echo "Erreur lors de la v�rification dans la blacklist : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    function GetAllBlacklist() {
+        global $db;
+        try {
+            $stmt = $db->prepare("SELECT * FROM BlackList ORDER BY ban_date DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    function RemoveFromBlacklist(string $mail): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM BlackList WHERE mail = :mail");
+            $stmt->bindParam(':mail', $mail);
+            return $stmt->execute();
+        } catch (PDOException $e) {
             return false;
         }
     }
@@ -198,7 +218,7 @@
         try{
             $db->beginTransaction();
 
-            //Suppression des R�servations
+            //Suppression des Reservations
             $stmt =$db->prepare("DELETE FROM Reservation WHERE journey_id = :journey_id");
             $stmt->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt->execute();
@@ -213,6 +233,100 @@
         catch (PDOException $e){
             echo "Erreur lors de la suppression des r�servations du trajet : " . $e->getMessage();
             return false;
+        }
+    }
+
+    function GetOrganizedJourneys(int $driver_id) {
+        global $db;
+        $stmt = $db->prepare("SELECT * FROM Journeys WHERE driver_id = :uid ORDER BY start_date ASC");
+        try {
+            $stmt->execute([':uid' => $driver_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération trajets organisés : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function GetJourneyParticipants(int $journey_id) {
+        global $db;
+        $sql = "SELECT U.first_name, U.last_name 
+                FROM Reservation R 
+                JOIN Users U ON R.user_id = U.user_id 
+                WHERE R.journey_id = :jid";
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':jid' => $journey_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération participants : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function GetReservedJourneysDetails(int $user_id) {
+        global $db;
+        // Jointure pour récupérer les infos du trajet ET le nom du conducteur
+        $sql = "SELECT J.*, U.first_name, U.last_name, U.mail
+                FROM Reservation R
+                JOIN Journeys J ON R.journey_id = J.journey_id
+                JOIN Users U ON J.driver_id = U.user_id
+                WHERE R.user_id = :uid
+                ORDER BY J.start_date ASC";
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':uid' => $user_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération trajets réservés : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Recherche des trajets selon critères dynamiques
+     * @param string|null $depart (optionnel) Ville de départ (recherche partielle)
+     * @param string|null $arrivee (optionnel) Ville d'arrivée (recherche partielle)
+     * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
+     */
+    function SearchJourneys(?string $depart, ?string $arrivee, ?string $date) {
+        global $db;
+        $sql = "SELECT J.*, U.first_name, U.last_name, U.photo_path 
+                FROM Journeys J
+                JOIN Users U ON J.driver_id = U.user_id
+                WHERE J.start_date >= CURDATE()";
+
+        $conditions = [];
+        $params = [];
+        
+        if (!empty($depart)) {
+            $conditions[] = "J.start_adress LIKE :depart";
+            $params[':depart'] = "%" . $depart . "%";
+        }
+
+        if (!empty($arrivee)) {
+            $conditions[] = "J.arrival_adress LIKE :arrivee";
+            $params[':arrivee'] = "%" . $arrivee . "%";
+        }
+
+        if (!empty($date)) {
+            $conditions[] = "DATE(J.start_date) = :date";
+            $params[':date'] = $date;
+        }
+
+        if (count($conditions) > 0) {
+            $sql .= " AND " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY J.start_date ASC";
+
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur lors de la recherche : " . $e->getMessage();
+            return [];
         }
     }
 
@@ -263,19 +377,16 @@
     function RemainingSeats(int $journey_id): int {
         global $db;
         try {
-            // R�cup�rer le nombre total de places pour le trajet
             $stmt_total = $db->prepare("SELECT number_place FROM Journeys WHERE journey_id = :journey_id");
             $stmt_total->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_total->execute();
             $total_places = $stmt_total->fetchColumn();
 
-            // R�cup�rer le nombre de r�servations pour le trajet
             $stmt_reserved = $db->prepare("SELECT COUNT(*) FROM Reservation WHERE journey_id = :journey_id");
             $stmt_reserved->bindParam(':journey_id', $journey_id, PDO::PARAM_INT);
             $stmt_reserved->execute();
             $reserved_places = $stmt_reserved->fetchColumn();
 
-            // Calculer les places restantes
             return max(0, $total_places - $reserved_places);
         } 
         catch (PDOException $e) {
@@ -331,6 +442,29 @@
         }
     }
 
+    function DeleteUserNotes(int $userId): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM Notes WHERE author_note = :uid");
+            $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    function DeleteTargetedNote(int $authorId, int $affectedUserId): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("DELETE FROM Notes WHERE author_note = :author AND affected_user = :affected");
+            $stmt->bindParam(':author', $authorId, PDO::PARAM_INT);
+            $stmt->bindParam(':affected', $affectedUserId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     //Reports
     function AddReport(string $reason,int $reported_user,int $reporter):bool{
         global $db;
@@ -372,6 +506,36 @@
         catch (PDOException $e){
             echo "Erreur lors de la s�lection des reports en attente : " . $e->getMessage();
             return [];
+        }
+    }
+
+    function GetAllReportsWithDetails() {
+        global $db;
+        try {
+            $stmt = $db->prepare("SELECT Rep.reporting_id, Rep.report_cause, Rep.status, Rep.user_reported, Rep.reporter_id,
+                       U.first_name AS reported_firstname, U.last_name AS reported_lastname, U.mail AS reported_mail,
+                       R.first_name AS reporter_firstname, R.last_name AS reporter_lastname
+                FROM Reports Rep
+                JOIN Users U ON Rep.user_reported = U.user_id
+                JOIN Users R ON Rep.reporter_id = R.user_id
+                ORDER BY Rep.user_reported ASC, Rep.reporting_id DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Erreur récupération signalements : " . $e->getMessage();
+            return [];
+        }
+    }
+
+    function UpdateReportStatus(int $reportId, int $newStatus): bool {
+        global $db;
+        try {
+            $stmt = $db->prepare("UPDATE Reports SET status = :status WHERE reporting_id = :id");
+            $stmt->bindParam(':status', $newStatus, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $reportId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
         }
     }
 ?>

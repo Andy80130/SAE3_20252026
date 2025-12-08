@@ -29,46 +29,55 @@
     </section>
 
     <!-- Search Section -->
-     <section>
+    <section>
         <h1 class="title">Renseignez votre recherche</h1>
+
         <form class="search" onsubmit="return false;">
-            <div class="positions">
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>Départ :</p>
-                    <input type="text" placeholder="ex : Amiens, Gare routière">
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>Destination</p>
-                    <input type="text" placeholder="ex : Amiens, IUT">
-                </label>
+
+            <!-- Positions -->
+            <div class="form-group">
+                <label for="depart">Départ</label>
+                <input id="depart" type="text" placeholder="ex : Amiens, Gare routière">
             </div>
-            <div class="horaires">
-                <p>Horaires :</p>
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>  Du :</p>
-                    <input type="date">
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>  Au :</p>
-                    <input type="date">
-                </label>
-                <p>Heure :</p>
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>  Du :</p>
-                    <input type="time" id="appt" name="appt">
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <p>  à :</p>
-                    <input type="time" id="appt" name="appt">
-                </label>
+
+            <div class="form-group">
+                <label for="arrivee">Destination</label>
+                <input id="arrivee" type="text" placeholder="ex : Amiens, IUT">
             </div>
+
+            <!-- Dates -->
+            <div class="form-group-inline">
+                <div>
+                    <label for="dateStart">Du (date)</label>
+                    <input id="dateStart" type="date">
+                </div>
+
+                <div>
+                    <label for="dateEnd">Au (date)</label>
+                    <input id="dateEnd" type="date">
+                </div>
+            </div>
+
+            <!-- Heures -->
+            <div class="form-group-inline">
+                <div>
+                    <label for="timeStart">De (heure)</label>
+                    <input id="timeStart" type="time">
+                </div>
+
+                <div>
+                    <label for="timeEnd">À (heure)</label>
+                    <input id="timeEnd" type="time">
+                </div>
+            </div>
+
         </form>
+
         <div class="search-btn-position">
-            <button class="search-btn" onclick="return false;">
-                🔍 Rechercher
-            </button>
+            <button class="search-btn" onclick="return false;">🔍 Rechercher</button>
         </div>
-     </section>
+    </section>
+
 
      <!-- Map -->
     <h1 class="title">Correspondances trouvées :</h1>

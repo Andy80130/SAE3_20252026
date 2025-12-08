@@ -1,65 +1,103 @@
 <?php
+session_start();
 include('../includes/validerChamps.php');
 include('../includes/GestionBD.php');
 include('../includes/cryptage.php');
+require __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$errors = [];
 
 // Traitement de la requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     global $errors;
 
     try {
-        // Stockage des données
-        $data['nom'] = $_POST['nom'] ?? '';
-        $data['prenom'] = $_POST['prenom'] ?? '';
-        $data['email'] = $_POST['email'] ?? '';
-        $data['telephone'] = $_POST['telephone'] ?? '';
-        $data['password'] = $_POST['password'] ?? '';
-        $data['verifPassword'] = $_POST['verifPassword'] ?? '';
+        if (isset($_POST['submit'])) {
+            // Stockage des données
+            $data['nom'] = $_POST['nom'] ?? '';
+            $data['prenom'] = $_POST['prenom'] ?? '';
+            $data['email'] = $_POST['email'] ?? '';
+            $data['telephone'] = $_POST['telephone'] ?? '';
+            $data['password'] = $_POST['password'] ?? '';
+            $data['verifPassword'] = $_POST['verifPassword'] ?? '';
 
-        // Validation des champs
-        validateField($data, 'nom', 'Nom', ['required' => true]);
-        validateField($data, 'prenom', 'Prenom', ['required' => true]);
-        validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
-        validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_value' => 10]);
-        validateField($data, 'password', 'Mot de passe', ['required' => true]);
-        validateField($data, 'verifPassword', '2ème mot de passe', ['required' => true]);
+            // Validation des champs
+            validateField($data, 'nom', 'Nom', ['required' => true]);
+            validateField($data, 'prenom', 'Prenom', ['required' => true]);
+            validateField($data, 'email', 'Email', ['required' => true, 'email' => true]);
+            validateField($data, 'telephone', 'Téléphone', ['required' => true, 'max_length' => 10, 'min_length' => 10, 'validate_float' => true]);
+            validateField($data, 'password', 'Mot de passe', ['required' => true]);
+            validateField($data, 'verifPassword', '2ème mot de passe', ['required' => true, 'verify_password' => true]);
 
-        //addUser
-        if(empty($errors) && !IsMailBL($data['email']) && !MailExist($data['email'])) {
-            AddUser($data['nom'], $data['prenom'], $data['email'], $data['telephone'], $data['password']);
+            $password = hacherMotDePasse($data['password']);
 
-            //Envoi du mail
-            $to = $data['email'];
-            $subject = "Bienvenue sur mon application !";
-            $message = "
-                    <html>
-                    <head><title>Bienvenue</title></head>
-                    <body>
-                    <h2>Merci pour votre inscription 🎉</h2>
-                    <p>Nous sommes très heureux de vous compter parmi nous.</p>
-                    </body>
-                    </html>
-                    ";
-            $headers  = "MIME-Version: 1.0" . "\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
+            //addUser
+            if(empty($errors) && !IsMailBL($data['email']) && !MailExist($data['email'])) {
+                AddUser($data['nom'], $data['prenom'], $data['email'], $data['telephone'], $password);
 
-            mail($to, $subject, $message, $headers);
+                $userInfo = GetUserInfo($data['email']);
+
+                if($userInfo) {
+                    $_SESSION['user_id'] = $userInfo['user_id'];
+                    $_SESSION['nom'] = $userInfo['last_name'];
+                    $_SESSION['prenom'] = $userInfo['first_name'];
+                    $_SESSION['mail'] = $userInfo['mail'];
+                    $_SESSION['admin_flag'] = $userInfo['admin_flag'];
+
+                    //Envoi du mail
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // Configuration SMTP
+                        $mail->isSMTP();
+                        $mail->Host       = 'smtp.gmail.com';
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = 'StudyGoSAE@gmail.com';
+                        $mail->Password   = 'eqvj gioa rcko rddi';
+                        $mail->SMTPSecure = 'tls';
+                        $mail->Port       = 587;
+                        $mail->SMTPOptions = [
+                            'ssl' => [
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                                'allow_self_signed' => true,
+                            ],
+                        ];
+
+                        // Destinataire et contenu
+                        $mail->setFrom($mail -> Username, 'StudyGo');
+                        $mail->addAddress($data['email']);
+                        $mail->Subject = 'Bienvenue sur mon application !';
+                        $mail->isHTML(true);
+                        $mail->Body = htmlspecialchars("
+                                        <h2>Merci pour votre inscription !</h2>
+                                        <p>Nous sommes très heureux de vous compter parmi nous et 
+                                        vous souhaitons une bonne expérience sur notre application !</p>
+                                        <p>Cet email est automatique, merci de ne pas répondre.</p>
+                                    ");
+                        $mail->send();
+                        echo 'Message envoyé avec succès !';
+                    } catch (Exception $e) {
+                        $errors[] = "Erreur lors de l'envoi" . $mail->ErrorInfo;
+                    }
+                }
+
+                if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
+                    header('Location: accueil.php');
+                    exit();
+                }
+            } else {
+                throw new Exception("Un compte existe déjà avec cet email.");
+            }
         } else {
-            throw new Exception($errors);
+            throw new Exception("Une erreur s'est produite.");
         }
-
-
     } catch (Exception $e) {
         // Capture de l'exception et ajout d'un message d'erreur
         $errors[] = $e->getMessage();
-    }
-
-    // Affichage des erreurs (si nécessaire)
-    if (!empty($errors)) {
-        foreach ($errors as $error) {
-            echo "<p style='color:red;'>$error</p>";
-        }
     }
 }
 ?>
@@ -69,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <title>Inscription à StudyGo</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/styleCompte.css">
 </head>
 <body>
@@ -82,9 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Vous êtes nouveau ? Alors n'hésitez pas à vous inscrire, c'est rapide et 100% gratuit !
             </div>
         </header>
+        <?php
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                echo "<p style='color:red; text-align: center;'>$error</p>";
+            }
+        }
+        ?>
         <section class="shadow p-4 rounded saisie-infos">
 
-            <form method="creerCompte.php" action="POST">
+            <form method="POST" action="">
                 <div class="row">
                     <div class="col">
                         <label for="nom">Nom</label>
@@ -118,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <button type="submit">Créer le compte</button>
+                <button type="submit" name="submit">Créer le compte</button>
             </form>
 
             <div class="text-center">

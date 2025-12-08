@@ -1,100 +1,300 @@
-.title{
-    color: #ff6600;
-    font-size: 250%;
-
-    margin-top: 25px;
-    margin-left: 15px;
+/* ===== Global ===== */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-.orangeBackground{
-    color : white;
-    background-color: #ff6600;
+h1, h2, h3, p {
+    margin: 0;
+}
 
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+}
+
+/* ===== Titles ===== */
+.title {
+    color: #ff6600;
+    font-size: 1.8em;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    margin-left: 15px;
+    text-align: center;
+}
+
+/* ===== Blocs Orange ===== */
+.orangeBackground,
+#intro,
+#noResults {
+    color: white;
+    background-color: #ff6600;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 20px; /* espace interne sur tous les côtés */
+    gap: 20px;
 }
 
-.orangeBackground p{
+/* Texte avec marge interne à gauche et droite */
+.orangeBackground p,
+#intro p,
+#noResults p {
     flex: 1;
-    font-size: 150%;
-    margin-right: 10px;
-    margin-left: 10px;
+    font-size: 1.2em;
+    margin: 0;
+    text-align: left;
+    padding-left: 15px;  /* espace à gauche */
+    padding-right: 20px; /* espace à droite entre texte et image */
 }
 
-.orangeBackground img{
+
+
+/* Image : reste alignée à droite */
+.orangeBackground img,
+#intro img,
+#noResults img {
     flex-shrink: 0;
+    max-width: 200px;
+    width: auto;
+    height: auto;
+    margin-right: 75px;
 }
 
-.search{
-    color : #ff6600;
-    font-size: 150%;
-    
-    border-style: solid;
-    border-radius: 15px;
 
+
+/* ===== Hero / Search ===== */
+.search {
+    color: #ff6600;
+    font-size: 1.2em;
+    border-style: solid;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
-
-    margin: 15px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    flex-wrap: wrap;
+    margin: 10px;
+    padding: 15px;
 }
 
-.search-btn-position{
+.search label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.search-btn-position {
     display: grid;
     align-items: center;
     justify-content: center;
 }
 
-.searchedJourney{
+.search-btn {
+    background-color: #ff6600;
+    color: white;
+    font-size: 0.9em;
+    padding: 8px 15px;
+}
+
+/* ===== Searched Journeys ===== */
+.searchedJourney {
     color: #ff6600;
     border-style: solid;
-    border-radius: 25px;
-    padding: 1%;
-
-    margin: 15px;
+    border-radius: 20px;
+    padding: 10px;
+    margin: 10px;
 }
 
-.user{
+.user {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.buttons{
+.user img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+
+.buttons {
     display: flex;
     justify-content: start;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-
-
-.image{
-    height: auto;
+/* ===== Map ===== */
+.map-container {
+    width: 100%;
+    height: 300px; /* réduit la hauteur */
+    margin: 15px 0;
 }
 
+/* ===== Footer ===== */
+footer {
+    background: #2c3e50;
+    color: white;
+    padding: 30px 15px;
+    margin-top: 30px;
+}
 
-#noResults, #intro{
-    color : white;
-    background-color: #ff6600;
-    padding: 10px;
-    font-size: 150%;
-
+.footer-content {
     display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+    gap: 20px;
 }
-/* PC */
-@media screen and (min-width: 1024px) {
-    #noResults, #intro{
-        justify-content: space-between;
-    }
+
+.footer-section h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
 }
-/* Téléphone */
+
+.footer-section ul li {
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+/* ===== Responsive ===== */
 @media screen and (max-width: 767px) {
-    #noResults, #intro, .search{
+    .orangeBackground,
+    #intro,
+    #noResults {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .orangeBackground p,
+    #intro p,
+    #noResults p {
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .orangeBackground img,
+    #intro img,
+    #noResults img {
+        max-width: 70%;
+    }
+
+    .search {
+        flex-direction: column;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .title {
+        font-size: 1.4em;
+    }
+
+    .user {
         flex-direction: column;
         align-items: center;
     }
-    .search{
-        padding-left: 5px;
+
+    .buttons {
+        justify-content: center;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .footer-section {
+        width: 100%;
+    }
+
+    .map-container {
+        height: 250px;
     }
 }
+
+@media screen and (max-width: 480px) {
+    .title {
+        font-size: 1.2em;
+    }
+
+    .orangeBackground p,
+    #intro p,
+    #noResults p {
+        font-size: 1em;
+    }
+
+    .footer-section h3 {
+        font-size: 13px;
+    }
+
+    .footer-section ul li {
+        font-size: 11px;
+    }
+
+    .footer-bottom {
+        font-size: 10px;
+        padding-top: 10px;
+    }
+
+    .map-container {
+        height: 200px;
+    }
+}
+
+/* ===== Formulaire amélioré ===== */
+
+.search {
+    color: #ff6600;
+    font-size: 1.2em;
+    border: 2px solid #ff6600;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px;
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group-inline {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.form-group-inline div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.search input {
+    padding: 10px;
+    font-size: 0.9em;
+    border: 1px solid #ff6600;
+    border-radius: 6px;
+    outline: none;
+    width: 100%;
+}
+
+.search input:focus {
+    border-color: #cc5200;
+}
+
+.search label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+

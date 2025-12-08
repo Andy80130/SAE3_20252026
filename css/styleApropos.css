@@ -1,6 +1,5 @@
-﻿
-body, html {
-    margin: 0;
+﻿body, html {
+    margin: 0 !important;
     padding: 0 !important;
     width: 100%;
     overflow-x: hidden;
@@ -11,65 +10,60 @@ body{
 }
 
 .about-container {
-    width: 100%; /* Prend toute la largeur */
-    padding: 0; /* Pas de padding global pour permettre de toucher les bords */
+    width: 100%;
+    padding: 0;
     font-family: 'Georgia', serif;
     color: #333;
-    overflow-x: hidden; /* Évite l'ascenseur horizontal à cause des gouttes */
+    overflow-x: hidden;
 }
 
-/* 1. Intro Banner (Reste centré) */
+/* 1. Intro Banner */
 .intro-banner {
     background-color: #ffcc99;
     border-radius: 30px;
     padding: 30px;
     text-align: center;
     border: 4px solid #ff9966;
-    /* On centre ce bloc spécifiquement */
     max-width: 800px;
     margin: 40px auto 80px auto;
 }
 
-    .intro-banner h1 {
-        font-style: italic;
-        font-weight: 800;
-        color: #444;
-        font-size: 28px;
-        margin-bottom: 20px;
-        font-family: 'Arial Black', sans-serif;
-    }
+.intro-banner h1 {
+    font-style: italic;
+    font-weight: 800;
+    color: #444;
+    font-size: 28px;
+    margin-bottom: 20px;
+    font-family: 'Arial Black', sans-serif;
+}
 
 .logos-container {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 30px;
+    flex-wrap: nowrap;
 }
 
-/* --- Styles pour le logo UPJV --- */
-.upjv-logo {
-    height: 80px; /* On fixe la hauteur pour que ça ne soit pas trop gros */
-    width: auto; /* La largeur s'adapte automatiquement */
-    display: block;
-}
-
-/* --- Style pour le point d'interrogation --- */
-.question-mark {
-    font-size: 80px; /* Taille imposante */
-    color: #ff6600; /* Orange vif */
-    font-weight: 900; /* Très gras */
-    font-family: 'Arial Black', sans-serif; /* Police épaisse */
-    line-height: 1;
-    margin: 0 20px; /* Un peu d'espace autour */
-}
-
+/* Images responsives */
+.upjv-logo,
 .car-illustration {
-    height: 60px;
+    height: auto;
+    max-height: 80px;
     width: auto;
     display: block;
 }
 
-/* 2. Cartes de contenu (Base) */
+/* Point d'interrogation */
+.question-mark {
+    font-size: 80px;
+    color: #ff6600;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+    line-height: 1;
+}
+
+/* 2. Cartes */
 .content-card {
     background: linear-gradient(135deg, #ff9933 0%, #ffb366 100%);
     color: black;
@@ -80,58 +74,53 @@ body{
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* Largeur par défaut sur PC pour faire l'effet décalé */
     width: 85%;
-    max-width: 1200px; /* Pour ne pas être trop géant sur grand écran */
+    max-width: 1200px;
     box-sizing: border-box;
 }
 
-    .content-card h2 {
-        text-align: center; /* Titre centré dans son bloc */
-        font-style: italic;
-        font-weight: 800;
-        font-size: 32px;
-        margin-bottom: 20px;
-        color: #444;
-    }
+.content-card h2 {
+    text-align: center;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #444;
+}
 
-    .content-card p {
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        font-size: 15px;
-        line-height: 1.6;
-        text-align: justify; /* Texte justifié c'est souvent plus propre sur des blocs larges */
-        max-width: 800px; /* Limite la largeur du texte pour la lisibilité */
-        margin: 0 auto; /* Centre le texte dans le bloc orange */
-    }
+.content-card p {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: justify;
+    max-width: 800px;
+    margin: 0 auto;
+}
 
-/* --- SPÉCIFIQUE : CRÉATION (Collé à Gauche) --- */
+/* Création */
 .creation-section {
-    margin-left: 0; /* Collé à gauche */
-    margin-right: auto; /* Pousse vers la gauche */
-    /* Bord plat à gauche */
+    margin-left: 0;
+    margin-right: auto;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    /* Vague à droite */
     border-top-right-radius: 60px 100px;
     border-bottom-right-radius: 60px 100px;
-    padding-right: 80px; /* Espace pour ne pas coller le texte à la vague */
+    padding-right: 80px;
 }
 
-/* --- SPÉCIFIQUE : REMERCIEMENT (Collé à Droite) --- */
+/* Remerciement */
 .thanks-section {
-    margin-right: 0; /* Collé à droite */
-    margin-left: auto; /* Pousse vers la droite */
-    /* Bord plat à droite */
+    margin-right: 0;
+    margin-left: auto;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    /* Vague à gauche */
     border-top-left-radius: 60px 100px;
     border-bottom-left-radius: 60px 100px;
-    padding-left: 80px; /* Espace pour ne pas coller le texte à la vague */
+    padding-left: 80px;
 }
 
-/* 3. Les Gouttes Décoratives */
+/* 3. Gouttes décoratives */
 .drops {
     position: absolute;
     top: 50%;
@@ -141,107 +130,105 @@ body{
     gap: 40px;
 }
 
-    .drops span {
-        display: block;
-        width: 20px;
-        height: 20px;
-        background-color: #ff9933; /* Même couleur que le début du dégradé */
-        border-radius: 0 50% 50% 50%;
-        transform: rotate(45deg);
-    }
-
-.right-drops {
-    right: -30px; /* Sort du bloc à droite */
+.drops span {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: #ff9933;
+    border-radius: 0 50% 50% 50%;
+    transform: rotate(45deg);
 }
 
-    .right-drops span:nth-child(1) {
-        width: 15px;
-        height: 15px;
-    }
+.right-drops { right: -30px; }
+.right-drops span:nth-child(1) { width: 15px; height: 15px; }
+.right-drops span:nth-child(2) { width: 25px; height: 25px; margin-left: 10px; }
+.right-drops span:nth-child(3) { width: 15px; height: 15px; }
 
-    .right-drops span:nth-child(2) {
-        width: 25px;
-        height: 25px;
-        margin-left: 10px;
-    }
+.left-drops { left: -30px; align-items: flex-end; }
+.left-drops span { transform: rotate(225deg); }
+.left-drops span:nth-child(1) { width: 15px; height: 15px; }
+.left-drops span:nth-child(2) { width: 25px; height: 25px; margin-right: 10px; }
+.left-drops span:nth-child(3) { width: 15px; height: 15px; }
 
-    .right-drops span:nth-child(3) {
-        width: 15px;
-        height: 15px;
-    }
-
-.left-drops {
-    left: -30px; /* Sort du bloc à gauche */
-    align-items: flex-end;
-}
-
-    .left-drops span {
-        transform: rotate(225deg);
-    }
-
-        .left-drops span:nth-child(1) {
-            width: 15px;
-            height: 15px;
-        }
-
-        .left-drops span:nth-child(2) {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px;
-        }
-
-        .left-drops span:nth-child(3) {
-            width: 15px;
-            height: 15px;
-        }
-
-
-/* 4. Liste équipe (Centrée) */
+/* 4. Liste Équipe */
 .team-list {
     text-align: center;
     margin: 50px auto;
     max-width: 800px;
 }
 
-    .team-list h3 {
-        font-weight: bold;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
+.team-list h3 {
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
 
-    .team-list ul {
-        list-style: none;
-        padding: 0;
-    }
+.team-list ul {
+    list-style: none;
+    padding: 0;
+}
 
-    .team-list li {
-        font-size: 12px;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        color: #333;
-        font-family: Arial, sans-serif;
-    }
+.team-list li {
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
 
-/* --- RESPONSIVE MOBILE --- */
+
+
+/* =========================== */
+/*        RESPONSIVE           */
+/* =========================== */
+
+/* TABLETTES */
 @media (max-width: 768px) {
+
     .intro-banner {
-        margin: 20px; /* Marges sur mobile */
+        margin: 20px;
+    }
+
+    .logos-container {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .upjv-logo,
+    .car-illustration {
+        max-height: 65px;
+    }
+
+    .question-mark {
+        font-size: 50px;
     }
 
     .content-card {
-        width: 100%; /* Pleine largeur sur mobile */
+        width: 100%;
         margin: 20px 0;
-        border-radius: 0 !important; /* Tout carré ou léger radius */
+        border-radius: 0 !important;
         padding: 30px 20px;
     }
 
-    /* On remet des formes plus douces sur mobile si on veut, ou on garde plat */
     .creation-section, .thanks-section {
         border-radius: 0;
         padding: 30px;
     }
 
     .drops {
-        display: none; /* Cache les gouttes sur mobile */
+        display: none;
+    }
+}
+
+/* TÉLÉPHONES */
+@media (max-width: 480px) {
+
+    .upjv-logo,
+    .car-illustration {
+        max-height: 50px;
+    }
+
+    .question-mark {
+        font-size: 40px;
     }
 }

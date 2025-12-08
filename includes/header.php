@@ -16,6 +16,7 @@
         <div class="create-trip">
             <a href="creerTrajet.php">
             <img src="../images/Icone_Créertrajet.png" alt="Créertrajet" class="Icone_Créertrajet">
+            <span class="create-text">Créer un trajet</span></a>
         </div>
         <div class="user-icon"><a href="profil.php">
             <img src="../images/Icone_Profil.png" alt="Photo de profil" class="profile-photo"></a>
