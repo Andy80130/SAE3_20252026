@@ -70,6 +70,20 @@ $userNotes = UserNotes($ViewUserId);
                     <?= htmlspecialchars($viewUserInfo['first_name'] . " " . $viewUserInfo['last_name']); ?>
                 </div>
                 
+                <div class="rating-container">
+                    <div class="cars-wrapper">
+                        <?php 
+                        $roundedNote = round($averageNote);
+                        for ($i = 1; $i <= 5; $i++) {
+                            echo ($i <= $roundedNote) ? 
+                                '<i class="fa-solid fa-car car-icon filled"></i>' : 
+                                '<i class="fa-solid fa-car car-icon empty"></i>';
+                        }
+                        ?>
+                    </div>
+                    <span class="rating-number"><?php echo number_format($averageNote, 1); ?>/5</span>
+                </div>
+
                 </div>
 
             </div>
