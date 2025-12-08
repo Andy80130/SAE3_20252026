@@ -3,6 +3,10 @@ session_start();
 include('../includes/validerChamps.php');
 include('../includes/GestionBD.php');
 include('../includes/cryptage.php');
+require __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 $errors = [];
 
@@ -38,28 +42,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if($userInfo) {
                     $_SESSION['user_id'] = $userInfo['user_id'];
+                    $_SESSION['nom'] = $userInfo['last_name'];
+                    $_SESSION['prenom'] = $userInfo['first_name'];
                     $_SESSION['mail'] = $userInfo['mail'];
+                    $_SESSION['admin_flag'] = $userInfo['admin_flag'];
 
                     //Envoi du mail
-                    $to = $data['email'];
-                    $subject = "Bienvenue sur mon application !";
-                    $message = "
-                    <html>
-                    <head><title>Bienvenue</title></head>
-                    <body>
-                    <h2>Merci pour votre inscription 🎉</h2>
-                    <p>Nous sommes très heureux de vous compter parmi nous.</p>
-                    <p>Cet email est automatique, merci de ne pas répondre.</p>
-                    </body>
-                    </html>
-                    ";
-                    $headers = "MIME-Version: 1.0" . "\r\n";
-                    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                    $headers .= "From: StudyGo <no-reply@studygo.com>" . "\r\n";
-                    $headers .= "Reply-To: contact@studygo.com\r\n";
+                    $mail = new PHPMailer(true);
 
-                    if (!mail($to, $subject, $message, $headers)) {
-                        $errors = "Erreur d'envoi du mail à $to";
+                    try {
+                        // Configuration SMTP
+                        $mail->isSMTP();
+                        $mail->Host       = 'smtp.gmail.com';
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = 'StudyGoSAE@gmail.com';
+                        $mail->Password   = 'eqvj gioa rcko rddi';
+                        $mail->SMTPSecure = 'tls';
+                        $mail->Port       = 587;
+                        $mail->SMTPOptions = [
+                            'ssl' => [
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                                'allow_self_signed' => true,
+                            ],
+                        ];
+
+                        // Destinataire et contenu
+                        $mail->setFrom($mail -> Username, 'StudyGo');
+                        $mail->addAddress($data['email']);
+                        $mail->Subject = 'Bienvenue sur mon application !';
+                        $mail->isHTML(true);
+                        $mail->Body = htmlspecialchars("
+                                        <h2>Merci pour votre inscription !</h2>
+                                        <p>Nous sommes très heureux de vous compter parmi nous et 
+                                        vous souhaitons une bonne expérience sur notre application !</p>
+                                        <p>Cet email est automatique, merci de ne pas répondre.</p>
+                                    ");
+                        $mail->send();
+                        echo 'Message envoyé avec succès !';
+                    } catch (Exception $e) {
+                        $errors[] = "Erreur lors de l'envoi" . $mail->ErrorInfo;
                     }
                 }
 

@@ -267,7 +267,7 @@
     function GetReservedJourneysDetails(int $user_id) {
         global $db;
         // Jointure pour récupérer les infos du trajet ET le nom du conducteur
-        $sql = "SELECT J.*, U.first_name, U.last_name 
+        $sql = "SELECT J.*, U.first_name, U.last_name, U.mail
                 FROM Reservation R
                 JOIN Journeys J ON R.journey_id = J.journey_id
                 JOIN Users U ON J.driver_id = U.user_id
