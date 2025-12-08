@@ -49,14 +49,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <body>
                     <h2>Merci pour votre inscription 🎉</h2>
                     <p>Nous sommes très heureux de vous compter parmi nous.</p>
+                    <p>Cet email est automatique, merci de ne pas répondre.</p>
                     </body>
                     </html>
                     ";
                     $headers = "MIME-Version: 1.0" . "\r\n";
                     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                    $headers .= "From: StudyGo <no-reply@StudyGo.com>" . "\r\n";
+                    $headers .= "From: StudyGo <no-reply@studygo.com>" . "\r\n";
+                    $headers .= "Reply-To: contact@studygo.com\r\n";
 
-                    @mail($to, $subject, $message, $headers);
+                    if (!mail($to, $subject, $message, $headers)) {
+                        $errors = "Erreur d'envoi du mail à $to";
+                    }
                 }
 
                 if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
