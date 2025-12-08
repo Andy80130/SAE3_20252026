@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($password) {
                     $_SESSION['user_id'] = $userInfo['user_id'];
                     $_SESSION['mail'] = $userInfo['mail'];
+                    $_SESSION['admin_flag'] = $userInfo['admin_flag'];
 
                     if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
                         header('Location: accueil.php');
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <title>Connexion à StudyGo</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/styleCompte.css">
 </head>
 <body>
