@@ -291,6 +291,8 @@ footer {
 .dash-img {
   max-width: 100%;
   height: auto;
+  border-radius: 20px;
+  border: 4px solid #ff6600;
 }
 .content-col {
   flex: 1;
