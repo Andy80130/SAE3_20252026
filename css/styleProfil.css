@@ -13,7 +13,7 @@ body {
     background-color: #f4f4f4;
 }
 
-/* 2. Styles spécifiques au Profil */
+/* 2. Styles spï¿½cifiques au Profil */
 
 .Titre {
     text-align: center;
@@ -55,7 +55,7 @@ body {
     color: #ff6600;
 }
 
-/* Section Véhicule */
+/* Section Vï¿½hicule */
 .vehicle-info {
     margin-top: 20px;
     padding: 20px;
@@ -177,7 +177,7 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* En-tête du commentaire (contenant les infos et le bouton signaler) */
+/* En-tï¿½te du commentaire (contenant les infos et le bouton signaler) */
 .comment-header {
     display: flex;
     justify-content: space-between;
@@ -210,7 +210,7 @@ body {
 .comment-report-btn {
     background: transparent;
     border: none;
-    color: #ccc; /* Gris discret par défaut */
+    color: #ccc; /* Gris discret par dï¿½faut */
     cursor: pointer;
     font-size: 16px;
     padding: 5px;
@@ -259,3 +259,4 @@ body {
     max-width: 500px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}

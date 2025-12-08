@@ -24,48 +24,6 @@ body {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/* --- Header --- */
-header {
-    background: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 999; /*Prio elevée sinon caca avec la carte*/
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-}
-
-.car-icon {
-    color: #ff6600;
-    font-size: 24px;
-}
-
-.header-actions {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-
 .TitreCreer {
     color: darkorange;
     font-weight: 700;
@@ -262,8 +220,7 @@ input[type="time"] {
 }
 
     .full-image img {
-        width: 90%;
-        max-width: 700px;
+        max-width: 400px;
         border-radius: 10px;
         object-fit: cover;
     }
