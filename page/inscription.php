@@ -3,7 +3,7 @@ session_start();
 include('../includes/validerChamps.php');
 include('../includes/GestionBD.php');
 include('../includes/cryptage.php');
-require __DIR__ . '/../vendor/autoload.php';
+require '../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

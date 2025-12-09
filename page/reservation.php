@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+require '../vendor/autoload.php';
 require("../includes/GestionBD.php");
 $userId = $_SESSION['user_id'];
 
