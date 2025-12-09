@@ -5,6 +5,9 @@ include('../includes/GestionBD.php');
 include('../includes/cryptage.php');
 require '../vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable('../');
+$dotenv->load();
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -53,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         // Configuration SMTP
                         $mail->isSMTP();
-                        $mail->Host       = 'smtp.gmail.com';
-                        $mail->SMTPAuth   = true;
-                        $mail->Username   = 'StudyGoSAE@gmail.com';
-                        $mail->Password   = 'eqvj gioa rcko rddi';
+                        $mail->Host = $_ENV['SMTP_HOST'];
+                        $mail->SMTPAuth = true;
+                        $mail->Username = $_ENV['SMTP_USERNAME'];
+                        $mail->Password = $_ENV['SMTP_PASSWORD'];
                         $mail->SMTPSecure = 'tls';
-                        $mail->Port       = 587;
+                        $mail->Port = $_ENV['SMTP_PORT'];
                         $mail->SMTPOptions = [
                             'ssl' => [
                                 'verify_peer' => false,
@@ -68,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ];
 
                         // Destinataire et contenu
-                        $mail->setFrom($mail -> Username, 'StudyGo');
+                        $mail->setFrom($_ENV['SMTP_USERNAME'], 'StudyGo');
                         $mail->addAddress($data['email']);
                         $mail->Subject = 'Bienvenue sur mon application !';
                         $mail->isHTML(true);
