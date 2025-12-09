@@ -2,6 +2,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    margin-top: 90px;
 }
 
 h1, h2, h3, p {
@@ -36,6 +37,7 @@ button {
     align-items: center;
     padding: 20px; /* espace interne sur tous les côtés */
     gap: 20px;
+
 }
 
 /* Texte avec marge interne à gauche et droite */

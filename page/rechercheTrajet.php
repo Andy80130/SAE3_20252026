@@ -25,16 +25,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
             if ($places_restantes > 0) {
                 // 2. Ajouter la réservation
                 if(AddReservation($id_user, $id_trajet_a_reserver)) {
-                    $reservation_message = "<div style='color:green; text-align:center;'>Réservation effectuée avec succès !</div>";
+                    
+                    // --- REDIRECTION APRÈS SUCCÈS (PRG) ---
+                    $params = http_build_query([
+                        'depart' => $_POST['depart'],
+                        'destination' => $_POST['destination'],
+                        'date' => $_POST['date'],
+                        'heure' => $_POST['heure'],
+                        'msg' => 'success' // Indicateur de succès
+                    ]);
+                    
+                    header("Location: rechercheTrajet.php?" . $params);
+                    exit();
+                    // ------------------------------------
+
                 } else {
-                    $reservation_message = "<div style='color:red; text-align:center;'>Erreur lors de la réservation.</div>";
+                    // Si AddReservation retourne false (ce qui ne devrait pas arriver 
+                    // si votre fonction lève une exception, mais par sécurité)
+                    $params = http_build_query([
+                        'depart' => $_POST['depart'],
+                        'destination' => $_POST['destination'],
+                        'date' => $_POST['date'],
+                        'heure' => $_POST['heure'],
+                        'msg' => 'error' // Indicateur d'erreur
+                    ]);
+                    header("Location: rechercheTrajet.php?" . $params);
+                    exit();
                 }
             } else {
                 $reservation_message = "<div style='color:red; text-align:center;'>Désolé, ce trajet est complet.</div>";
             }
         } catch (Exception $e) {
-            // Gère le cas où l'utilisateur a déjà réservé (doublon) ou erreur SQL
-            $reservation_message = "<div style='color:red; text-align:center;'>Erreur : " . $e->getMessage() . "</div>";
+            // En cas d'exception (doublon, erreur SQL, etc.)
+            $params = http_build_query([
+                'depart' => $_POST['depart'],
+                'destination' => $_POST['destination'],
+                'date' => $_POST['date'],
+                'heure' => $_POST['heure'],
+                'msg' => 'error' // Indicateur d'erreur
+            ]);
+            header("Location: rechercheTrajet.php?" . $params);
+            exit();
         }
     } else {
         $reservation_message = "<div style='color:red; text-align:center;'>Vous devez être connecté pour réserver.</div>";
@@ -70,15 +101,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_
             $heure = $dateTime->format('H:i');
         }
 
-        if (empty($errors_submit)) {
-            $datetime = $date . ' ' . $heure . ':00';
-            
-            // On récupère l'ID de l'utilisateur connecté (s'il existe)
-            $current_user = $_SESSION['user_id'] ?? null;
-
-            // On appelle la fonction avec le 4ème paramètre
-            $results = SearchJourneys($depart, $destination, $datetime, $current_user);
-        }
+    if (empty($errors_submit)) {
+        $datetime = $date . ' ' . $heure . ':00';
+        $current_user = $_SESSION['user_id'] ?? null;
+        $results = SearchJourneys($depart, $destination, $datetime, $current_user);
     }
 }
 ?>
@@ -98,10 +124,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_
 
 <?php require ('../includes/header.php'); ?>
 
-<?= $reservation_message ?>
-
+<?php
+// Vérification et affichage des messages de retour après redirection (PRG)
+if (isset($_GET['msg'])) {
+    $message = '';
+    $style = '';
+    
+    if ($_GET['msg'] === 'success') {
+        $message = "Votre trajet a bien été réservé !";
+        $style = 'background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;'; // Vert
+    } elseif ($_GET['msg'] === 'error') {
+        $message = "Une erreur s'est produite lors de la réservation. Veuillez réessayer ou vérifier votre statut.";
+        $style = 'background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'; // Rouge
+    }
+    
+    if ($message) {
+        echo "<div style='" . $style . " padding: 10px; margin: 15px auto; border-radius: 5px; text-align: center; max-width: 600px;'>";
+        echo "<strong>" . htmlspecialchars($message) . "</strong>";
+        echo "</div>";
+    }
+}
+?>
 <section>
-    <h1 class="title">Réserver un trajet</h1>
     <div id="intro">
         <p>
             Rejoignez un trajet en un instant grâce à notre recherche
@@ -196,27 +240,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_
                     <small style="color:#999;"><?= htmlspecialchars($trajet['vehicle_color']) ?></small>
                 </div>
 
-                <div class="trajet-action">
-                    <?php
+<div class="trajet-action">
+    
+    <?php
         $id_trajet = $trajet['journey_id'];
         $places_disponibles = RemainingSeats($id_trajet);
     ?>
+
     <span class="places-badge">
-        <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
+        <?= htmlspecialchars($places_disponibles) ?> place(s) dispo
     </span>
 
-                    <form method="post" action="rechercheTrajet.php">
-                        <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
-                        <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
-                        <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
-                        <input type="hidden" name="heure" value="<?= htmlspecialchars($heure) ?>">
-
-                        <input type="hidden" name="journey_id" value="<?= $trajet['journey_id'] ?>">
-                        <input type="hidden" name="action" value="reserver">
-
-                        <button class="btn-reserver" type="submit">Réserver</button>
-                    </form>
-                </div>
+    <form method="post" action="rechercheTrajet.php">
+        <input type="hidden" name="journey_id" value="<?= $id_trajet ?>">
+        <input type="hidden" name="action" value="reserver">
+        
+        <?php if ($places_disponibles > 0): ?>
+            <button class="btn-reserver" type="submit">Réserver</button>
+        <?php else: ?>
+            <button class="btn-reserver complet" type="button" disabled>Complet</button>
+        <?php endif; ?>
+    </form>
+</div>
 
             </div>
         <?php endforeach; ?>
