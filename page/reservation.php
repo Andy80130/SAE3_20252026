@@ -80,10 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Corps du mail en HTML
             $mail->isHTML(true);
             $mail->CharSet = 'UTF-8';
-            $mail->Body = $messageContent . "<br><br>" .
-                "Pour le recontacter, vous pouvez lui envoyer un mail à : " . $mailExp . "<br><br>" .
-                "Cordialement, l'équipe de StudyGo.";
-
+            $mail->addEmbeddedImage('../images/Logo_StudyGo.png', 'logo');
+            $mail->Body = "<p>" . $messageContent . "</p><br><br>" .
+                "<p>Pour le recontacter, vous pouvez lui envoyer un mail à : " . $mailExp . "<br><br>" .
+                "Cordialement, l'équipe de StudyGo.</p>
+                 <img src='cid:logo' alt='Logo' style='max-width:300px;'/>";
             $mail->send();
             header("Location: reservation.php?msg=mailSucces");
             exit();
