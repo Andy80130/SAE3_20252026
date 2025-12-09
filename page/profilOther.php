@@ -4,17 +4,14 @@ require("../includes/GestionBD.php");
 require("../includes/pdoSAE3.php");
 
 // Affichage selon les infos de l'utilisateur en question
-
 $parametre_key = 'user_id';
 $ViewUserId = 0;
 
-// [1] CORRECTION : Utiliser le tableau superglobal $_GET
 if(isset($_GET[$parametre_key])){
-    $ViewUserId = (int) $_GET[$parametre_key]; // [2] CORRECTION : Utiliser $_GET
+    $ViewUserId = (int) $_GET[$parametre_key];
 }
 
 if($ViewUserId <= 0){
-    // Utilisation d'un die() est approprié ici si l'ID est requis.
     die("ID utilisateur invalide ou manquant.");  
 }
 
@@ -34,10 +31,8 @@ catch (PDOException $e) {
 }
 
 $viewUserInfo = null;
-// [3] CORRECTION : Utiliser $ViewUserMail
 if($ViewUserMail){ 
     $viewUserInfo = GetUserInfo($ViewUserMail);
-    //UPDATE
     if(!$viewUserInfo){
         die("Utilisateur non trouvé.");
     }
@@ -45,81 +40,88 @@ if($ViewUserMail){
 
 $averageNote = AverageUserNote($ViewUserId);
 $userNotes = UserNotes($ViewUserId);
-// Note: $viewUserInfo est la variable correcte contenant les données
 ?>
-
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil de <?= htmlspecialchars($viewUserInfo['first_name'] ?? 'Utilisateur')?></title>
     <link rel="stylesheet" href="../css/styleProfil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <?php require("../includes/header.php") ?>
 
-    <?php if(isset($_GET['succes'])): ?>
-    <?php endif; ?>
+    <main class="main-content">
 
-    <h1 class="Titre">Profil de <?= htmlspecialchars($viewUserInfo['first_name'] ?? 'Utilisateur')?></h1>
-    
-    <div class="profile-container">
-        <img src="../images/Profil_Picture.png" alt="Photo" class="profile-photo">
-
-        <div class="profile-header">
-            <div class="profile-info-block">
-                <div class="profile-name">
-                    <?= htmlspecialchars($viewUserInfo['first_name'] . " " . $viewUserInfo['last_name']); ?>
-                </div>
-                
-                <div class="rating-container">
-                    <div class="cars-wrapper">
-                        <?php 
-                        $roundedNote = round($averageNote);
-                        for ($i = 1; $i <= 5; $i++) {
-                            echo ($i <= $roundedNote) ? 
-                                '<i class="fa-solid fa-car car-icon filled"></i>' : 
-                                '<i class="fa-solid fa-car car-icon empty"></i>';
-                        }
-                        ?>
-                    </div>
-                    <span class="rating-number">Note : <?php echo number_format($averageNote, 1); ?>/5</span>
-                </div>
-
-                </div>
-
-            </div>
+        <h1 class="Titre">Profil de <?= htmlspecialchars($viewUserInfo['first_name'] ?? 'Utilisateur')?></h1>
         
-        <section class="vehicle-info">
-            <h2>Véhicule du conducteur</h2>
-            <p>Modèle : <strong><?= htmlspecialchars($viewUserInfo['vehicle_model'] ?? 'Non renseigné') ?></strong></p>
-            <p>Couleur : <strong><?= htmlspecialchars($viewUserInfo['vehicle_color'] ?? 'Non renseigné') ?></strong></p>
-        </section>
+        <div class="profile-container">
+            
+            <div class="profile-header">
+                <img src="../images/Profil_Picture.png" alt="Photo" class="profile-photo">
 
-        <section class="comments-section">
-            <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
-            <?php if (count($userNotes) > 0): ?>
-                <div class="comments-list">
-                    <?php foreach ($userNotes as $note): ?>
-                        <div class="comment-card">
-                            <div class="comment-header">
-                                <div class="comment-info">
-                                    <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
-                                    <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
-                                </div>
-                                <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
-                                    <i class="fa-solid fa-triangle-exclamation"></i>
-                                </button>
-                            </div>
-                            <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
+                <div class="profile-info-block">
+                    <div class="profile-name">
+                        <?= htmlspecialchars($viewUserInfo['first_name'] . " " . $viewUserInfo['last_name']); ?>
+                    </div>
+                    
+                    <div class="rating-container">
+                        <div class="cars-wrapper">
+                            <?php 
+                            $roundedNote = round($averageNote);
+                            for ($i = 1; $i <= 5; $i++) {
+                                echo ($i <= $roundedNote) ? 
+                                    '<i class="fa-solid fa-car car-icon filled"></i>' : 
+                                    '<i class="fa-solid fa-car car-icon empty"></i>';
+                            }
+                            ?>
                         </div>
-                    <?php endforeach; ?>
+                        <span class="rating-number">Note : <?php echo number_format($averageNote, 1); ?>/5</span>
+                    </div>
                 </div>
-            <?php else: ?>
-                <p class="no-comments">Aucun avis pour le moment.</p>
-            <?php endif; ?>
-        </section>
+            </div>
+            
+            <section class="vehicle-info">
+                <h2>Véhicule du conducteur</h2>
+                <div class="input-group">
+                    <label>Modèle :</label>
+                    <p><strong><?= htmlspecialchars($viewUserInfo['vehicle_model'] ?? 'Non renseigné') ?></strong></p>
+                </div>
+                <div class="input-group">
+                    <label>Couleur :</label>
+                    <p><strong><?= htmlspecialchars($viewUserInfo['vehicle_color'] ?? 'Non renseigné') ?></strong></p>
+                </div>
+            </section>
 
-    </div>
+            <section class="comments-section">
+                <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
+                <?php if (count($userNotes) > 0): ?>
+                    <div class="comments-list">
+                        <?php foreach ($userNotes as $note): ?>
+                            <div class="comment-card">
+                                <div class="comment-header">
+                                    <div class="comment-info">
+                                        <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
+                                        <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
+                                    </div>
+                                    <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </button>
+                                </div>
+                                <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="no-comments">Aucun avis pour le moment.</p>
+                <?php endif; ?>
+            </section>
+
+        </div>
+    </main>
 
     <div id="reportModal" class="modal">
         <div class="modal-content">
@@ -137,8 +139,23 @@ $userNotes = UserNotes($ViewUserId);
         </div>
     </div>
 
-        </div>
-
     <?php require("../includes/footer.php") ?>
-    </body>
+
+    <script>
+        function openReportModal(authorId) {
+            document.getElementById("reportModal").style.display = "block";
+            document.getElementById("modal_reported_user_id").value = authorId;
+        }
+
+        function closeReportModal() {
+            document.getElementById("reportModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("reportModal")) {
+                closeReportModal();
+            }
+        }
+    </script>
+</body>
 </html>

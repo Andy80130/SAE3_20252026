@@ -134,40 +134,43 @@ function afficherCarte($data, $isOrganizer = false) {
     $avatar = '../images/Profil_Picture.png';
 
     $nom = htmlspecialchars($data['nom_affichage']);
-    $mail = htmlspecialchars($data['mail']);
+    $mail = htmlspecialchars($data['mail'] ?? '');
+    
     $depart = htmlspecialchars($data['start_adress']);
     $arrivee = htmlspecialchars($data['arrival_adress']);
     $nbInscrits = count($data['liste_participants']);
     $nbPlaces = $data['number_place'];
     $journeyId = $data['journey_id'];
 
-    //NEW
+    // --- MODIFICATION ICI ---
     $DriverID = $data['driver_id'] ?? 0;
-    $profilURL = "profilOther.php?user_id=" . urlencode($DriverID);
-    //FIN NEW
+    $currentUserID = $_SESSION['user_id'] ?? 0;
+
+    // Si le conducteur est l'utilisateur connecté -> profil.php
+    // Sinon -> profilOther.php
+    if ($DriverID == $currentUserID) {
+        $profilURL = "profil.php";
+    } else {
+        $profilURL = "profilOther.php?user_id=" . urlencode($DriverID);
+    }
+    // --- FIN MODIFICATION ---
     
     echo '<article class="card">';
     echo '  <div class="card-header">';
     echo '    <div class="organizer">';
 
-    //NEW
-    echo ' <a href="'.$profilURL.'" title="Voir le profil de '.$nom.'">';
-    //FIN NEW
-
     echo '      <img src="'.$avatar.'" class="avatar" alt="Photo de profil" />';
+    
     echo '      <div class="organizer-info">';
-    echo '        <h3>'.$nom.'</h3>';
+    
+    // Le lien entoure uniquement le nom
+    echo '        <h3><a href="'.$profilURL.'" title="Voir le profil">'.$nom.'</a></h3>';
 
     if ($isOrganizer) {
         echo '<span class="participants-count">Inscrits : '.$nbInscrits.' / '.$nbPlaces.'</span>';
     }
 
     echo '      </div>';
-
-    //NEW
-    echo ' </a>';
-    //FIN NEW
-
     echo '    </div>';
     echo '  </div>';
 
@@ -181,35 +184,29 @@ function afficherCarte($data, $isOrganizer = false) {
 
     if ($isOrganizer) {
         // --- ORGANISATEUR ---
-
-        // FORMULAIRE ANNULATION TRAJET
         echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer ce trajet ? Cela annulera toutes les réservations associées.\');">';
         echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
         echo '  <input type="hidden" name="action" value="delete_trip">';
         echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler le trajet</button>';
         echo '</form>';
 
-        // BOUTON VOIR PARTICIPANTS
         $styleBtn = ($nbInscrits > 0) ? 'btn-filled' : 'btn-outline';
         echo '    <button class="btn '.$styleBtn.' toggle-btn" style="flex:1;">Voir Participants</button>';
 
     } else {
         // --- PASSAGER ---
-
-        // FORMULAIRE ANNULATION RESERVATION
         echo '<form method="POST" style="flex:1;" onsubmit="return confirm(\'Êtes-vous sûr de vouloir annuler votre réservation ?\');">';
         echo '  <input type="hidden" name="journey_id" value="'.$journeyId.'">';
         echo '  <input type="hidden" name="action" value="cancel_reservation">';
         echo '  <button type="submit" class="btn btn-outline" style="width:100%;">Annuler réservation</button>';
         echo '</form>';
 
-        // BOUTON CONTACTER (Corrigé : Pas de <form>, ajout des quotes JS)
         echo '    <button type="button" class="btn btn-filled" style="flex:1;" onclick="openContactModal(\''.$mail.'\')">Contacter</button>';
     }
 
     echo '  </div>';
 
-    // LISTE DES PARTICIPANTS (Cachée par défaut)
+    // LISTE DES PARTICIPANTS
     if ($isOrganizer && $nbInscrits > 0) {
         echo '<div class="participants-list" style="display:none;">';
         foreach($data['liste_participants'] as $p) {
@@ -367,9 +364,7 @@ function afficherCarte($data, $isOrganizer = false) {
     }
 
     function openContactModal(mail) {
-        // Affiche le modal
         document.getElementById("ContactModal").style.display = "block";
-        // Injecte l'email dans le champ caché
         document.getElementById("modal_Contact_user_id").value = mail;
     }
 </script>
