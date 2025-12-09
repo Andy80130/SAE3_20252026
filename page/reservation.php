@@ -7,6 +7,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require '../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable('../');
+$dotenv->load();
+
 require("../includes/GestionBD.php");
 $userId = $_SESSION['user_id'];
 
@@ -43,12 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // Configuration SMTP
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = $_ENV['SMTP_HOST'];
             $mail->SMTPAuth = true;
-            $mail->Username = 'StudyGoSAE@gmail.com';
-            $mail->Password = 'eqvj gioa rcko rddi';
+            $mail->Username = $_ENV['SMTP_USERNAME'];
+            $mail->Password = $_ENV['SMTP_PASSWORD'];
             $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
+            $mail->Port = $_ENV['SMTP_PORT'];
             $mail->SMTPOptions = [
                 'ssl' => [
                     'verify_peer' => false,
@@ -63,15 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mailExp = isset($_SESSION['mail']) ? $_SESSION['mail'] : '';
 
             // Destinataire et contenu
-            $mail->setFrom($mail->Username, 'StudyGo');
+            $mail->setFrom($_ENV['SMTP_USERNAME'], 'StudyGo');
             $mail->addAddress($destinataire);
             $mail->Subject = 'Vous avez un message de '. $nomExp . ' ' . $prenomExp .' !';
             $mail->isHTML(true);
 
-            $messageContent = htmlspecialchars(trim($_POST['message']));
-            $mail->Body = htmlspecialchars($messageContent . ' Pour le recontacter, 
-            vous pouvez lui envoyer un mail a : ' . $mailExp .
-                " Cordialement, l'equipe de StudyGo.");
+            // Nettoyage du message utilisateur
+            $messageContent = htmlspecialchars(trim($_POST['message']), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $mailExp = htmlspecialchars($mailExp, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+            // Corps du mail en HTML
+            $mail->isHTML(true);
+            $mail->CharSet = 'UTF-8';
+            $mail->Body = $messageContent . "<br><br>" .
+                "Pour le recontacter, vous pouvez lui envoyer un mail à : " . $mailExp . "<br><br>" .
+                "Cordialement, l'équipe de StudyGo.";
 
             $mail->send();
             header("Location: reservation.php?msg=mailSucces");
