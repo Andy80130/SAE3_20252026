@@ -1,7 +1,6 @@
 <?php 
 session_start(); 
 require("../includes/GestionBD.php"); 
-require("../includes/pdoSAE3.php");
 
 // Affichage selon les infos de l'utilisateur en question
 $parametre_key = 'user_id';
@@ -15,31 +14,17 @@ if($ViewUserId <= 0){
     die("ID utilisateur invalide ou manquant.");  
 }
 
-// Récupération ID
-global $db;
-$ViewUserMail = null;
+// REMPLACEMENT DE TOUT LE BLOC SQL PAR LA FONCTION
+$viewUserInfo = GetUserInfoById($ViewUserId);
 
-try{
-    $sql_get_mail = "SELECT mail FROM Users WHERE user_id = :id";
-    $stmt_mail = $db->prepare($sql_get_mail);
-    $stmt_mail->bindParam(':id', $ViewUserId, PDO::PARAM_INT);
-    $stmt_mail->execute();
-    $ViewUserMail = $stmt_mail->fetchColumn();
-}
-catch (PDOException $e) {
-    die("Erreur lors de la récupération de l'email : " . $e->getMessage());
-}
-
-$viewUserInfo = null;
-if($ViewUserMail){ 
-    $viewUserInfo = GetUserInfo($ViewUserMail);
-    if(!$viewUserInfo){
-        die("Utilisateur non trouvé.");
-    }
+if(!$viewUserInfo){
+    die("Utilisateur non trouvé.");
 }
 
 $averageNote = AverageUserNote($ViewUserId);
 $userNotes = UserNotes($ViewUserId);
+
+// PLUS DE SQL POUR LES AUTEURS ICI NON PLUS
 ?>
 
 <!DOCTYPE html>
@@ -100,12 +85,22 @@ $userNotes = UserNotes($ViewUserId);
                 <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
                 <?php if (count($userNotes) > 0): ?>
                     <div class="comments-list">
-                        <?php foreach ($userNotes as $note): ?>
+                        <?php foreach ($userNotes as $note): 
+                            // UTILISATION DE LA FONCTION DANS LA BOUCLE
+                            $authorInfos = GetUserInfoById($note['author_note']);
+                            $authorName = $authorInfos ? $authorInfos['first_name'] . " " . $authorInfos['last_name'] : "Utilisateur inconnu";
+                            
+                            $authorId = $note['author_note'];
+                            $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+                            $profilLink = ($authorId == $currentUserId) ? "profil.php" : "profilOther.php?user_id=" . $authorId;
+                        ?>
                             <div class="comment-card">
                                 <div class="comment-header">
                                     <div class="comment-info">
                                         <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
-                                        <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
+                                        <a href="<?php echo $profilLink; ?>" class="comment-author" style="text-decoration:none; color:#ff6600; font-weight:bold; font-style:normal;">
+                                            <?php echo htmlspecialchars($authorName); ?>
+                                        </a>
                                     </div>
                                     <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
                                         <i class="fa-solid fa-triangle-exclamation"></i>

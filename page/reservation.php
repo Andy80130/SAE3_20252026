@@ -80,11 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Corps du mail en HTML
             $mail->isHTML(true);
             $mail->CharSet = 'UTF-8';
+            // Note : Assurez-vous que le chemin de l'image est correct par rapport à l'exécution du script
             $mail->addEmbeddedImage('../images/Logo_StudyGo.png', 'logo');
+            
             $mail->Body = "<p>" . $messageContent . "</p><br><br>" .
                 "<p>Pour le recontacter, vous pouvez lui envoyer un mail à : " . $mailExp . "<br><br>" .
                 "Cordialement, l'équipe de StudyGo.</p>
                  <img src='cid:logo' alt='Logo' style='max-width:300px;'/>";
+            
             $mail->send();
             header("Location: reservation.php?msg=mailSucces");
             exit();
@@ -143,18 +146,15 @@ function afficherCarte($data, $isOrganizer = false) {
     $nbPlaces = $data['number_place'];
     $journeyId = $data['journey_id'];
 
-    // --- MODIFICATION ICI ---
+    // --- Gestion du lien vers le profil du conducteur ---
     $DriverID = $data['driver_id'] ?? 0;
     $currentUserID = $_SESSION['user_id'] ?? 0;
 
-    // Si le conducteur est l'utilisateur connecté -> profil.php
-    // Sinon -> profilOther.php
     if ($DriverID == $currentUserID) {
         $profilURL = "profil.php";
     } else {
         $profilURL = "profilOther.php?user_id=" . urlencode($DriverID);
     }
-    // --- FIN MODIFICATION ---
     
     echo '<article class="card">';
     echo '  <div class="card-header">';
@@ -164,7 +164,7 @@ function afficherCarte($data, $isOrganizer = false) {
     
     echo '      <div class="organizer-info">';
     
-    // Le lien entoure uniquement le nom
+    // Le lien entoure uniquement le nom du conducteur
     echo '        <h3><a href="'.$profilURL.'" title="Voir le profil">'.$nom.'</a></h3>';
 
     if ($isOrganizer) {
@@ -207,13 +207,30 @@ function afficherCarte($data, $isOrganizer = false) {
 
     echo '  </div>';
 
-    // LISTE DES PARTICIPANTS
+    // --- LISTE DES PARTICIPANTS ---
     if ($isOrganizer && $nbInscrits > 0) {
         echo '<div class="participants-list" style="display:none;">';
         foreach($data['liste_participants'] as $p) {
+            
+            // Logique pour le lien du participant
+            $pId = $p['user_id'];
+            $currentId = $_SESSION['user_id'] ?? 0;
+            
+            // Lien vers le bon profil
+            if ($pId == $currentId) {
+                $linkProfil = "profil.php";
+            } else {
+                $linkProfil = "profilOther.php?user_id=" . $pId;
+            }
+
             echo '<div class="participant">';
             echo '  <img src="../images/Profil_Picture.png" class="avatar-small" alt="Avatar"/>';
-            echo '  <span>'.htmlspecialchars($p['first_name'].' '.$p['last_name']).'</span>';
+            
+            // MODIFICATION ICI : On laisse le CSS gérer le style
+            echo '  <a href="'.$linkProfil.'" title="Voir le profil">';
+            echo      htmlspecialchars($p['first_name'].' '.$p['last_name']);
+            echo '  </a>';
+            
             echo '</div>';
         }
         echo '</div>';
