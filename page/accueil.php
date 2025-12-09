@@ -14,25 +14,23 @@ $prenom = htmlspecialchars($userInfo['first_name']);
 // --- 2. LOGIQUE DASHBOARD PERSONNEL ---
 $trajets_organises = GetOrganizedJourneys($userId);
 $trajets_reserves = GetReservedJourneysDetails($userId);
-$tous_les_trajets = array_merge($trajets_organises, $trajets_reserves);
 $now = time();
 
-$nbTrajetsAVenir = 0;
-$nbReservationEnAttente = 0; 
-$nbDemandesEnAttente = 0;
-
-foreach ($tous_les_trajets as $t) {
+// Compteur : Trajets ORGANISÉS à venir
+$nbOrganisesAVenir = 0;
+foreach ($trajets_organises as $t) {
     if (strtotime($t['start_date']) > $now) {
-        $nbTrajetsAVenir++;
+        $nbOrganisesAVenir++;
     }
 }
 
-// --- 3. SIMULATION DES "TRAJETS PROCHES" ---
-$trajetsProches = [
-    ['nom' => 'Thomas', 'depart' => 'Gare du Nord', 'arrivee' => "IUT d'Amiens", 'heure' => '07:30', 'avatar' => '../images/Profil_Picture.png'],
-    ['nom' => 'Sarah', 'depart' => 'Centre Ville', 'arrivee' => "UPJV Pôle Sud", 'heure' => '08:15', 'avatar' => '../images/Profil_Picture.png'],
-    ['nom' => 'Lucas', 'depart' => 'Gare Routière', 'arrivee' => "St Leu", 'heure' => '08:45', 'avatar' => '../images/Profil_Picture.png']
-];
+// Compteur : Trajets RÉSERVÉS à venir
+$nbReservesAVenir = 0;
+foreach ($trajets_reserves as $t) {
+    if (strtotime($t['start_date']) > $now) {
+        $nbReservesAVenir++;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -84,27 +82,6 @@ $trajetsProches = [
             </div>
         </section>
 
-
-        <section class="orange-section trajets-proches">
-            <h2 class="section-title-white">Trajets proche de vous :</h2>
-            <div class="trajets-list">
-                <?php foreach($trajetsProches as $tp): ?>
-                    <a href="RechercheTrajet.php" class="trajet-card-link">
-                        <div class="trajet-card">
-                            <img src="<?= $tp['avatar'] ?>" alt="Avatar" class="avatar-mini">
-                            <div class="trajet-infos-line">
-                                <span class="trajet-route"><?= $tp['depart'] ?> / <?= $tp['arrivee'] ?></span>
-                                <span class="trajet-time"><?= $tp['heure'] ?>, Auj.</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right arrow-icon"></i>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-            <button class="btn-see-more">Voir plus <i class="fa-solid fa-chevron-down"></i></button>
-        </section>
-
-
         <section class="orange-section trajets-populaires">
             <div class="pop-content">
                 <h2 class="section-title-white left-align">Trajets Populaires</h2>
@@ -112,17 +89,16 @@ $trajetsProches = [
                 
                 <div class="pop-links">
                     <a href="RechercheTrajet.php?depart=Amiens,+Gare+routière&destination=IUT+d'Amiens" class="pop-link">
-                        Amiens, Gare routière <i class="fa-solid fa-arrow-right-long"></i> IUT d'Amiens
+                        <span>Amiens, Gare routière <i class="fa-solid fa-arrow-right-long"></i> IUT d'Amiens</span>
                         <i class="fa-solid fa-chevron-right chevron-end"></i>
                     </a>
                     <a href="RechercheTrajet.php?depart=IUT+d'Amiens&destination=Amiens,+Gare+routière" class="pop-link">
-                        IUT d'Amiens <i class="fa-solid fa-arrow-right-long"></i> Amiens, Gare routière
+                        <span>IUT d'Amiens <i class="fa-solid fa-arrow-right-long"></i> Amiens, Gare routière</span>
                         <i class="fa-solid fa-chevron-right chevron-end"></i>
                     </a>
                 </div>
             </div>
         </section>
-
 
         <section class="dashboard-perso-section">
             <div class="dashboard-container">
@@ -135,13 +111,11 @@ $trajetsProches = [
                     
                     <div class="stats-bloc-orange">
                         <div class="stat-line">
-                            <strong>Vous avez <?= $nbTrajetsAVenir ?> trajets à venir</strong>
+                            <strong>Vous organisez <?= $nbOrganisesAVenir ?> trajet(s)</strong>
                         </div>
+                        
                         <div class="stat-line middle">
-                            <strong>Vous avez <?= $nbReservationEnAttente ?> réservation en attente</strong>
-                        </div>
-                        <div class="stat-line">
-                            <strong>Vous avez <?= $nbDemandesEnAttente ?> demandes en attente</strong>
+                            <strong>Vous avez réservé <?= $nbReservesAVenir ?> trajet(s)</strong>
                         </div>
                         
                         <a href="reservation.php" class="btn-voir-trajets">Voir mes trajets</a>
@@ -149,7 +123,6 @@ $trajetsProches = [
                 </div>
             </div>
         </section>
-
 
         <section class="orange-section about-preview">
             <div class="about-container-flex">
@@ -173,7 +146,7 @@ $trajetsProches = [
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var map = L.map('map-hero', { zoomControl: false, scrollWheelZoom: false, dragging: true }).setView([49.8942, 2.2957], 13);
+            var map = L.map('map-hero', { zoomControl: true, scrollWheelZoom: true, dragging: true }).setView([49.8942, 2.2957], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 opacity: 0.8 
