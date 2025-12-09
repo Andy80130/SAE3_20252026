@@ -12,8 +12,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection");
         }
     }
 
@@ -121,8 +120,7 @@
             return $stmt->fetch(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la selection de l'utilisateur : " . $e->getMessage();
-            return null;
+            throw new Exception("Erreur lors de la récupération des données utilisateur");
         }
     }
 
@@ -153,8 +151,8 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la v�rification dans la blacklist : " . $e->getMessage();
-            return false;
+            throw new Exception("Votre compte est actuellement dans la liste noire,
+             veuillez contacter le support pour d'éventuelles informations");
         }
     }
 
@@ -238,7 +236,11 @@
 
     function GetOrganizedJourneys(int $driver_id) {
         global $db;
-        $stmt = $db->prepare("SELECT * FROM Journeys WHERE driver_id = :uid ORDER BY start_date ASC");
+        $stmt = $db->prepare("SELECT J.*, U.mail, U.first_name, U.last_name 
+            FROM Journeys J
+            JOIN Users U ON J.driver_id = U.user_id
+            WHERE J.driver_id = :uid 
+            ORDER BY J.start_date ASC");
         try {
             $stmt->execute([':uid' => $driver_id]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -267,7 +269,7 @@
     function GetReservedJourneysDetails(int $user_id) {
         global $db;
         // Jointure pour récupérer les infos du trajet ET le nom du conducteur
-        $sql = "SELECT J.*, U.first_name, U.last_name 
+        $sql = "SELECT J.*, U.first_name, U.last_name, U.mail
                 FROM Reservation R
                 JOIN Journeys J ON R.journey_id = J.journey_id
                 JOIN Users U ON J.driver_id = U.user_id
@@ -339,8 +341,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'insertion de la r�servation : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'insertion de la réservation");
         }
     }
 
@@ -353,8 +354,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'annulation de la r�servation : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'annulation de la réservation");
         }
     }
 
@@ -367,8 +367,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection des r�servations : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection des réservations");
         }
     }
 
@@ -388,8 +387,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return max(0, $total_places - $reserved_places);
         } 
         catch (PDOException $e) {
-            echo "Erreur lors du calcul des places restantes : " . $e->getMessage();
-            return 0;
+            throw new Exception("Erreur lors du calcul des places restantes");
         }
     }
 
@@ -406,8 +404,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'insertion de la note : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'insertion de la note");
         }
     }
 
@@ -421,8 +418,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $result['average_note'] !== null ? (float)$result['average_note'] : 0.0;
         }
         catch (PDOException $e){
-            echo "Erreur lors du calcul de la note moyenne : " . $e->getMessage();
-            return 0.0;
+            throw new Exception("Erreur lors du calcul de la note moyenne");
         }
     }
 
@@ -435,8 +431,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection des notes : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection des notes");
         }
     }
 
@@ -459,7 +454,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             $stmt->bindParam(':affected', $affectedUserId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            return false;
+            throw new Exception("Erreur lors de la suppression des notes");
         }
     }
 

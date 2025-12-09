@@ -1,126 +1,88 @@
 /* --- styleProfil.css --- */
 
-/* 1. Reset Global & Police */
+/* 1. Reset Global & Configuration Sticky Footer */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: Arial, sans-serif;
     color: #333;
     background-color: #f4f4f4;
-}
-
-/* 2. Styles sp�cifiques au Profil */
-
-.Titre {
-    text-align: center;
-    color: #ff6600;
-    margin: 20px 0;
-}
-
-.profile-container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    border: 4px solid #d9d9d9;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-/* Header du profil */
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    position: relative;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-/* Photo */
-.profile-photo {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* Nom */
-.profile-name {
-    font-weight: bold;
-    font-size: 18px;
-    color: #ff6600;
-}
-
-/* Section V�hicule */
-.vehicle-info {
-    margin-top: 20px;
-    padding: 20px;
-    background: #fff;
-    border: 2px solid #ff6600;
-    border-radius: 12px;
-}
-
-    .vehicle-info h2 {
-        color: #ff6600;
-        margin-bottom: 15px;
-    }
-
-/* Formulaires */
-.input-group {
-    margin-bottom: 15px;
+    padding-top: 105px;
+    
     display: flex;
     flex-direction: column;
 }
 
-    .input-group label {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .input-group input {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        outline: none;
-        font-size: 15px;
-        transition: border-color 0.2s ease;
-    }
-
-        .input-group input:focus {
-            border-color: #ff6600;
-        }
-
-.save-btn {
-    margin-top: 10px;
-    padding: 10px 18px;
-    background: #ff6600;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
+.main-content {
+    flex: 1; 
+    width: 100%;
+    padding-bottom: 40px;
 }
 
-    .save-btn:hover {
-        background: #e45700;
-    }
+/* 2. Styles spécifiques au Profil */
 
-/* --- Ajouts pour la Notation et les Commentaires --- */
+.Titre {
+    text-align: center;
+    color: #ff6600;
+    margin: 25px 0;
+    font-size: 2rem;
+}
+
+.profile-container {
+    max-width: 800px;
+    width: 90%;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Header du profil (Bloc contenant photo + nom) */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+}
+
+/* Photo - CORRECTION : Sélecteur plus précis pour ne pas toucher le header du site */
+.profile-container .profile-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    /* J'ai retiré la bordure orange ici pour rétablir l'apparence d'origine */
+}
 
 /* Bloc Info Profil (Nom + Note) */
 .profile-info-block {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    justify-content: center;
+    flex: 1;
 }
 
-/* Conteneur des voitures */
+.profile-name {
+    font-weight: bold;
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+/* Notation */
 .rating-container {
     display: flex;
     align-items: center;
@@ -132,37 +94,119 @@ body {
     gap: 4px;
 }
 
-/* Style des voitures */
 .car-icon {
     font-size: 18px;
 }
-
-    .car-icon.filled {
-        color: #ff6600;
-    }
-
-    .car-icon.empty {
-        color: #e0e0e0;
-    }
+.car-icon.filled { color: #ff6600; }
+.car-icon.empty { color: #e0e0e0; }
 
 .rating-number {
     font-weight: bold;
-    color: #666;
+    color: #ff6600;
+    font-size: 15px;
+}
+
+/* Bouton AdminBoard */
+.admin-dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: #ff6600 !important;
+    border: 2px solid #ff6600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none !important;
+    font-weight: bold;
     font-size: 14px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.admin-dashboard-btn:hover {
+    background-color: #ff6600;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 102, 0, 0.2);
+}
+
+/* Section Véhicule */
+.vehicle-info {
+    margin-top: 20px;
+    padding: 25px;
+    background: #fff9f5;
+    border: 1px solid #ffccaa;
+    border-radius: 12px;
+}
+
+.vehicle-info h2 {
+    color: #ff6600;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #ff6600;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Formulaires */
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.input-group input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+}
+
+.save-btn {
+    margin-top: 15px;
+    padding: 12px 25px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.2s;
+    width: 100%;
+    max-width: 200px;
+}
+
+.save-btn:hover {
+    background: #e45700;
 }
 
 /* Section Commentaires */
 .comments-section {
-    margin-top: 30px;
-    border-top: 2px solid #f0f0f0;
-    padding-top: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    padding-top: 30px;
 }
 
-    .comments-section h2 {
-        color: #ff6600;
-        margin-bottom: 20px;
-        font-size: 20px;
-    }
+.comments-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
 
 .comments-list {
     display: flex;
@@ -171,26 +215,25 @@ body {
 }
 
 .comment-card {
-    background-color: #f9f9f9;
+    background-color: #fff;
+    border: 1px solid #eee;
     border-left: 4px solid #ff6600;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
 
-/* En-t�te du commentaire (contenant les infos et le bouton signaler) */
 .comment-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 10px;
 }
 
-/* Groupe Note + Auteur */
 .comment-info {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -198,34 +241,35 @@ body {
     font-weight: bold;
     color: #d35400;
     background: #ffe0cc;
-    padding: 2px 8px;
-    border-radius: 10px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
 }
 
 .comment-author {
     color: #888;
+    font-size: 0.9rem;
     font-style: italic;
 }
 
-/* Bouton Signaler dans les commentaires */
 .comment-report-btn {
     background: transparent;
     border: none;
-    color: #ccc; /* Gris discret par d�faut */
+    color: #ccc;
     cursor: pointer;
     font-size: 16px;
     padding: 5px;
-    transition: color 0.3s ease;
+    transition: color 0.3s;
 }
 
-    .comment-report-btn:hover {
-        color: #ff3333;
-    }
+.comment-report-btn:hover {
+    color: #ff3333;
+}
 
 .comment-text {
     font-size: 15px;
     color: #444;
-    line-height: 1.4;
+    line-height: 1.5;
     font-style: italic;
 }
 
@@ -236,8 +280,7 @@ body {
     padding: 20px;
 }
 
-/* --- Style de la Modale (Pop-up) --- */
-
+/* --- Style de la Modale --- */
 .modal {
     display: none;
     position: fixed;
@@ -262,31 +305,6 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-.modal-submit-btn {
-    margin-top: 15px;
-    padding: 10px 18px;
-    background: #d35400;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
-}
-
-    .modal-submit-btn:hover {
-        background: #a04000;
-    }
-
-textarea {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    resize: vertical;
-}
-
 .close {
     color: #aaa;
     float: right;
@@ -294,57 +312,65 @@ textarea {
     font-weight: bold;
     cursor: pointer;
 }
+.close:hover { color: black; }
 
-    .close:hover {
-        color: black;
-    }
-
-.admin-dashboard-btn,
-.admin-dashboard-btn:visited,
-.admin-dashboard-btn:link {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #ffffff;
-    color: #ff6600 !important;
-    border: 2px solid #ff6600;
-    padding: 8px 16px;
+.modal-submit-btn {
+    margin-top: 15px;
+    padding: 12px 18px;
+    background: #d35400;
+    color: white;
+    border: none;
     border-radius: 8px;
-    text-decoration: none !important; 
+    cursor: pointer;
+    width: 100%;
     font-weight: bold;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    outline: none;
+    font-size: 16px;
+}
+.modal-submit-btn:hover { background: #a04000; }
+
+textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    font-family: inherit;
 }
 
-    .admin-dashboard-btn:hover,
-    .admin-dashboard-btn:active {
-        background-color: #ff6600;
-        color: #ffffff !important; /* Force le texte blanc */
-        box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
-        transform: translateY(-2px);
-    }
-
-    .admin-dashboard-btn i {
-        font-size: 15px;
-    }
-
+/* --- RESPONSIVE MOBILE (Media Queries) --- */
 @media (max-width: 600px) {
+    body {
+        padding-top: 90px;
+    }
+
+    .profile-container {
+        padding: 20px;
+        margin-top: 10px;
+        width: 95%;
+    }
+
     .profile-header {
-        justify-content: center;
+        flex-direction: column;
         text-align: center;
+        gap: 15px;
     }
 
     .profile-info-block {
         align-items: center;
     }
 
-    .admin-dashboard-btn,
-    .admin-dashboard-btn:visited {
-        margin-left: 0;
+    .admin-dashboard-btn {
         width: 100%;
         justify-content: center;
-        margin-top: 15px;
+        margin-top: 10px;
+    }
+    
+    .save-btn {
+        max-width: 100%;
+    }
+
+    .comment-header {
+        align-items: flex-start;
     }
 }

@@ -22,4 +22,4 @@
             <img src="../images/Icone_Profil.png" alt="Photo de profil" class="profile-photo"></a>
         </div>
     </div>
-</header>
+    </header>

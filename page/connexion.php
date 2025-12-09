@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($password) {
                     $_SESSION['user_id'] = $userInfo['user_id'];
+                    $_SESSION['nom'] = $userInfo['last_name'];
+                    $_SESSION['prenom'] = $userInfo['first_name'];
                     $_SESSION['mail'] = $userInfo['mail'];
                     $_SESSION['admin_flag'] = $userInfo['admin_flag'];
 
