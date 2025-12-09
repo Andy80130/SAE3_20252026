@@ -106,6 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_
         $current_user = $_SESSION['user_id'] ?? null;
         $results = SearchJourneys($depart, $destination, $datetime, $current_user);
     }
+    }
 }
 ?>
 
