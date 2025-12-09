@@ -18,6 +18,11 @@ header {
   /* On fixe une hauteur explicite pour faciliter les calculs de marge */
   height: 90px; 
 }
+header.not-top{
+    height: 5%;
+    border-bottom: 4px solid #ff6600;
+    padding: 15px;
+}
 
 /* J'ai supprimé le bloc header.not-top ici */
 

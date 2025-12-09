@@ -298,3 +298,300 @@ footer {
     margin-bottom: 5px;
 }
 
+/* ===== Résultats des trajets ===== */
+
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px;
+}
+
+.trajet-card {
+    background: #ffffff;
+    border: 2px solid #ff6600;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* === Ligne du haut === */
+.trajet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.driver-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #ff6600;
+}
+
+.places {
+    background: #ff6600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* === Partie centrale === */
+.trajet-middle {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.trajet-route {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.arrow {
+    color: #ff6600;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.trajet-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+}
+
+/* Icônes */
+.icon-calendrier {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-voiture {
+    width: 5%;
+    height: 1%;
+}
+
+/* === Pied du bloc === */
+.trajet-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #444;
+    font-size: 0.95em;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .trajet-card {
+        padding: 12px;
+    }
+
+    .driver-name {
+        font-size: 1em;
+    }
+
+    .places {
+        font-size: 0.8em;
+        padding: 4px 8px;
+    }
+}
+
+
+
+/* ===== Résultats des trajets (Design Amélioré) ===== */
+
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 900px; /* Limite la largeur pour que ça reste beau sur grand écran */
+    margin: 20px auto; /* Centre le conteneur */
+    padding: 0 15px;
+}
+
+.trajet-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0; /* Bordure plus subtile */
+    border-left: 5px solid #ff6600; /* Marqueur visuel orange à gauche */
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* 3 colonnes : Info trajet | Conducteur | Action */
+    gap: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.trajet-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* === Colonne 1 : Itinéraire et Horaires === */
+.trajet-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.trajet-time {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.trajet-route {
+    font-size: 1.1em;
+    color: #555;
+    display: flex;
+    flex-direction: column; /* Pour afficher départ au dessus de l'arrivée si besoin, ou changer en row */
+    gap: 5px;
+    position: relative;
+    padding-left: 15px;
+    border-left: 2px solid #ff6600; /* Ligne verticale style timeline */
+}
+
+.route-step {
+    line-height: 1.2;
+}
+
+.route-step strong {
+    color: #333;
+}
+
+/* === Colonne 2 : Conducteur et Véhicule === */
+.trajet-driver {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre les éléments */
+    justify-content: center;
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+    padding: 0 15px;
+    text-align: center;
+}
+
+.driver-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.driver-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;       /* Rend l'image ronde */
+    object-fit: cover;        /* Assure que l'image remplit le cercle sans être déformée */
+    border: 2px solid #ff6600; /* Fine bordure orange pour rappeler le thème */
+    background-color: #eee;   /* Couleur de fond si l'image met du temps à charger */
+}
+
+.car-info {
+    font-size: 0.85em;
+    color: #777;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}
+
+/* Correction de l'image voiture */
+.icon-voiture-small {
+    width: 18px; 
+    height: auto;
+    object-fit: contain;
+}
+
+/* === Colonne 3 : Prix et Action === */
+.trajet-action {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end; /* Aligne à droite */
+}
+
+.places-badge {
+    background-color: #e8f5e9; /* Vert très clair */
+    color: #2e7d32; /* Vert foncé */
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.places-badge.full {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.btn-reserver {
+    background-color: #ff6600;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.3s;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    width: 100%; /* Bouton prend toute la largeur dispo dans sa colonne */
+}
+
+.btn-reserver:hover {
+    background-color: #e65c00;
+}
+
+.btn-map {
+    background: none;
+    border: none;
+    color: #ff6600;
+    font-size: 0.9em;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 5px;
+}
+
+/* === Responsive (Mobile) === */
+@media (max-width: 768px) {
+    .trajet-card {
+        grid-template-columns: 1fr; /* Une seule colonne */
+        gap: 15px;
+        text-align: center;
+    }
+
+    .trajet-route {
+        align-items: center;
+        border-left: none; /* Enlève la ligne sur mobile */
+        padding-left: 0;
+    }
+    
+    .trajet-driver {
+        border: none;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+    }
+
+    .trajet-action {
+        align-items: center;
+        flex-direction: row; /* Bouton et places côte à côte */
+        gap: 10px;
+    }
+
+    .btn-reserver {
+        width: auto;
+        flex-grow: 1;
+    }
+}
