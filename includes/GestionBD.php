@@ -12,8 +12,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection");
         }
     }
 
@@ -121,8 +120,7 @@
             return $stmt->fetch(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la selection de l'utilisateur : " . $e->getMessage();
-            return null;
+            throw new Exception("Erreur lors de la récupération des données utilisateur");
         }
     }
 
@@ -153,8 +151,8 @@
             return $count > 0;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la v�rification dans la blacklist : " . $e->getMessage();
-            return false;
+            throw new Exception("Votre compte est actuellement dans la liste noire,
+             veuillez contacter le support pour d'éventuelles informations");
         }
     }
 
@@ -323,8 +321,7 @@
             $stmt->execute($params);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            echo "Erreur lors de la recherche : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la recherche");
         }
     }
 
@@ -339,8 +336,7 @@
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'insertion de la r�servation : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'insertion de la réservation");
         }
     }
 
@@ -353,8 +349,7 @@
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'annulation de la r�servation : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'annulation de la réservation");
         }
     }
 
@@ -367,8 +362,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection des r�servations : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection des réservations");
         }
     }
 
@@ -388,8 +382,7 @@
             return max(0, $total_places - $reserved_places);
         } 
         catch (PDOException $e) {
-            echo "Erreur lors du calcul des places restantes : " . $e->getMessage();
-            return 0;
+            throw new Exception("Erreur lors du calcul des places restantes");
         }
     }
 
@@ -406,8 +399,7 @@
             return $stmt->execute();
         }
         catch (PDOException $e){
-            echo "Erreur lors de l'insertion de la note : " . $e->getMessage();
-            return false;
+            throw new Exception("Erreur lors de l'insertion de la note");
         }
     }
 
@@ -421,8 +413,7 @@
             return $result['average_note'] !== null ? (float)$result['average_note'] : 0.0;
         }
         catch (PDOException $e){
-            echo "Erreur lors du calcul de la note moyenne : " . $e->getMessage();
-            return 0.0;
+            throw new Exception("Erreur lors du calcul de la note moyenne");
         }
     }
 
@@ -435,8 +426,7 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e){
-            echo "Erreur lors de la s�lection des notes : " . $e->getMessage();
-            return [];
+            throw new Exception("Erreur lors de la sélection des notes");
         }
     }
 
@@ -459,7 +449,7 @@
             $stmt->bindParam(':affected', $affectedUserId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            return false;
+            throw new Exception("Erreur lors de la suppression des notes");
         }
     }
 
