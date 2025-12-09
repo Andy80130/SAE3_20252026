@@ -111,11 +111,11 @@ foreach ($trajets_reserves as $t) {
                     
                     <div class="stats-bloc-orange">
                         <div class="stat-line">
-                            <strong>Vous organisez <?= $nbOrganisesAVenir ?> trajet(s)</strong>
+                            <strong>Vous organisez <?= $nbOrganisesAVenir ?> trajet(s) à venir</strong>
                         </div>
                         
                         <div class="stat-line middle">
-                            <strong>Vous avez réservé <?= $nbReservesAVenir ?> trajet(s)</strong>
+                            <strong>Vous avez réservé <?= $nbReservesAVenir ?> trajet(s) à venir</strong>
                         </div>
                         
                         <a href="reservation.php" class="btn-voir-trajets">Voir mes trajets</a>
@@ -146,7 +146,12 @@ foreach ($trajets_reserves as $t) {
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var map = L.map('map-hero', { zoomControl: true, scrollWheelZoom: true, dragging: true }).setView([49.8942, 2.2957], 13);
+            var map = L.map('map-hero', { 
+                zoomControl: true,       
+                scrollWheelZoom: true,   
+                dragging: true          
+            }).setView([49.8942, 2.2957], 13);
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 opacity: 0.8 
