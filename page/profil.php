@@ -57,6 +57,7 @@ $userNotes = UserNotes($userId);
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>StudyGo - Profil</title>
     <link rel="stylesheet" href="../css/styleProfil.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -64,95 +65,98 @@ $userNotes = UserNotes($userId);
 <body>
     <?php require("../includes/header.php") ?>
 
-    <?php if(isset($_GET['succes'])): ?>
-        <div class="msg-success" style="background:#d4edda; color:#155724; padding:10px; text-align:center; margin-bottom:15px;">
-            <?php 
-                if($_GET['succes'] == 'vehicule') echo "Infos véhicule mises à jour !";
-                if($_GET['succes'] == 'report') echo "Signalement envoyé aux administrateurs.";
-            ?>
-        </div>
-    <?php endif; ?>
+    <main class="main-content">
 
-    <h1 class="Titre">Profil</h1>
-    
-    <div class="profile-container">
+        <?php if(isset($_GET['succes'])): ?>
+            <div class="msg-success" style="background:#d4edda; color:#155724; padding:15px; text-align:center; margin: 20px auto; max-width:800px; border-radius:8px;">
+                <?php 
+                    if($_GET['succes'] == 'vehicule') echo "Infos véhicule mises à jour !";
+                    if($_GET['succes'] == 'report') echo "Signalement envoyé aux administrateurs.";
+                ?>
+            </div>
+        <?php endif; ?>
 
-        <div class="profile-header">
-            <img src="../images/Profil_Picture.png" alt="Photo" class="profile-photo">
-            
-            <div class="profile-info-block">
-                <div class="profile-name">
-                    <?php echo htmlspecialchars($userInfo['first_name'] . " " . $userInfo['last_name']); ?>
-                </div>
+        <h1 class="Titre">Profil</h1>
+        
+        <div class="profile-container">
+
+            <div class="profile-header">
+                <img src="../images/Profil_Picture.png" alt="Photo" class="profile-photo">
                 
-                <div class="rating-container">
-                    <div class="cars-wrapper">
-                        <?php 
-                        $roundedNote = round($averageNote);
-                        for ($i = 1; $i <= 5; $i++) {
-                            echo ($i <= $roundedNote) ? 
-                                '<i class="fa-solid fa-car car-icon filled"></i>' : 
-                                '<i class="fa-solid fa-car car-icon empty"></i>';
-                        }
-                        ?>
+                <div class="profile-info-block">
+                    <div class="profile-name">
+                        <?php echo htmlspecialchars($userInfo['first_name'] . " " . $userInfo['last_name']); ?>
                     </div>
-                    <span class="rating-number"><?php echo number_format($averageNote, 1); ?>/5</span>
+                    
+                    <div class="rating-container">
+                        <div class="cars-wrapper">
+                            <?php 
+                            $roundedNote = round($averageNote);
+                            for ($i = 1; $i <= 5; $i++) {
+                                echo ($i <= $roundedNote) ? 
+                                    '<i class="fa-solid fa-car car-icon filled"></i>' : 
+                                    '<i class="fa-solid fa-car car-icon empty"></i>';
+                            }
+                            ?>
+                        </div>
+                        <span class="rating-number"><?php echo number_format($averageNote, 1); ?>/5</span>
+                    </div>
                 </div>
+
+                <?php if (isset($_SESSION['admin_flag']) && $_SESSION['admin_flag'] === 'Y'): ?>
+                    <a href="AdminBoard.php" class="admin-dashboard-btn">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> AdminBoard
+                    </a>
+                <?php endif; ?>
+
             </div>
 
-            <?php if (isset($_SESSION['admin_flag']) && $_SESSION['admin_flag'] === 'Y'): ?>
-                <a href="AdminBoard.php" class="admin-dashboard-btn">
-                    <i class="fa-solid fa-screwdriver-wrench"></i> AdminBoard
-                </a>
-            <?php endif; ?>
+            <section class="vehicle-info">
+                <h2>Informations sur le véhicule</h2>
+                
+                <form method="post" action="">
+                    <div class="input-group">
+                        <label for="modele">Modèle</label>
+                        <input type="text" id="modele" name="modele" 
+                               value="<?php echo htmlspecialchars($userInfo['vehicle_model'] ?? ''); ?>" 
+                               placeholder="Ex: Clio 4">
+                    </div>
+                    <div class="input-group">
+                        <label for="couleur">Couleur</label>
+                        <input type="text" id="couleur" name="couleur" 
+                               value="<?php echo htmlspecialchars($userInfo['vehicle_color'] ?? ''); ?>" 
+                               placeholder="Ex: Rouge">
+                    </div>
+                    <button type="submit" name="btn_update_vehicle" class="save-btn">Enregistrer</button>
+                </form>
+            </section>
+
+            <section class="comments-section">
+                <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
+                <?php if (count($userNotes) > 0): ?>
+                    <div class="comments-list">
+                        <?php foreach ($userNotes as $note): ?>
+                            <div class="comment-card">
+                                <div class="comment-header">
+                                    <div class="comment-info">
+                                        <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
+                                        <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
+                                    </div>
+                                    <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </button>
+                                </div>
+                                <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="no-comments">Aucun avis pour le moment.</p>
+                <?php endif; ?>
+            </section>
 
         </div>
-
-        <section class="vehicle-info">
-            <h2>Informations sur le véhicule</h2>
-            
-            <form method="post" action="">
-                <div class="input-group">
-                    <label for="modele">Modèle</label>
-                    <input type="text" id="modele" name="modele" 
-                           value="<?php echo htmlspecialchars($userInfo['vehicle_model'] ?? ''); ?>" 
-                           placeholder="Ex: Clio 4">
-                </div>
-                <div class="input-group">
-                    <label for="couleur">Couleur</label>
-                    <input type="text" id="couleur" name="couleur" 
-                           value="<?php echo htmlspecialchars($userInfo['vehicle_color'] ?? ''); ?>" 
-                           placeholder="Ex: Rouge">
-                </div>
-                <button type="submit" name="btn_update_vehicle" class="save-btn">Enregistrer</button>
-            </form>
-        </section>
-
-        <section class="comments-section">
-            <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
-            <?php if (count($userNotes) > 0): ?>
-                <div class="comments-list">
-                    <?php foreach ($userNotes as $note): ?>
-                        <div class="comment-card">
-                            <div class="comment-header">
-                                <div class="comment-info">
-                                    <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
-                                    <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
-                                </div>
-                                <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
-                                    <i class="fa-solid fa-triangle-exclamation"></i>
-                                </button>
-                            </div>
-                            <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p class="no-comments">Aucun avis pour le moment.</p>
-            <?php endif; ?>
-        </section>
-
-    </div>
+    </main>
 
     <div id="reportModal" class="modal">
         <div class="modal-content">

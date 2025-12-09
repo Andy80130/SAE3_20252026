@@ -1,6 +1,7 @@
-
 header {
-  position: sticky;
+  /* On passe en fixed pour qu'il reste toujours en haut, 
+     exactement comme sur reservation */
+  position: fixed; 
   top: 0;
   left: 0;
   z-index: 999;
@@ -13,12 +14,12 @@ header {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   border-bottom: 8px solid #ff6600;
   box-sizing: border-box;
+  
+  /* On fixe une hauteur explicite pour faciliter les calculs de marge */
+  height: 90px; 
 }
-header.not-top{
-    height: 5%;
-    border-bottom: 4px solid #ff6600;
-    padding: 15px;
-}
+
+/* J'ai supprimé le bloc header.not-top ici */
 
 .logo {
   display: flex;
@@ -87,6 +88,7 @@ header img {
 @media (max-width: 500px) {
   header {
     padding: 12px 16px;
+    height: auto; /* Hauteur auto sur mobile */
   }
 
   .Logo_StudyGo { width: 110px; }
@@ -95,7 +97,4 @@ header img {
   .Icone_Créertrajet { width: 26px; }
   .header-actions { gap: 20px; }
   .create-text {display: none;}
-
 }
-
-

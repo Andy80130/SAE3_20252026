@@ -238,7 +238,11 @@
 
     function GetOrganizedJourneys(int $driver_id) {
         global $db;
-        $stmt = $db->prepare("SELECT * FROM Journeys WHERE driver_id = :uid ORDER BY start_date ASC");
+        $stmt = $db->prepare("SELECT J.*, U.mail, U.first_name, U.last_name 
+            FROM Journeys J
+            JOIN Users U ON J.driver_id = U.user_id
+            WHERE J.driver_id = :uid 
+            ORDER BY J.start_date ASC");
         try {
             $stmt->execute([':uid' => $driver_id]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -283,12 +287,6 @@
         }
     }
 
-    /**
-     * Recherche des trajets selon critères dynamiques
-     * @param string|null $depart (optionnel) Ville de départ (recherche partielle)
-     * @param string|null $arrivee (optionnel) Ville d'arrivée (recherche partielle)
-     * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
-     */
     function SearchJourneys(?string $depart, ?string $arrivee, ?string $date) {
         global $db;
         $sql = "SELECT J.*, U.first_name, U.last_name, U.photo_path 
