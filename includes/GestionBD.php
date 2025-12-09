@@ -124,6 +124,19 @@
         }
     }
 
+    function GetUserInfoById(int $id){
+        global $db;
+        $stmt = $db->prepare("SELECT * FROM Users WHERE user_id = :id");
+        try{
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        catch (PDOException $e){
+            return null;
+        }
+    }
+
     //BlackList
     function AddMailBL(string $mail,string $reason,string $date): bool {
         global $db;
@@ -252,7 +265,7 @@
 
     function GetJourneyParticipants(int $journey_id) {
         global $db;
-        $sql = "SELECT U.first_name, U.last_name 
+        $sql = "SELECT U.first_name, U.last_name , U.user_id
                 FROM Reservation R 
                 JOIN Users U ON R.user_id = U.user_id 
                 WHERE R.journey_id = :jid";

@@ -152,7 +152,9 @@ $blacklist = GetAllBlacklist();
                                     <img src="../images/Profil_Picture.png" alt="User">
                                     <div>
                                         <h3>
-                                            <?php echo htmlspecialchars($uInfo['name']); ?>
+                                            <a href="profil.php?id=<?php echo $uInfo['id']; ?>" class="user-link">
+                                                <?php echo htmlspecialchars($uInfo['name']); ?>
+                                            </a>
                                             <?php if($isSelf) echo " <small style='color:red'>(Vous)</small>"; ?>
                                         </h3>
                                         <span class="user-mail"><?php echo htmlspecialchars($uInfo['mail']); ?></span>
@@ -183,7 +185,7 @@ $blacklist = GetAllBlacklist();
                                 <?php foreach ($pendingReports as $rep): ?>
                                     <div class="report-item">
                                         <div class="report-content">
-                                            <strong>Raison :</strong> "<?php echo htmlspecialchars($rep['report_cause']); ?>"<br>
+                                            <strong>Raison :</strong> "<?php echo html_entity_decode($rep['report_cause']); ?>"<br>
                                             <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
                                         </div>
                                         
@@ -226,7 +228,7 @@ $blacklist = GetAllBlacklist();
                                             <?php foreach ($processedReports as $rep): ?>
                                                 <div class="report-item processed">
                                                     <div class="report-content">
-                                                        <strong>Raison :</strong> "<?php echo htmlspecialchars($rep['report_cause']); ?>"<br>
+                                                        <strong>Raison :</strong> "<?php echo html_entity_decode($rep['report_cause']); ?>"<br>
                                                         <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
                                                     </div>
                                                     

@@ -1,4 +1,4 @@
-/* --- styleAccueil.css (VERSION NETTOYÉE ET CORRIGÉE) --- */
+/* --- styleAccueil.css (VERSION FINALE - TEXTE AGRANDI) --- */
 
 /* 1. RESET GLOBAL */
 * {
@@ -14,9 +14,12 @@ html {
   color: #333;
   background: #fff;
 }
+
 main {
   width: 100%;
+  padding-top: 100px; /* Espace pour le header fixe */
 }
+
 footer {
   width: 100% !important;
 }
@@ -74,11 +77,14 @@ footer {
   font-size: 32px;
   margin-bottom: 10px;
 }
+
+/* MODIFICATION ICI : TEXTE PLUS GRAND */
 .hero-text p {
   color: #ff6600;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 24px; /* Agrandissement */
+  font-weight: 800; /* Bien gras */
   margin-bottom: 20px;
+  margin-top: 10px;
 }
 
 /* Image Voiture */
@@ -89,8 +95,8 @@ footer {
 }
 .hero-img {
   width: 100%;
-  max-width: 800px; /* Largeur max sur PC */
-  height: auto; /* Hauteur auto : GARDE LES PROPORTIONS */
+  max-width: 800px;
+  height: auto;
   display: inline-block;
 }
 
@@ -223,15 +229,26 @@ footer {
   align-items: center;
   gap: 50px;
 }
+
+/* CADRE ORANGE POUR L'IMAGE */
 .illustration-col {
   flex: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  background-color: #ff6600;
+  padding: 20px; /* Padding ajusté pour un cadre fin */
+  border-radius: 30px;
 }
+
+/* IMAGE DANS LE CADRE */
 .dash-img {
   max-width: 100%;
   height: auto;
+  border-radius: 20px;
+  display: block;
 }
+
 .content-col {
   flex: 1;
   text-align: right;
@@ -250,7 +267,6 @@ footer {
   font-size: 15px;
 }
 
-/* Séparateur pour les 2 lignes restantes */
 .stat-line.middle {
   border-top: 1px solid rgba(255, 255, 255, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -308,9 +324,19 @@ footer {
   transform: translateY(-2px);
 }
 
-/* ================= RESPONSIVE MOBILE (CORRECTIFS) ================= */
+/* ================= RESPONSIVE MOBILE ================= */
 @media (max-width: 768px) {
-  /* 1. Correction Image qui s'étire : On laisse la hauteur automatique */
+  /* Padding Header */
+  main {
+    padding-top: 80px;
+  }
+
+  /* Ajustement de la taille du texte sur mobile pour pas que ce soit énorme */
+  .hero-text p {
+    font-size: 20px;
+  }
+
+  /* Correction Image Hero */
   .hero-img {
     height: auto;
     width: 100%;
@@ -318,7 +344,7 @@ footer {
     padding: 0 10px;
   }
 
-  /* 2. Conteneur global de la recherche (Empilement) */
+  /* Recherche empilée SOUS la carte */
   .search-section-container {
     height: auto;
     margin-bottom: 40px;
@@ -326,7 +352,6 @@ footer {
     flex-direction: column;
   }
 
-  /* 3. La Carte */
   #map-hero {
     height: 250px;
     width: 100%;
@@ -334,7 +359,6 @@ footer {
     margin-bottom: 20px;
   }
 
-  /* 4. Le Formulaire (SOUS la carte) */
   .search-bar-wrapper {
     position: relative;
     bottom: auto;
@@ -347,7 +371,6 @@ footer {
     margin: 0;
   }
 
-  /* 5. Style du formulaire empilé */
   .main-search-form {
     flex-direction: column;
     border-radius: 25px;
@@ -375,7 +398,7 @@ footer {
     padding: 20px;
   }
 
-  /* 6. Ajustement des autres sections */
+  /* Sections en colonne */
   .dashboard-container,
   .about-container-flex {
     flex-direction: column;

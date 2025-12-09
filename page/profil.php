@@ -11,9 +11,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['mail'])) {
 
 $userId = $_SESSION['user_id'];
 
-// --- 2. TRAITEMENT DES FORMULAIRES (PHP) ---
+// --- 2. TRAITEMENT DES FORMULAIRES ---
 
-// A. Si on a cliqué sur "Enregistrer" (Véhicule)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_update_vehicle'])) {
     $modele = htmlspecialchars(trim($_POST['modele']));
     $couleur = htmlspecialchars(trim($_POST['couleur']));
@@ -27,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_update_vehicle']))
     }
 }
 
-// B. Si on a cliqué sur "Envoyer le signalement"
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     $reason = htmlspecialchars(trim($_POST['reason']));
     $reportedUserId = intval($_POST['reported_user_id']);
@@ -47,10 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     }
 }
 
-// --- 3. RÉCUPÉRATION DES DONNÉES POUR L'AFFICHAGE ---
+// --- 3. RÉCUPÉRATION DES DONNÉES ---
 $userInfo = GetUserInfo($_SESSION['mail']); 
 $averageNote = AverageUserNote($userId);
 $userNotes = UserNotes($userId); 
+
+// PLUS AUCUNE REQUÊTE SQL ICI
 ?>
 
 <!DOCTYPE html>
@@ -135,12 +135,21 @@ $userNotes = UserNotes($userId);
                 <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
                 <?php if (count($userNotes) > 0): ?>
                     <div class="comments-list">
-                        <?php foreach ($userNotes as $note): ?>
+                        <?php foreach ($userNotes as $note): 
+                            // UTILISATION DE LA NOUVELLE FONCTION
+                            $authorInfos = GetUserInfoById($note['author_note']);
+                            $authorName = $authorInfos ? $authorInfos['first_name'] . " " . $authorInfos['last_name'] : "Utilisateur inconnu";
+                            
+                            $authorId = $note['author_note'];
+                            $profilLink = ($authorId == $_SESSION['user_id']) ? "profil.php" : "profilOther.php?user_id=" . $authorId;
+                        ?>
                             <div class="comment-card">
                                 <div class="comment-header">
                                     <div class="comment-info">
                                         <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
-                                        <span class="comment-author">Utilisateur n°<?php echo $note['author_note']; ?></span>
+                                        <a href="<?php echo $profilLink; ?>" class="comment-author" style="text-decoration:none; color:#ff6600; font-weight:bold; font-style:normal;">
+                                            <?php echo htmlspecialchars($authorName); ?>
+                                        </a>
                                     </div>
                                     <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
                                         <i class="fa-solid fa-triangle-exclamation"></i>
