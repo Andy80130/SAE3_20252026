@@ -277,6 +277,18 @@ body {
     background-color: #219150;
 }
 
+.user-link {
+    text-decoration: none;
+    color: inherit; /* Garde la couleur #ff6600 du h3 */
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.user-link:hover {
+    text-decoration: underline;
+    color: #cc5200; /* Orange légèrement plus foncé au survol */
+}
+
 /* Responsive Mobile */
 @media (max-width: 600px) {
     .reports-grid {

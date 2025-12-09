@@ -92,7 +92,6 @@ main {
   background: white;
   margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  /* Position relative indispensable pour le compteur en absolute */
   position: relative; 
 }
 
@@ -214,10 +213,18 @@ main {
   object-fit: cover;
 }
 
-.participant span {
-  color: var(--text-orange);
-  font-weight: bold;
-  font-size: 0.9rem;
+/* MODIFICATION : Style identique à l'organisateur pour les participants */
+.participant a {
+  text-decoration: none;
+  color: var(--text-orange); /* Même couleur que le titre */
+  font-weight: bold;         /* Même graisse */
+  font-size: 1.0rem;         /* Taille ajustée */
+  transition: color 0.2s;
+}
+
+.participant a:hover {
+  color: var(--primary-orange);
+  text-decoration: underline;
 }
 
 /* Illustration */
