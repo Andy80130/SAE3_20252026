@@ -16,7 +16,7 @@ require("../includes/GestionBD.php");
 $userId = $_SESSION['user_id'];
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 // 2. Traitement des formulaires
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->send();
             header("Location: reservation.php?msg=mailSucces");
             exit();
-        } catch (Exception $e) {
+        } catch (PHPMailerException $e) {
             header("Location: reservation.php?msg=mailFailed");
             exit();
         }
