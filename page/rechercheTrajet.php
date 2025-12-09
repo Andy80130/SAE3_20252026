@@ -15,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
     $id_trajet_a_reserver = intval($_POST['journey_id']);
     
     // ATTENTION : On suppose que l'ID utilisateur est stocké en session après connexion.
-    // Si vous n'avez pas de session, remplacez ceci par une valeur fixe pour tester (ex: $id_user = 1;)
     $id_user = $_SESSION['user_id'] ?? null; 
 
     if ($id_user && $id_trajet_a_reserver) {
@@ -43,9 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
 }
 
 
-
-$depart      = $_POST['depart'] ?? '';
-$destination = $_POST['destination'] ?? '';
+// --- MODIFICATION ICI : On accepte $_POST (formulaire) OU $_GET (lien accueil) ---
+$depart      = $_POST['depart'] ?? $_GET['depart'] ?? '';
+$destination = $_POST['destination'] ?? $_GET['destination'] ?? '';
 $date        = $_POST['date'] ?? '';
 $heure       = $_POST['heure'] ?? '';
 
@@ -55,28 +54,31 @@ $journey_id = $_POST['journey_id'] ?? '';
 $results = [];
 $errors_submit = [];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// --- MODIFICATION ICI : Condition élargie pour accepter les GET ---
+if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_GET['destination']))) {
 
     if (empty($depart) && empty($destination)) {
-        $errors_submit[] = "Il faut au minimum mettre un départ ou une destination.";
-    }
+        // On n'affiche pas d'erreur si on arrive juste sur la page sans recherche
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+             $errors_submit[] = "Il faut au minimum mettre un départ ou une destination.";
+        }
+    } else {
+        if (empty($date))  $date  = date('Y-m-d');
+        if (empty($heure)) {
+            $dateTime = new DateTime();
+            $dateTime->modify('+1 hour');
+            $heure = $dateTime->format('H:i');
+        }
 
-    if (empty($date))  $date  = date('Y-m-d');
-    if (empty($heure)) {
-        $dateTime = new DateTime();
-        $dateTime->modify('+1 hour');
-        $heure = $dateTime->format('H:i');
-    }
+        if (empty($errors_submit)) {
+            $datetime = $date . ' ' . $heure . ':00';
+            
+            // On récupère l'ID de l'utilisateur connecté (s'il existe)
+            $current_user = $_SESSION['user_id'] ?? null;
 
-    if (empty($errors_submit)) {
-        $datetime = $date . ' ' . $heure . ':00';
-        
-        // On récupère l'ID de l'utilisateur connecté (s'il existe)
-        // Assure-toi que $_SESSION['user_id'] est bien défini lors de la connexion
-        $current_user = $_SESSION['user_id'] ?? null;
-
-        // On appelle la fonction avec le 4ème paramètre
-        $results = SearchJourneys($depart, $destination, $datetime, $current_user);
+            // On appelle la fonction avec le 4ème paramètre
+            $results = SearchJourneys($depart, $destination, $datetime, $current_user);
+        }
     }
 }
 ?>
@@ -95,6 +97,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
 
 <?php require ('../includes/header.php'); ?>
+
+<?= $reservation_message ?>
 
 <section>
     <h1 class="title">Réserver un trajet</h1>
@@ -201,28 +205,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
     </span>
 
-    <form method="post" action="rechercheTrajet.php">
-        <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
-        <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
-        <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
-        <input type="hidden" name="heure" value="<?= htmlspecialchars($heure) ?>">
+                    <form method="post" action="rechercheTrajet.php">
+                        <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
+                        <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
+                        <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
+                        <input type="hidden" name="heure" value="<?= htmlspecialchars($heure) ?>">
 
-        <input type="hidden" name="journey_id" value="<?= $trajet['journey_id'] ?>">
-        <input type="hidden" name="action" value="reserver">
+                        <input type="hidden" name="journey_id" value="<?= $trajet['journey_id'] ?>">
+                        <input type="hidden" name="action" value="reserver">
 
-        <button class="btn-reserver" type="submit">Réserver</button>
-    </form>
-</div>
+                        <button class="btn-reserver" type="submit">Réserver</button>
+                    </form>
+                </div>
 
             </div>
         <?php endforeach; ?>
     </div>
 <?php else: ?>
     <?php endif; ?>
-
-
-
-
 
 
 <?php require ('../includes/footer.php'); ?>
