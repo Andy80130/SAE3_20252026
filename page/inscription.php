@@ -75,17 +75,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $mail->addAddress($data['email']);
                         $mail->Subject = 'Bienvenue sur mon application !';
                         $mail->isHTML(true);
-                        $mail->Body = htmlspecialchars("
-                                        <h2>Merci pour votre inscription !</h2>
-                                        <p>Nous sommes très heureux de vous compter parmi nous et 
-                                        vous souhaitons une bonne expérience sur notre application !</p>
-                                        <p>Cet email est automatique, merci de ne pas répondre.</p>
-                                    ");
+                        $mail->CharSet = 'UTF-8';
+                        // Ajouter l'image comme pièce jointe inline
+                        $mail->addEmbeddedImage('../images/Logo_StudyGo.png', 'logo');
+                        // Dans le corps du mail
+                        $mail->Body = '
+                            <h2>Merci pour votre inscription !</h2>
+                            <p>Nous sommes très heureux de vous compter parmi nous et 
+                            vous souhaitons une bonne expérience sur notre application !</p>
+                            <p>Cet email est automatique, merci de ne pas répondre.</p>
+                            <img src="cid:logo" alt="Logo" style="max-width:300px;"/>
+                        ';
                         $mail->send();
                         echo 'Message envoyé avec succès !';
                     } catch (Exception $e) {
                         $errors[] = "Erreur lors de l'envoi" . $mail->ErrorInfo;
                     }
+                }else {
+                    $errors[] = "Erreur rencontré lors de la récupération des données";
                 }
 
                 if (isset($_SESSION['user_id']) || isset($_SESSION['mail'])) {
