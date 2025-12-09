@@ -193,6 +193,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
                 <div class="trajet-action">
+                    <?php
+        $id_trajet = $trajet['journey_id'];
+        $places_disponibles = RemainingSeats($id_trajet);
+    ?>
     <span class="places-badge">
         <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
     </span>
