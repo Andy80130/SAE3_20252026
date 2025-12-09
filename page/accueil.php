@@ -67,14 +67,11 @@ foreach ($trajets_reserves as $t) {
                         <i class="fa-solid fa-location-dot icon-orange"></i>
                         <input type="text" name="depart" placeholder="Départ">
                     </div>
-                    <div class="search-input-group middle">
+                    <div class="search-input-group middle" style="border-right: none;">
                         <i class="fa-solid fa-location-dot icon-orange"></i>
                         <input type="text" name="destination" placeholder="Destination">
                     </div>
-                    <div class="search-input-group date-group">
-                        <i class="fa-regular fa-calendar icon-orange"></i>
-                        <input type="date" name="date" value="<?= date('Y-m-d') ?>">
-                    </div>
+                    
                     <button type="submit" class="btn-search-main">
                         <i class="fa-solid fa-magnifying-glass"></i> Rechercher
                     </button>
@@ -88,12 +85,12 @@ foreach ($trajets_reserves as $t) {
                 <p class="white-text left-align">Les trajets les plus empruntés par les étudiants</p>
                 
                 <div class="pop-links">
-                    <a href="RechercheTrajet.php?depart=Amiens,+Gare+routière&destination=IUT+d'Amiens" class="pop-link">
-                        <span>Amiens, Gare routière <i class="fa-solid fa-arrow-right-long"></i> IUT d'Amiens</span>
+                    <a href="RechercheTrajet.php?depart=Gare+Routière,+Amiens,+Somme&destination=IUT+Amiens,+Avenue+des+Facultés,+Salouël" class="pop-link">
+                        <span>Amiens, Gare Routière <i class="fa-solid fa-arrow-right-long"></i> IUT d'Amiens</span>
                         <i class="fa-solid fa-chevron-right chevron-end"></i>
                     </a>
-                    <a href="RechercheTrajet.php?depart=IUT+d'Amiens&destination=Amiens,+Gare+routière" class="pop-link">
-                        <span>IUT d'Amiens <i class="fa-solid fa-arrow-right-long"></i> Amiens, Gare routière</span>
+                    <a href="RechercheTrajet.php?depart=IUT+Amiens,+Avenue+des+Facultés,+Salouël&destination=Gare+Routière,+Amiens,+Somme" class="pop-link">
+                        <span>IUT d'Amiens <i class="fa-solid fa-arrow-right-long"></i> Amiens, Gare Routière</span>
                         <i class="fa-solid fa-chevron-right chevron-end"></i>
                     </a>
                 </div>
@@ -111,11 +108,11 @@ foreach ($trajets_reserves as $t) {
                     
                     <div class="stats-bloc-orange">
                         <div class="stat-line">
-                            <strong>Vous organisez <?= $nbOrganisesAVenir ?> trajet(s) à venir</strong>
+                            <strong>Vous organisez <?= $nbOrganisesAVenir ?> trajet(s)</strong>
                         </div>
                         
                         <div class="stat-line middle">
-                            <strong>Vous avez réservé <?= $nbReservesAVenir ?> trajet(s) à venir</strong>
+                            <strong>Vous avez réservé <?= $nbReservesAVenir ?> trajet(s)</strong>
                         </div>
                         
                         <a href="reservation.php" class="btn-voir-trajets">Voir mes trajets</a>

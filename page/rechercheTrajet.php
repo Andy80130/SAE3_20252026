@@ -15,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
     $id_trajet_a_reserver = intval($_POST['journey_id']);
     
     // ATTENTION : On suppose que l'ID utilisateur est stocké en session après connexion.
-    // Si vous n'avez pas de session, remplacez ceci par une valeur fixe pour tester (ex: $id_user = 1;)
     $id_user = $_SESSION['user_id'] ?? null; 
 
     if ($id_user && $id_trajet_a_reserver) {
@@ -74,9 +73,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
 }
 
 
-
-$depart      = $_POST['depart'] ?? '';
-$destination = $_POST['destination'] ?? '';
+// --- MODIFICATION ICI : On accepte $_POST (formulaire) OU $_GET (lien accueil) ---
+$depart      = $_POST['depart'] ?? $_GET['depart'] ?? '';
+$destination = $_POST['destination'] ?? $_GET['destination'] ?? '';
 $date        = $_POST['date'] ?? '';
 $heure       = $_POST['heure'] ?? '';
 
@@ -86,18 +85,21 @@ $journey_id = $_POST['journey_id'] ?? '';
 $results = [];
 $errors_submit = [];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// --- MODIFICATION ICI : Condition élargie pour accepter les GET ---
+if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_GET['destination']))) {
 
     if (empty($depart) && empty($destination)) {
-        $errors_submit[] = "Il faut au minimum mettre un départ ou une destination.";
-    }
-
-    if (empty($date))  $date  = date('Y-m-d');
-    if (empty($heure)) {
-        $dateTime = new DateTime();
-        $dateTime->modify('+1 hour');
-        $heure = $dateTime->format('H:i');
-    }
+        // On n'affiche pas d'erreur si on arrive juste sur la page sans recherche
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+             $errors_submit[] = "Il faut au minimum mettre un départ ou une destination.";
+        }
+    } else {
+        if (empty($date))  $date  = date('Y-m-d');
+        if (empty($heure)) {
+            $dateTime = new DateTime();
+            $dateTime->modify('+1 hour');
+            $heure = $dateTime->format('H:i');
+        }
 
     if (empty($errors_submit)) {
         $datetime = $date . ' ' . $heure . ':00';
@@ -266,10 +268,6 @@ if (isset($_GET['msg'])) {
     </div>
 <?php else: ?>
     <?php endif; ?>
-
-
-
-
 
 
 <?php require ('../includes/footer.php'); ?>
