@@ -3,7 +3,7 @@
         'name' => 'haina/sae3_20252026',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e752364894180afbd3316cfbe897a1ce853f7acd',
+        'reference' => '0a46a2ee4f9776b7767ca6ead23ab4b843f29cc8',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'haina/sae3_20252026' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e752364894180afbd3316cfbe897a1ce853f7acd',
+            'reference' => '0a46a2ee4f9776b7767ca6ead23ab4b843f29cc8',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
