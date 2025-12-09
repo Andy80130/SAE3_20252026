@@ -197,9 +197,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || (isset($_GET['depart']) || isset($_
                 </div>
 
                 <div class="trajet-action">
-                    <span class="places-badge">
-                        <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
-                    </span>
+                    <?php
+        $id_trajet = $trajet['journey_id'];
+        $places_disponibles = RemainingSeats($id_trajet);
+    ?>
+    <span class="places-badge">
+        <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
+    </span>
 
                     <form method="post" action="rechercheTrajet.php">
                         <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
