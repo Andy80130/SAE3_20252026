@@ -292,14 +292,16 @@
      * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
      */
 
-function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
+function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?int $userId = null) {
     global $db;
 
     // Valeurs par défaut
     $depart  = $depart  ?: '';
     $arrivee = $arrivee ?: '';
 
+    // Début de la requête SQL
     $sql = "SELECT 
+                J.journey_id,
                 CONCAT(U.first_name, ' ', U.last_name) AS driver_name,
                 J.start_adress AS depart,
                 J.arrival_adress AS destination,
@@ -311,16 +313,40 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
             JOIN Users U ON J.driver_id = U.user_id
             WHERE J.start_adress LIKE :depart
               AND J.arrival_adress LIKE :arrivee
-              AND J.start_date >= :datetime
-            ORDER BY J.start_date ASC";
+              AND J.start_date >= :datetime";
+
+    // --- NOUVEAU CODE : FILTRES UTILISATEUR ---
+    // Si un utilisateur est connecté, on applique les filtres
+    if ($userId !== null) {
+        // 1. Ne pas afficher les trajets où JE suis le conducteur
+        $sql .= " AND J.driver_id != :uid";
+
+        // 2. Ne pas afficher les trajets que j'ai DÉJÀ réservés
+        // On vérifie que l'ID du trajet n'est pas dans la table Reservation pour cet user
+        $sql .= " AND J.journey_id NOT IN (
+                    SELECT journey_id FROM Reservation WHERE user_id = :uid
+                  )";
+    }
+    // ------------------------------------------
+
+    $sql .= " ORDER BY J.start_date ASC";
 
     try {
         $stmt = $db->prepare($sql);
-        $stmt->execute([
+        
+        // Préparation des paramètres de base
+        $params = [
             ':depart' => "%$depart%",
             ':arrivee' => "%$arrivee%",
             ':datetime' => $datetime
-        ]);
+        ];
+
+        // Ajout du paramètre :uid si nécessaire
+        if ($userId !== null) {
+            $params[':uid'] = $userId;
+        }
+
+        $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {

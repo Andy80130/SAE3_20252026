@@ -6,11 +6,51 @@ require "../includes/pdoSAE3.php";
 require "../includes/GestionBD.php";
 
 
+$reservation_message = "";
+
+// Traitement de la réservation
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['action'] === 'reserver') {
+    
+    // On récupère l'ID du trajet et de l'utilisateur
+    $id_trajet_a_reserver = intval($_POST['journey_id']);
+    
+    // ATTENTION : On suppose que l'ID utilisateur est stocké en session après connexion.
+    // Si vous n'avez pas de session, remplacez ceci par une valeur fixe pour tester (ex: $id_user = 1;)
+    $id_user = $_SESSION['user_id'] ?? null; 
+
+    if ($id_user && $id_trajet_a_reserver) {
+        try {
+            // 1. Vérifier s'il reste de la place
+            $places_restantes = RemainingSeats($id_trajet_a_reserver);
+            
+            if ($places_restantes > 0) {
+                // 2. Ajouter la réservation
+                if(AddReservation($id_user, $id_trajet_a_reserver)) {
+                    $reservation_message = "<div style='color:green; text-align:center;'>Réservation effectuée avec succès !</div>";
+                } else {
+                    $reservation_message = "<div style='color:red; text-align:center;'>Erreur lors de la réservation.</div>";
+                }
+            } else {
+                $reservation_message = "<div style='color:red; text-align:center;'>Désolé, ce trajet est complet.</div>";
+            }
+        } catch (Exception $e) {
+            // Gère le cas où l'utilisateur a déjà réservé (doublon) ou erreur SQL
+            $reservation_message = "<div style='color:red; text-align:center;'>Erreur : " . $e->getMessage() . "</div>";
+        }
+    } else {
+        $reservation_message = "<div style='color:red; text-align:center;'>Vous devez être connecté pour réserver.</div>";
+    }
+}
+
+
 
 $depart      = $_POST['depart'] ?? '';
 $destination = $_POST['destination'] ?? '';
 $date        = $_POST['date'] ?? '';
 $heure       = $_POST['heure'] ?? '';
+
+$user_id = $_POST['user_id'] ?? '';
+$journey_id = $_POST['journey_id'] ?? '';
 
 $results = [];
 $errors_submit = [];
@@ -22,11 +62,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (empty($date))  $date  = date('Y-m-d');
-    if (empty($heure)) $heure = date('H:i');
+    if (empty($heure)) {
+        $dateTime = new DateTime();
+        $dateTime->modify('+1 hour');
+        $heure = $dateTime->format('H:i');
+    }
 
     if (empty($errors_submit)) {
         $datetime = $date . ' ' . $heure . ':00';
-        $results = SearchJourneys($depart, $destination, $datetime);
+        
+        // On récupère l'ID de l'utilisateur connecté (s'il existe)
+        // Assure-toi que $_SESSION['user_id'] est bien défini lors de la connexion
+        $current_user = $_SESSION['user_id'] ?? null;
+
+        // On appelle la fonction avec le 4ème paramètre
+        $results = SearchJourneys($depart, $destination, $datetime, $current_user);
     }
 }
 ?>
@@ -101,9 +151,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
 </section>
 
-<h1 class="title">Correspondances trouvées :</h1>
-
 <?php if (!empty($results)): ?>
+    <h1 class="title">Correspondances trouvées :</h1>
     <div class="results-container">
         <?php foreach ($results as $trajet): ?>
             
@@ -144,13 +193,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
                 <div class="trajet-action">
-                    <span class="places-badge">
-                        <?= htmlspecialchars($trajet['number_place']) ?> place(s) dispo
-                    </span>
+    <span class="places-badge">
+        <?= htmlspecialchars($trajet['number_place']) ?> place(s) totale(s)
+    </span>
 
-                    <button class="btn-reserver">Réserver</button>
-                    <button class="btn-map" onclick="location.href='#map'">Voir la carte</button>
-                </div>
+    <form method="post" action="rechercheTrajet.php">
+        <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
+        <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
+        <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
+        <input type="hidden" name="heure" value="<?= htmlspecialchars($heure) ?>">
+
+        <input type="hidden" name="journey_id" value="<?= $trajet['journey_id'] ?>">
+        <input type="hidden" name="action" value="reserver">
+
+        <button class="btn-reserver" type="submit">Réserver</button>
+    </form>
+</div>
 
             </div>
         <?php endforeach; ?>
