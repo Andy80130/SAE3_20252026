@@ -1,4 +1,4 @@
-/* --- styleAccueil.css (VERSION NETTOYÉE ET CORRIGÉE) --- */
+/* --- styleAccueil.css (CORRECTION : ÉPAISSEUR CADRE DASHBOARD UNIQUEMENT) --- */
 
 /* 1. RESET GLOBAL */
 * {
@@ -14,9 +14,12 @@ html {
   color: #333;
   background: #fff;
 }
+
 main {
   width: 100%;
+  padding-top: 100px; /* Espace pour le header fixe */
 }
+
 footer {
   width: 100% !important;
 }
@@ -89,8 +92,8 @@ footer {
 }
 .hero-img {
   width: 100%;
-  max-width: 800px; /* Largeur max sur PC */
-  height: auto; /* Hauteur auto : GARDE LES PROPORTIONS */
+  max-width: 800px;
+  height: auto;
   display: inline-block;
 }
 
@@ -127,6 +130,7 @@ footer {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   display: flex;
   padding: 5px;
+  /* RESTAURÉ : Bordure originale de 2px */
   border: 2px solid #ff6600;
   width: 100%;
   box-sizing: border-box;
@@ -223,15 +227,27 @@ footer {
   align-items: center;
   gap: 50px;
 }
+
+/* CADRE ORANGE POUR L'IMAGE (MODIFIÉ) */
 .illustration-col {
   flex: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  background-color: #ff6600;
+  /* MODIFICATION ICI : Padding réduit de 30px à 20px pour un cadre moins épais */
+  padding: 20px;
+  border-radius: 30px;
 }
+
+/* IMAGE DANS LE CADRE */
 .dash-img {
   max-width: 100%;
   height: auto;
+  border-radius: 20px;
+  display: block;
 }
+
 .content-col {
   flex: 1;
   text-align: right;
@@ -250,7 +266,6 @@ footer {
   font-size: 15px;
 }
 
-/* Séparateur pour les 2 lignes restantes */
 .stat-line.middle {
   border-top: 1px solid rgba(255, 255, 255, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -267,6 +282,7 @@ footer {
   border-radius: 50px;
   margin-top: 20px;
   transition: background 0.2s;
+  /* RESTAURÉ : Bordure originale de 2px */
   border: 2px solid white;
 }
 .btn-voir-trajets:hover {
@@ -288,6 +304,7 @@ footer {
 .about-img {
   width: 100%;
   border-radius: 20px;
+  /* RESTAURÉ : Bordure originale de 4px */
   border: 4px solid white;
 }
 .about-text-col {
@@ -308,33 +325,29 @@ footer {
   transform: translateY(-2px);
 }
 
-/* ================= RESPONSIVE MOBILE (CORRECTIFS) ================= */
+/* ================= RESPONSIVE MOBILE ================= */
 @media (max-width: 768px) {
-  /* 1. Correction Image qui s'étire : On laisse la hauteur automatique */
+  main {
+    padding-top: 80px;
+  }
   .hero-img {
     height: auto;
     width: 100%;
     max-width: 100%;
     padding: 0 10px;
   }
-
-  /* 2. Conteneur global de la recherche (Empilement) */
   .search-section-container {
     height: auto;
     margin-bottom: 40px;
     display: flex;
     flex-direction: column;
   }
-
-  /* 3. La Carte */
   #map-hero {
     height: 250px;
     width: 100%;
     order: 1;
     margin-bottom: 20px;
   }
-
-  /* 4. Le Formulaire (SOUS la carte) */
   .search-bar-wrapper {
     position: relative;
     bottom: auto;
@@ -346,15 +359,12 @@ footer {
     padding: 0 10px;
     margin: 0;
   }
-
-  /* 5. Style du formulaire empilé */
   .main-search-form {
     flex-direction: column;
     border-radius: 25px;
     padding: 0;
     overflow: hidden;
   }
-
   .search-input-group {
     width: 100%;
     border: none;
@@ -368,14 +378,11 @@ footer {
   .search-input-group.date-group {
     border-bottom: none;
   }
-
   .btn-search-main {
     width: 100%;
     border-radius: 0 0 23px 23px;
     padding: 20px;
   }
-
-  /* 6. Ajustement des autres sections */
   .dashboard-container,
   .about-container-flex {
     flex-direction: column;
