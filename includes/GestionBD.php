@@ -286,49 +286,47 @@
     /**
      * Recherche des trajets selon critères dynamiques
      * @param string|null $depart (optionnel) Ville de départ (recherche partielle)
-     * @param string|null $arrivee (optionnel) Ville d'arrivée (recherche partielle)
+     * @param string|null $destination (optionnel) Ville d'arrivée (recherche partielle)
      * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
      */
-    function SearchJourneys(?string $depart, ?string $arrivee, ?string $date) {
-        global $db;
-        $sql = "SELECT J.*, U.first_name, U.last_name, U.photo_path 
-                FROM Journeys J
-                JOIN Users U ON J.driver_id = U.user_id
-                WHERE J.start_date >= CURDATE()";
 
-        $conditions = [];
-        $params = [];
-        
-        if (!empty($depart)) {
-            $conditions[] = "J.start_adress LIKE :depart";
-            $params[':depart'] = "%" . $depart . "%";
-        }
+function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime) {
+    global $db;
 
-        if (!empty($arrivee)) {
-            $conditions[] = "J.arrival_adress LIKE :arrivee";
-            $params[':arrivee'] = "%" . $arrivee . "%";
-        }
+    // Valeurs par défaut
+    $depart  = $depart  ?: '';
+    $arrivee = $arrivee ?: '';
 
-        if (!empty($date)) {
-            $conditions[] = "DATE(J.start_date) = :date";
-            $params[':date'] = $date;
-        }
+    $sql = "SELECT 
+                CONCAT(U.first_name, ' ', U.last_name) AS driver_name,
+                J.start_adress AS depart,
+                J.arrival_adress AS destination,
+                J.start_date,
+                J.number_place,
+                U.vehicle_model,
+                U.vehicle_color
+            FROM Journeys J
+            JOIN Users U ON J.driver_id = U.user_id
+            WHERE J.start_adress LIKE :depart
+              AND J.arrival_adress LIKE :arrivee
+              AND J.start_date >= :datetime
+            ORDER BY J.start_date ASC";
 
-        if (count($conditions) > 0) {
-            $sql .= " AND " . implode(" AND ", $conditions);
-        }
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':depart' => "%$depart%",
+            ':arrivee' => "%$arrivee%",
+            ':datetime' => $datetime
+        ]);
 
-        $sql .= " ORDER BY J.start_date ASC";
-
-        try {
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            echo "Erreur lors de la recherche : " . $e->getMessage();
-            return [];
-        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Erreur lors de la recherche : " . $e->getMessage();
+        return [];
     }
+}
+
 
     //Reservation
     function AddReservation(int $user_id,int $journey_id):bool{

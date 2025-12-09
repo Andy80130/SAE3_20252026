@@ -1,3 +1,36 @@
+<?php
+
+session_start();
+
+require "../includes/pdoSAE3.php";
+require "../includes/GestionBD.php";
+
+
+
+$depart      = $_POST['depart'] ?? '';
+$destination = $_POST['destination'] ?? '';
+$date        = $_POST['date'] ?? '';
+$heure       = $_POST['heure'] ?? '';
+
+$results = [];
+$errors_submit = [];
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    if (empty($depart) && empty($destination)) {
+        $errors_submit[] = "Il faut au minimum mettre un départ ou une destination.";
+    }
+
+    if (empty($date))  $date  = date('Y-m-d');
+    if (empty($heure)) $heure = date('H:i');
+
+    if (empty($errors_submit)) {
+        $datetime = $date . ' ' . $heure . ':00';
+        $results = SearchJourneys($depart, $destination, $datetime);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -11,204 +44,165 @@
 </head>
 <body>
 
-    <?php require ('../includes/header.php'); ?>
+<?php require ('../includes/header.php'); ?>
 
-    <!-- Introduction Section -->
-    <section>
-        <h1 class="title">Rejoindre un trajet</h1>
-        <div id="intro">
-            <p>
-                Rejoignez un trajet en un instant grâce à notre recherche
-                intuitive. Trouvez un conducteur qui se rend dans la même
-                direction, consultez les avis et réservez votre place.
-                Voyager avec la communauté devient rapide, économique et
-                pratique.
-            </p>
-            <img src="..\images\rechercheTrajetIntro.png" width="300px" class="image">
+<section>
+    <h1 class="title">Réserver un trajet</h1>
+    <div id="intro">
+        <p>
+            Rejoignez un trajet en un instant grâce à notre recherche
+            intuitive. Trouvez un conducteur qui se rend dans la même
+            direction, consultez les avis et réservez votre place.
+            Voyager avec la communauté devient rapide, économique et
+            pratique.
+        </p>
+        <img src="../images/rechercheTrajetIntro.png" width="300px" class="image">
+    </div>
+</section>
+
+<section>
+    <h1 class="title">Renseignez votre recherche</h1>
+
+    <form class="search" method="post" action="rechercheTrajet.php">
+
+        <div class="form-group">
+            <label for="depart">Départ</label>
+            <input id="depart" name="depart" type="text" placeholder="ex : Amiens, Gare routière" value="<?= htmlspecialchars($depart) ?>">
         </div>
-    </section>
 
-    <!-- Search Section -->
-    <section>
-        <h1 class="title">Renseignez votre recherche</h1>
+        <div class="form-group">
+            <label for="arrivee">Destination</label>
+            <input id="arrivee" name="destination" type="text" placeholder="ex : Amiens, IUT" value="<?= htmlspecialchars($destination) ?>">
+        </div>
 
-        <form class="search" onsubmit="return false;">
-
-            <!-- Positions -->
-            <div class="form-group">
-                <label for="depart">Départ</label>
-                <input id="depart" type="text" placeholder="ex : Amiens, Gare routière">
+        <div class="form-group-inline">
+            <div>
+                <label for="dateStart">Date</label>
+                <input id="dateStart" name="date" type="date" value="<?= htmlspecialchars($date) ?>">
             </div>
 
-            <div class="form-group">
-                <label for="arrivee">Destination</label>
-                <input id="arrivee" type="text" placeholder="ex : Amiens, IUT">
+            <div>
+                <label for="timeStart">Heure de départ</label>
+                <input id="timeStart" name="heure" type="time" value="<?= htmlspecialchars($heure) ?>">
             </div>
+        </div>
 
-            <!-- Dates -->
-            <div class="form-group-inline">
-                <div>
-                    <label for="dateStart">Du (date)</label>
-                    <input id="dateStart" type="date">
-                </div>
-
-                <div>
-                    <label for="dateEnd">Au (date)</label>
-                    <input id="dateEnd" type="date">
-                </div>
+        <?php if (!empty($errors_submit)): ?>
+            <div class="errors">
+                <?php foreach ($errors_submit as $error): ?>
+                    <p><?= htmlspecialchars($error) ?></p>
+                <?php endforeach; ?>
             </div>
-
-            <!-- Heures -->
-            <div class="form-group-inline">
-                <div>
-                    <label for="timeStart">De (heure)</label>
-                    <input id="timeStart" type="time">
-                </div>
-
-                <div>
-                    <label for="timeEnd">À (heure)</label>
-                    <input id="timeEnd" type="time">
-                </div>
-            </div>
-
-        </form>
+        <?php endif; ?>
 
         <div class="search-btn-position">
-            <button class="search-btn" onclick="return false;">🔍 Rechercher</button>
+            <button class="search-btn" type="submit">Rechercher</button>
         </div>
-    </section>
+    </form>
+</section>
 
+<h1 class="title">Correspondances trouvées :</h1>
 
-     <!-- Map -->
-    <h1 class="title">Correspondances trouvées :</h1>
-    <div class="map-container">
-        <div id="map"></div>
+<?php if (!empty($results)): ?>
+    <div class="results-container">
+        <?php foreach ($results as $trajet): ?>
+            
+            <?php 
+                $dateObj = new DateTime($trajet['start_date']);
+                $heureDepart = $dateObj->format('H:i');
+                $dateDepart = $dateObj->format('d/m/Y');
+            ?>
+
+            <div class="trajet-card">
+                
+                <div class="trajet-info">
+                    <div class="trajet-time">
+                        <?= $heureDepart ?>
+                        <span style="font-size:0.6em; color:#888; font-weight:normal;">le <?= $dateDepart ?></span>
+                    </div>
+                    <div class="trajet-route">
+                        <div class="route-step">
+                            Départ : <strong><?= htmlspecialchars($trajet['depart']) ?></strong>
+                        </div>
+                        <div class="route-step">
+                            Arrivée : <strong><?= htmlspecialchars($trajet['destination']) ?></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trajet-driver">
+                    <div class="driver-info">
+                        <img src="../images/Profil_Picture.png" class="driver-avatar" alt="Avatar">
+                        
+                        <span class="driver-name"><?= htmlspecialchars($trajet['driver_name']) ?></span>
+                    </div>
+                    <div class="car-info">
+                        <img src="../images/Voiture_orange.png" class="icon-voiture-small" alt="Voiture">
+                        <span><?= htmlspecialchars($trajet['vehicle_model']) ?></span>
+                    </div>
+                    <small style="color:#999;"><?= htmlspecialchars($trajet['vehicle_color']) ?></small>
+                </div>
+
+                <div class="trajet-action">
+                    <span class="places-badge">
+                        <?= htmlspecialchars($trajet['number_place']) ?> place(s) dispo
+                    </span>
+
+                    <button class="btn-reserver">Réserver</button>
+                    <button class="btn-map" onclick="location.href='#map'">Voir la carte</button>
+                </div>
+
+            </div>
+        <?php endforeach; ?>
     </div>
-
-    <!-- Correspondances -->
-    <section class="searchedJourney">
-        <!-- Profil -->
-        <div class="user">
-            <div>
-                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
-                <p class="name">Placeholder Name</p>
-            </div>
-            <!-- Infos trajet -->
-            <div class="journeyInfo">
-                <p>Départ : Gare du Nord</p>
-                <p>Arrivée : IUT d'Amiens</p>
-                <p>Le : Vendredi 17 Octobre</p>
-                <p>Horaires : 7:30 à 7:50</p>
-            </div>
-            <p class="participants">Participants inscrits : 0</p>
-        </div>
-        <!-- Boutons -->
-        <div class="buttons">
-            <button class="search-btn" onclick="infosVoiture('voiture1')">
-                Informations voiture
-            </button>
-            <button class=search-btn onclick="voirCarte([49.8942, 2.2957], [49.8892, 2.3057])">
-                Voir sur la carte
-            </button>
-            <button class="search-btn">Envoyer une demande</button>
-        </div>
-
-        <!-- Infos voiture -->
-        <div id="voiture1"></div>
-    </section>
-
-    <section class="searchedJourney">
-        <!-- Profil -->
-        <div class="user">
-            <div>
-                <img class="user-icon" src="..\images\Profil_Picture.png" height="50px">
-                <p class="name">Placeholder Name</p>
-            </div>
-            <!-- Infos trajet -->
-            <div class="journeyInfo">
-                <p>Départ : Gare du Nord</p>
-                <p>Arrivée : IUT d'Amiens</p>
-                <p>Le : Vendredi 17 Octobre</p>
-                <p>Horaires : 7:30 à 7:50</p>
-            </div>
-            <p class="participants">Participants inscrits : 0</p>
-        </div>
-        <!-- Boutons -->
-        <div class="buttons">
-            <button class="search-btn" onclick="infosVoiture('voiture2')">
-                Informations voiture
-            </button>
-            <button class=search-btn onclick="voirCarte([49.8992, 2.2857], [49.8850, 2.2900])">
-                Voir sur la carte
-            </button>
-            <button class="search-btn">Envoyer une demande</button>
-        </div>
-
-        <!-- Infos voiture -->
-        <div id="voiture2"></div>
-    </section>
-
-    <!-- Aucun résultats -->
-    <h1 class="orangeBackground">Vous ne trouvez pas ce que vous voulez ?</h1>
-    <div id="noResults">
-        <p>Aucun trajet ne correspond pour le moment. Essayez d’ajuster vos
-            filtres de recherche ou réessayez un peu plus tard.</p>
-        <img src="..\images\rechercheTrajetFin.png" width="350px" class="image">
-    </div>
-
-    <!-- Footer -->
-    <?php require ('../includes/footer.php'); ?>
+<?php else: ?>
+    <?php endif; ?>
 
 
-    <script>
-        // Initialize the map
-        var map = L.map('map').setView([49.8942, 2.2957], 14);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
 
-        // Add markers
-        var orangeIcon = L.divIcon({
-            className: 'custom-icon',
-            html: '<div style="background: #ff6600; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30]
-        });
-        var blueIcon = L.divIcon({
-            className: 'custom-icon',
-            html: '<div style="background: blue; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30]
-        });
-        var arrayMarkers=[];
 
-        function infosVoiture(className) {
-            if(document.getElementById(className).innerHTML == ""){
-                document.getElementById(className).innerHTML = "<p>Modèle :</p> <p>Couleur :</p>"
-                document.getElementById(className).style = "border-style: solid; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; padding-top: 5px; padding-bottom: 5px; padding-left: 5px;";
-            }
-            else{
-                document.getElementById(className).innerHTML = "";
-                document.getElementById(className).style = "border: none;";
-            }
-        }
-        function voirCarte(positionBgn, positionEnd){
-            //Enlever chaque marker déjà présent
-            for (i in arrayMarkers) {
-                arrayMarkers[i].remove();
-            }
 
-            //Départ
-            var begin = L.marker(positionBgn, {icon: orangeIcon});
-            //Arrivée
-            var end = L.marker(positionEnd, {icon: blueIcon});
+<?php require ('../includes/footer.php'); ?>
 
-            //Ajout des marqueurs sur la carte
-            begin.addTo(map).bindPopup("Départ");
-            end.addTo(map).bindPopup("Arrivée");
+<script>
+    var map = L.map('map').setView([49.8942, 2.2957], 14);
 
-            arrayMarkers=[begin,end];
-        }
-    </script>
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var orangeIcon = L.divIcon({
+        className: 'custom-icon',
+        html: '<div style="background: #ff6600; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+    });
+
+    var blueIcon = L.divIcon({
+        className: 'custom-icon',
+        html: '<div style="background: blue; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+    });
+
+    var arrayMarkers = [];
+
+    function voirCarte(positionBgn, positionEnd){
+        arrayMarkers.forEach(m => m.remove());
+
+        var begin = L.marker(positionBgn, {icon: orangeIcon});
+        var end = L.marker(positionEnd, {icon: blueIcon});
+
+        begin.addTo(map).bindPopup("Départ");
+        end.addTo(map).bindPopup("Arrivée");
+
+        arrayMarkers = [begin, end];
+
+        var bounds = L.latLngBounds([positionBgn, positionEnd]);
+        map.fitBounds(bounds, {padding: [50, 50]});
+    }
+</script>
+
 </body>
+</html>

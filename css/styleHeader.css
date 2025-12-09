@@ -14,6 +14,11 @@ header {
   border-bottom: 8px solid #ff6600;
   box-sizing: border-box;
 }
+header.not-top{
+    height: 5%;
+    border-bottom: 4px solid #ff6600;
+    padding: 15px;
+}
 
 .logo {
   display: flex;
