@@ -11,13 +11,11 @@ if(isset($_GET[$parametre_key])){
     $ViewUserId = (int) $_GET[$parametre_key];
 }
 
-// Redirection si l'ID n'est pas valide
 if($ViewUserId <= 0){
     header('Location: ../index.php');
     exit();
 }
 
-// Redirection si l'utilisateur essaie de voir son propre profil via cette page
 if(isset($_SESSION['user_id']) && $ViewUserId == $_SESSION['user_id']){
     header('Location: profil.php');
     exit();
@@ -31,9 +29,9 @@ if(!$viewUserInfo){
 
 $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 
-// --- 2. TRAITEMENT DES FORMULAIRES (Signalement & Ajout Note) ---
+// --- 2. TRAITEMENT DES FORMULAIRES ---
 
-// Traitement du Signalement
+// Signalement
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     if($currentUserId == 0) {
         header('Location: connexion.php');
@@ -58,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     }
 }
 
-// Traitement de l'Ajout de Note/Commentaire
+// Ajout de Note
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_add_note'])) {
     if($currentUserId == 0) {
         header('Location: connexion.php');
@@ -66,19 +64,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_add_note'])) {
     }
 
     $noteVal = floatval($_POST['note_value']);
-    
-    // CORRECTION ICI : On ne met pas htmlspecialchars avant l'insertion en BD
-    // On garde juste trim() pour enlever les espaces inutiles au début/fin
     $description = trim($_POST['note_description']);
 
-    // Vérification basique (Note entre 1 et 5)
     if ($noteVal >= 1 && $noteVal <= 5 && !empty($description)) {
-        // On insère le texte brut en base de données
-        if (AddNote($noteVal, $description, $currentUserId, $ViewUserId)) {
-            header("Location: profilOther.php?user_id=" . $ViewUserId . "&succes=note_added");
-            exit();
-        } else {
-            header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=note_failed");
+        try {
+            if (AddNote($noteVal, $description, $currentUserId, $ViewUserId)) {
+                header("Location: profilOther.php?user_id=" . $ViewUserId . "&succes=note_added");
+                exit();
+            } else {
+                header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=note_failed");
+                exit();
+            }
+        } catch (Exception $e) {
+            header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=already_exists");
             exit();
         }
     } else {
@@ -90,6 +88,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_add_note'])) {
 // --- 3. RÉCUPÉRATION DES DONNÉES ---
 $averageNote = AverageUserNote($ViewUserId);
 $userNotes = UserNotes($ViewUserId);
+
+$alreadyReviewed = false;
+if($currentUserId > 0 && !empty($userNotes)) {
+    foreach($userNotes as $n) {
+        if($n['author_note'] == $currentUserId) {
+            $alreadyReviewed = true;
+            break;
+        }
+    }
+}
 
 ?>
 
@@ -108,7 +116,7 @@ $userNotes = UserNotes($ViewUserId);
     <main class="main-content">
 
         <?php if(isset($_GET['succes'])): ?>
-            <div class="msg-success" style="background:#d4edda; color:#155724; padding:15px; text-align:center; margin: 20px auto; max-width:850px; border-radius:8px;">
+            <div class="msg-success">
                 <?php 
                     if($_GET['succes'] == 'report') echo "Signalement envoyé aux administrateurs.";
                     if($_GET['succes'] == 'note_added') echo "Votre avis a été publié avec succès.";
@@ -117,9 +125,10 @@ $userNotes = UserNotes($ViewUserId);
         <?php endif; ?>
         
         <?php if(isset($_GET['error'])): ?>
-            <div class="msg-error" style="background:#f8d7da; color:#721c24; padding:15px; text-align:center; margin: 20px auto; max-width:850px; border-radius:8px;">
+            <div class="msg-error">
                 <?php 
                     if($_GET['error'] == 'invalid_note') echo "La note doit être comprise entre 1 et 5.";
+                    elseif($_GET['error'] == 'already_exists') echo "Vous avez déjà noté cet utilisateur.";
                     else echo "Une erreur est survenue.";
                 ?>
             </div>
@@ -168,23 +177,30 @@ $userNotes = UserNotes($ViewUserId);
             <section class="comments-section">
                 
                 <?php if($currentUserId > 0): ?>
-                    <div class="add-comment-box">
-                        <h3>Laisser un avis sur ce conducteur</h3>
-                        <form method="post" action="">
-                            <div class="input-group">
-                                <label for="note_value">Note (de 1 à 5) :</label>
-                                <input type="number" name="note_value" id="note_value" 
-                                       min="1" max="5" step="0.01" 
-                                       placeholder="Ex : 4.5" required>
-                            </div>
-                            <div class="input-group">
-                                <label for="note_description">Votre commentaire :</label>
-                                <textarea name="note_description" id="note_description" rows="3" 
-                                          placeholder="Racontez votre expérience de covoiturage..." required></textarea>
-                            </div>
-                            <button type="submit" name="btn_add_note" class="save-btn">Publier mon avis</button>
-                        </form>
-                    </div>
+                    <?php if(!$alreadyReviewed): ?>
+                        <div class="add-comment-box">
+                            <h3>Laisser un avis sur ce conducteur</h3>
+                            <form method="post" action="">
+                                <div class="input-group">
+                                    <label for="note_value">Note (de 1 à 5) :</label>
+                                    <input type="number" name="note_value" id="note_value" 
+                                           min="1" max="5" step="0.01" 
+                                           placeholder="Ex : 4.5" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="note_description">Votre commentaire :</label>
+                                    <textarea name="note_description" id="note_description" rows="3" 
+                                              placeholder="Racontez votre expérience de covoiturage..." required></textarea>
+                                </div>
+                                <button type="submit" name="btn_add_note" class="save-btn">Publier mon avis</button>
+                            </form>
+                        </div>
+                    <?php else: ?>
+                        <div class="msg-info-box">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Vous avez déjà donné votre avis sur ce conducteur.
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>

@@ -1,6 +1,3 @@
-/* --- styleProfil.css --- */
-
-/* 1. Reset Global & Configuration Sticky Footer */
 * {
     margin: 0;
     padding: 0;
@@ -35,6 +32,44 @@ body {
     margin: 30px 0;
     font-size: 2.2rem;
     font-weight: 700;
+}
+
+/* Messages de notification (Succès / Erreur) */
+.msg-success, .msg-error {
+    padding: 15px; 
+    text-align: center; 
+    margin: 20px auto; 
+    max-width: 850px; 
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.msg-success {
+    background: #d4edda; 
+    color: #155724; 
+    border: 1px solid #c3e6cb;
+}
+
+.msg-error {
+    background: #f8d7da; 
+    color: #721c24; 
+    border: 1px solid #f5c6cb;
+}
+
+/* Message Info (Utilisateur a déjà noté) */
+.msg-info-box {
+    background-color: #fff9f5;
+    color: #d35400;
+    border: 1px solid #ffccaa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    text-align: center;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .profile-container {
@@ -215,7 +250,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* --- Section Nouveau Commentaire (Style Validé) --- */
+/* --- Section Nouveau Commentaire --- */
 .add-comment-box {
     margin-bottom: 40px;
     padding: 30px;
@@ -227,7 +262,6 @@ body {
     overflow: hidden;
 }
 
-/* Petite barre déco orange sur le côté */
 .add-comment-box::before {
     content: "";
     position: absolute;
@@ -314,15 +348,16 @@ body {
 .comment-report-btn {
     background: transparent;
     border: none;
-    color: #ccc;
+    color: #999; 
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px; 
     padding: 5px;
-    transition: color 0.3s;
+    transition: color 0.3s, transform 0.2s;
 }
 
 .comment-report-btn:hover {
-    color: #e74c3c;
+    color: #ff3333;
+    transform: scale(1.1);
 }
 
 .comment-text {
@@ -385,7 +420,7 @@ body {
 .modal-submit-btn {
     margin-top: 20px;
     padding: 14px 18px;
-    background: #e74c3c; /* Rouge pour le signalement */
+    background: #e74c3c; 
     color: white;
     border: none;
     border-radius: 8px;
@@ -397,7 +432,6 @@ body {
 }
 .modal-submit-btn:hover { background: #c0392b; }
 
-/* --- RESPONSIVE MOBILE (Media Queries) --- */
 @media (max-width: 600px) {
     body {
         padding-top: 90px;
