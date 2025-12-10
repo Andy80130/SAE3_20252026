@@ -2,7 +2,8 @@
 session_start(); 
 require("../includes/GestionBD.php"); 
 
-// Affichage selon les infos de l'utilisateur en question
+// --- 1. SÉCURITÉ & RÉCUPÉRATION DE L'ID UTILISATEUR VISÉ ---
+
 $parametre_key = 'user_id';
 $ViewUserId = 0;
 
@@ -10,21 +11,82 @@ if(isset($_GET[$parametre_key])){
     $ViewUserId = (int) $_GET[$parametre_key];
 }
 
+// Redirection si l'ID n'est pas valide
 if($ViewUserId <= 0){
-    die("ID utilisateur invalide ou manquant.");  
+    header('Location: ../index.php');
+    exit();
 }
 
-// REMPLACEMENT DE TOUT LE BLOC SQL PAR LA FONCTION
+// Redirection si l'utilisateur essaie de voir son propre profil via cette page
+if(isset($_SESSION['user_id']) && $ViewUserId == $_SESSION['user_id']){
+    header('Location: profil.php');
+    exit();
+}
+
 $viewUserInfo = GetUserInfoById($ViewUserId);
 
 if(!$viewUserInfo){
     die("Utilisateur non trouvé.");
 }
 
+$currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+
+// --- 2. TRAITEMENT DES FORMULAIRES (Signalement & Ajout Note) ---
+
+// Traitement du Signalement (Comme dans profil.php)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
+    if($currentUserId == 0) {
+        header('Location: connexion.php');
+        exit();
+    }
+    
+    $reason = htmlspecialchars(trim($_POST['reason']));
+    $reportedUserId = intval($_POST['reported_user_id']); // C'est l'auteur du commentaire
+    $reporterId = $currentUserId;
+
+    if (!empty($reason) && $reportedUserId != $reporterId) {
+        if (AddReport($reason, $reportedUserId, $reporterId)) {
+            header("Location: profilOther.php?user_id=" . $ViewUserId . "&succes=report");
+            exit();
+        } else {
+            header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=report_failed");
+            exit();
+        }
+    } else {
+        header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=invalid_report");
+        exit();
+    }
+}
+
+// Traitement de l'Ajout de Note/Commentaire
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_add_note'])) {
+    if($currentUserId == 0) {
+        header('Location: connexion.php');
+        exit();
+    }
+
+    $noteVal = floatval($_POST['note_value']);
+    $description = htmlspecialchars(trim($_POST['note_description']));
+
+    // Vérification basique (Note entre 1 et 5)
+    if ($noteVal >= 1 && $noteVal <= 5 && !empty($description)) {
+        if (AddNote($noteVal, $description, $currentUserId, $ViewUserId)) {
+            header("Location: profilOther.php?user_id=" . $ViewUserId . "&succes=note_added");
+            exit();
+        } else {
+            header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=note_failed");
+            exit();
+        }
+    } else {
+        header("Location: profilOther.php?user_id=" . $ViewUserId . "&error=invalid_note");
+        exit();
+    }
+}
+
+// --- 3. RÉCUPÉRATION DES DONNÉES ---
 $averageNote = AverageUserNote($ViewUserId);
 $userNotes = UserNotes($ViewUserId);
 
-// PLUS DE SQL POUR LES AUTEURS ICI NON PLUS
 ?>
 
 <!DOCTYPE html>
@@ -40,6 +102,24 @@ $userNotes = UserNotes($ViewUserId);
     <?php require("../includes/header.php") ?>
 
     <main class="main-content">
+
+        <?php if(isset($_GET['succes'])): ?>
+            <div class="msg-success" style="background:#d4edda; color:#155724; padding:15px; text-align:center; margin: 20px auto; max-width:850px; border-radius:8px;">
+                <?php 
+                    if($_GET['succes'] == 'report') echo "Signalement envoyé aux administrateurs.";
+                    if($_GET['succes'] == 'note_added') echo "Votre avis a été publié avec succès.";
+                ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(isset($_GET['error'])): ?>
+            <div class="msg-error" style="background:#f8d7da; color:#721c24; padding:15px; text-align:center; margin: 20px auto; max-width:850px; border-radius:8px;">
+                <?php 
+                    if($_GET['error'] == 'invalid_note') echo "La note doit être comprise entre 1 et 5.";
+                    else echo "Une erreur est survenue.";
+                ?>
+            </div>
+        <?php endif; ?>
 
         <h1 class="Titre">Profil de <?= htmlspecialchars($viewUserInfo['first_name'] ?? 'Utilisateur')?></h1>
         
@@ -82,36 +162,58 @@ $userNotes = UserNotes($ViewUserId);
             </section>
 
             <section class="comments-section">
+                
+                <?php if($currentUserId > 0): ?>
+                    <div class="add-comment-box">
+                        <h3>Laisser un avis sur ce conducteur</h3>
+                        <form method="post" action="">
+                            <div class="input-group">
+                                <label for="note_value">Note (de 1 à 5) :</label>
+                                <input type="number" name="note_value" id="note_value" 
+                                       min="1" max="5" step="0.01" 
+                                       placeholder="Ex : 4.5" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="note_description">Votre commentaire :</label>
+                                <textarea name="note_description" id="note_description" rows="3" 
+                                          placeholder="Racontez votre expérience de covoiturage..." required></textarea>
+                            </div>
+                            <button type="submit" name="btn_add_note" class="save-btn">Publier mon avis</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+
                 <h2>Avis et Commentaires (<?php echo count($userNotes); ?>)</h2>
                 <?php if (count($userNotes) > 0): ?>
                     <div class="comments-list">
                         <?php foreach ($userNotes as $note): 
-                            // UTILISATION DE LA FONCTION DANS LA BOUCLE
                             $authorInfos = GetUserInfoById($note['author_note']);
                             $authorName = $authorInfos ? $authorInfos['first_name'] . " " . $authorInfos['last_name'] : "Utilisateur inconnu";
                             
                             $authorId = $note['author_note'];
-                            $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
                             $profilLink = ($authorId == $currentUserId) ? "profil.php" : "profilOther.php?user_id=" . $authorId;
                         ?>
                             <div class="comment-card">
                                 <div class="comment-header">
                                     <div class="comment-info">
-                                        <span class="comment-note">Note : <?php echo $note['note']; ?>/5</span>
+                                        <span class="comment-note"><?php echo number_format($note['note'], 1); ?>/5</span>
                                         <a href="<?php echo $profilLink; ?>" class="comment-author" style="text-decoration:none; color:#ff6600; font-weight:bold; font-style:normal;">
                                             <?php echo htmlspecialchars($authorName); ?>
                                         </a>
                                     </div>
-                                    <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
-                                        <i class="fa-solid fa-triangle-exclamation"></i>
-                                    </button>
+                                    
+                                    <?php if($currentUserId > 0 && $authorId != $currentUserId): ?>
+                                        <button class="comment-report-btn" onclick="openReportModal(<?php echo $note['author_note']; ?>)" title="Signaler ce commentaire">
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                                 <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="no-comments">Aucun avis pour le moment.</p>
+                    <p class="no-comments">Aucun avis pour le moment. Soyez le premier à en laisser un !</p>
                 <?php endif; ?>
             </section>
 
