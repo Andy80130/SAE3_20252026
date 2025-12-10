@@ -1,5 +1,5 @@
-<?php 
-session_start(); 
+<?php
+session_start();
 require("../includes/GestionBD.php"); 
 
 // --- 1. SÉCURITÉ & DONNÉES SESSION ---
@@ -12,17 +12,25 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['mail'])) {
 $userId = $_SESSION['user_id'];
 
 // --- 2. TRAITEMENT DES FORMULAIRES ---
-
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_update_vehicle'])) {
-    $modele = htmlspecialchars(trim($_POST['modele']));
-    $couleur = htmlspecialchars(trim($_POST['couleur']));
+    try {
+        if (!TrajetExist($_SESSION['user_id'])) {
+            $modele = htmlspecialchars(trim($_POST['modele']));
+            $couleur = htmlspecialchars(trim($_POST['couleur']));
 
-    if (UpdateVehicleInfo($userId, $modele, $couleur)) {
-        header("Location: profil.php?succes=vehicule");
-        exit();
-    } else {
-        header("Location: profil.php?error=update_failed");
-        exit();
+            if (UpdateVehicleInfo($userId, $modele, $couleur)) {
+                header("Location: profil.php?succes=vehicule");
+                exit();
+            } else {
+                header("Location: profil.php?error=update_failed");
+                exit();
+            }
+        }else {
+            header("Location: profil.php?error=trajetExist");
+            exit();
+        }
+    }catch (Exception $e){
+        $err = $e->getMessage();
     }
 }
 
@@ -72,6 +80,15 @@ $userNotes = UserNotes($userId);
                 <?php 
                     if($_GET['succes'] == 'vehicule') echo "Infos véhicule mises à jour !";
                     if($_GET['succes'] == 'report') echo "Signalement envoyé aux administrateurs.";
+                ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(isset($_GET['error'])): ?>
+            <div class="msg-error" style="background-color:#f8d7da; color:#721c24; padding:15px; text-align:center; margin: 20px auto; max-width:800px; border-radius:8px;">
+                <?php
+                if($_GET['error'] == 'trajetExist') echo "Vous ne pouvez pas changer de véhicule
+                 en ayant créé un trajet avec celui-ci !";
                 ?>
             </div>
         <?php endif; ?>
