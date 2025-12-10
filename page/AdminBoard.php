@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $date = date('Y-m-d');
 
                 if (AddMailBL($mailToBan, $reason, $date)) {
+                    // Note : deleteUser gère maintenant la cascade complète (trajets, réservations, etc.)
                     if (deleteUser($reportedId)) {
                         $msgSuccess = "Utilisateur blacklisté et données supprimées avec succès.";
                     } else {
@@ -86,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // RÉCUPÉRATION DONNÉES
+// Note : La fonction GetAllReportsWithDetails doit avoir été modifiée dans GestionBD.php 
+// pour retourner 'content_note' et 'rating_note'.
 $rawReports = GetAllReportsWithDetails();
 $groupedReports = [];
 
@@ -186,7 +189,18 @@ $blacklist = GetAllBlacklist();
                                     <div class="report-item">
                                         <div class="report-content">
                                             <strong>Raison :</strong> "<?php echo html_entity_decode($rep['report_cause']); ?>"<br>
-                                            <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
+                                            
+                                            <?php if (!empty($rep['content_note'])): ?>
+                                                <div style="background: #fff; border: 1px solid #ddd; padding: 8px; margin-top: 5px; border-radius: 4px; font-style: italic; color: #555; font-size: 0.9em;">
+                                                    <i class="fa-solid fa-quote-left" style="color:#ccc;"></i> 
+                                                    <strong>Avis concerné (<?php echo $rep['rating_note']; ?>/5) :</strong><br>
+                                                    "<?php echo htmlspecialchars($rep['content_note']); ?>"
+                                                </div>
+                                            <?php else: ?>
+                                                 <small style="color:#999; font-style:italic;">(Aucun commentaire spécifique lié à ce signalement)</small><br>
+                                            <?php endif; ?>
+
+                                            <small style="display:block; margin-top:5px;">Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
                                         </div>
                                         
                                         <div class="report-actions">
@@ -229,6 +243,13 @@ $blacklist = GetAllBlacklist();
                                                 <div class="report-item processed">
                                                     <div class="report-content">
                                                         <strong>Raison :</strong> "<?php echo html_entity_decode($rep['report_cause']); ?>"<br>
+                                                        
+                                                        <?php if (!empty($rep['content_note'])): ?>
+                                                            <div style="background: #eee; border: 1px solid #ddd; padding: 5px; margin-top: 5px; border-radius: 4px; font-style: italic; font-size: 0.9em;">
+                                                                "<?php echo htmlspecialchars($rep['content_note']); ?>"
+                                                            </div>
+                                                        <?php endif; ?>
+
                                                         <small>Par : <?php echo htmlspecialchars($rep['reporter_firstname'].' '.$rep['reporter_lastname']); ?></small>
                                                     </div>
                                                     
