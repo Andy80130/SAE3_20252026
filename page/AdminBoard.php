@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $date = date('Y-m-d');
 
                 if (AddMailBL($mailToBan, $reason, $date)) {
-                    // Note : deleteUser gère maintenant la cascade complète (trajets, réservations, etc.)
+                    // Cascade suppression
                     if (deleteUser($reportedId)) {
                         $msgSuccess = "Utilisateur blacklisté et données supprimées avec succès.";
                     } else {
@@ -87,8 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // RÉCUPÉRATION DONNÉES
-// Note : La fonction GetAllReportsWithDetails doit avoir été modifiée dans GestionBD.php 
-// pour retourner 'content_note' et 'rating_note'.
 $rawReports = GetAllReportsWithDetails();
 $groupedReports = [];
 
@@ -147,6 +145,8 @@ $blacklist = GetAllBlacklist();
                             
                             // Vérification : Est-ce l'admin connecté ?
                             $isSelf = ($uInfo['id'] === $currentAdminId);
+
+                            $profilLink = ($isSelf) ? "profil.php" : "profilOther.php?user_id=" . $uInfo['id'];
                         ?>
                         
                         <div class="user-report-card">
@@ -155,7 +155,7 @@ $blacklist = GetAllBlacklist();
                                     <img src="../images/Profil_Picture.png" alt="User">
                                     <div>
                                         <h3>
-                                            <a href="profil.php?id=<?php echo $uInfo['id']; ?>" class="user-link">
+                                            <a href="<?php echo $profilLink; ?>" class="user-link">
                                                 <?php echo htmlspecialchars($uInfo['name']); ?>
                                             </a>
                                             <?php if($isSelf) echo " <small style='color:red'>(Vous)</small>"; ?>
