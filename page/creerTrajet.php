@@ -126,35 +126,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
 
         <section class="hero">
             <div class="card">
-                <div class="title">Itinéraire</div>
-                
-                <form class="itinerary" method="post" action="CreerTrajet.php">
-                    <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
-                    <input type="hidden" name="places" value="<?= htmlspecialchars($places) ?>">
-                    <input type="hidden" name="start" value="<?= htmlspecialchars($start) ?>">
+                <div class="title">Itinéraire</div>
+                
+                    <div class="itinerary">
+                        <div class="field">
+                            <div class="labelOrange">Départ</div>
+                                <input type="text" id="depart" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($depart) ?>" autocomplete="off">
+                            <div id="suggestions-depart" class="suggestions"></div>
+                                 <input type="hidden" id="depart_lat" value="<?= htmlspecialchars($departData['lat']) ?>">
+                                <input type="hidden" id="depart_lon" value="<?= htmlspecialchars($departData['lon']) ?>">
+                         </div>
 
-                    <div class="field">
-                        <div class="labelOrange">Départ</div>
-                        <input type="text" id="depart" name="depart" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($depart) ?>" autocomplete="off">
-                        <div id="suggestions-depart" class="suggestions"></div>
-                        <input type="hidden" id="depart_lat" name="depart_lat" value="<?= htmlspecialchars($departData['lat']) ?>">
-                        <input type="hidden" id="depart_lon" name="depart_lon" value="<?= htmlspecialchars($departData['lon']) ?>">
-                    </div>
-
-                    <div class="field">
-                        <div class="labelOrange">Destination</div>
-                        <input type="text" id="destination" name="destination" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($destination) ?>" autocomplete="off">
-                        <div id="suggestions-destination" class="suggestions"></div>
-                        <input type="hidden" id="destination_lat" name="destination_lat" value="<?= htmlspecialchars($destinationData['lat']) ?>">
-                        <input type="hidden" id="destination_lon" name="destination_lon" value="<?= htmlspecialchars($destinationData['lon']) ?>">
-                    </div>
-
-                    <div class="affiche">
-                        <button type="submit" name="action" value="map_refresh">Afficher le trajet</button>
-                    </div>
-                </form>
-            </div>
+                    <div class="field">
+                        <div class="labelOrange">Destination</div>
+                        <input type="text" id="destination" placeholder="Saisir un arrêt ou une adresse" class="form-input" value="<?= htmlspecialchars($destination) ?>" autocomplete="off">
+                        <div id="suggestions-destination" class="suggestions"></div>
+                        <input type="hidden" id="destination_lat" value="<?= htmlspecialchars($destinationData['lat']) ?>">
+                        <input type="hidden" id="destination_lon" value="<?= htmlspecialchars($destinationData['lon']) ?>">
+                    </div>
+                </div>
+            </div>
         </section>
+
+    <div class="affiche">
+        <button type="button" onclick="refreshMap()">Re-centrer</button> 
+    </div>
 
         <div class="map-container">
             <div id="map"></div>
@@ -172,13 +168,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
                 <div class="title">Informations de trajet</div>
 
                 <form class="trip-form" method="post" action="CreerTrajet.php">
-                    <input type="hidden" name="action" value="creation">
-                    <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
-                    <input type="hidden" name="depart_lat" value="<?= htmlspecialchars($departData['lat']) ?>">
-                    <input type="hidden" name="depart_lon" value="<?= htmlspecialchars($departData['lon']) ?>">
-                    <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
-                    <input type="hidden" name="destination_lat" value="<?= htmlspecialchars($destinationData['lat']) ?>">
-                    <input type="hidden" name="destination_lon" value="<?= htmlspecialchars($destinationData['lon']) ?>">
+                    <input type="hidden" name="action" value="creation">
+                    <input type="hidden" name="depart" id="depart_value" value="<?= htmlspecialchars($depart) ?>">
+                    <input type="hidden" name="depart_lat" id="depart_lat_value" value="<?= htmlspecialchars($departData['lat']) ?>">
+                    <input type="hidden" name="depart_lon" id="depart_lon_value" value="<?= htmlspecialchars($departData['lon']) ?>">
+                    <input type="hidden" name="destination" id="destination_value" value="<?= htmlspecialchars($destination) ?>">
+                    <input type="hidden" name="destination_lat" id="destination_lat_value" value="<?= htmlspecialchars($destinationData['lat']) ?>">
+                    <input type="hidden" name="destination_lon" id="destination_lon_value" value="<?= htmlspecialchars($destinationData['lon']) ?>">
+
+
+                    <div class = "trip-fields"><?php //nouv field?>
 
                     <div class="form-group">
                         <label for="date" class="form-label">Date du trajet</label>
@@ -201,6 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
                             <option value="6" <?= $places === '6' ? 'selected' : '' ?>>6</option>
                         </select>
                     </div>
+
+                    </div> <?php //FIN nouv? field>?>
 
                     <div class="infosCertif">
                         <span style="font-size:13px; font-weight:bold; color:#555;">Je certifie que les informations ci-dessus sont exactes</span>
@@ -245,25 +246,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     <script src="../js/CreerTrajet.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const map = L.map('map').setView([49.8942, 2.2957], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    // Initialisation de la carte
+    const map = L.map('map').setView([49.8942, 2.2957], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        const depart = {
-            name: <?= json_encode($departData['name']) ?>,
-            lat: <?= json_encode($departData['lat']) ?>,
-            lon: <?= json_encode($departData['lon']) ?>
-        };
+    let routingControl = null; // Variable globale pour la gestion du contrôle d'itinéraire
 
-        const destination = {
-            name: <?= json_encode($destinationData['name']) ?>,
-            lat: <?= json_encode($destinationData['lat']) ?>,
-            lon: <?= json_encode($destinationData['lon']) ?>
-        };
+    function hasCoords(pt) { return !isNaN(pt.lat) && !isNaN(pt.lon); }
 
-        function hasCoords(pt) { return pt.lat && pt.lon && !isNaN(pt.lat) && !isNaN(pt.lon); }
+    /**
+     * Lit les coordonnées des champs cachés actuels et rafraîchit la carte.
+     * Cette fonction est appelée par le bouton "Afficher le trajet" et par l'autocomplétion.
+     */
+    function refreshMap() {
+        // Lecture des coordonnées et noms des champs non soumis
+        const departName = document.getElementById('depart').value;
+        const destinationName = document.getElementById('destination').value;
+        const departLat = parseFloat(document.getElementById('depart_lat').value);
+        const departLon = parseFloat(document.getElementById('depart_lon').value);
+        const destinationLat = parseFloat(document.getElementById('destination_lat').value);
+        const destinationLon = parseFloat(document.getElementById('destination_lon').value);
+        
+        // Nettoyer la carte (enlever le contrôle précédent)
+        if (routingControl) {
+            map.removeControl(routingControl);
+            routingControl = null;
+        }
+        
+        // Supprimer tous les marqueurs existants
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+        
+        // Cacher la section de durée
+        document.getElementById('sectionDuree').style.display = "none";
+        
+        const depart = { name: departName, lat: departLat, lon: departLon };
+        const destination = { name: destinationName, lat: destinationLat, lon: destinationLon };
 
         const latlngs = [];
         if (hasCoords(depart)) {
@@ -276,7 +299,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         }
 
         if (latlngs.length === 2) {
-            L.Routing.control({
+            // Afficher et calculer l'itinéraire
+            routingControl = L.Routing.control({
                 waypoints: [ L.latLng(depart.lat, depart.lon), L.latLng(destination.lat, destination.lon) ],
                 lineOptions: { styles: [{ color: 'red', opacity: 0.8, weight: 3 }] },
                 show: false, addWaypoints: false, draggableWaypoints: false, fitSelectedRoutes: 'smart'
@@ -288,10 +312,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
                 document.getElementById('sectionDuree').style.display = "block";
             })
             .addTo(map);
-        } else if (latlngs.length === 1) {
+        } else if (latlngs.length > 0) {
+            // Centrer sur le seul point connu
             map.setView(latlngs[0], 14);
+        } else {
+            // Aucun point, revenir à la vue par défaut
+            map.setView([49.8942, 2.2957], 13);
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Au chargement, si des coordonnées existent (suite à un rechargement par PHP), affichez la carte.
+        // On vérifie le champ caché principal du formulaire de création.
+        const initialDepartLat = parseFloat(document.getElementById('depart_lat_value').value);
+        if (!isNaN(initialDepartLat)) {
+            refreshMap();
         }
     });
-    </script>
+</script>
 </body>
 </html>
