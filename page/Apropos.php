@@ -14,15 +14,14 @@
         <section class="intro-banner">
             <h1>StudyGo,<br>qui sommes-nous ?</h1>
             <div class="logos-container">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZLmzj28fp6UOqYvvtTb6wTzIAxE12uZV0Rg&s"
-                     alt="Logo UPJV"
-                     class="upjv-logo">
-
-                <div class="question-mark">?</div>
-
                 <img src="../images/Logo_StudyGo.png"
                      alt="Logo StudyGo"
                      class="car-illustration logo-studygo-apropos">
+                
+                <img src="../images/Icone_Créertrajet.png" alt="plus" class="icone-plus">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZLmzj28fp6UOqYvvtTb6wTzIAxE12uZV0Rg&s"
+                     alt="Logo UPJV"
+                     class="upjv-logo">
                 </div>
             </div>
         </section>
