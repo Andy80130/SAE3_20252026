@@ -305,12 +305,39 @@
      * @param string|null $date (optionnel) Date du trajet (format YYYY-MM-DD)
      */
 
+// Nouvelle fonction utilitaire pour construire la clause LIKE
+function buildLikeConditions(string $input, string $columnName): string {
+    // Supprime les espaces multiples et divise la chaîne en mots
+    $keywords = array_filter(explode(' ', trim($input)));
+    
+    if (empty($keywords)) {
+        return ""; // Aucune condition si l'entrée est vide
+    }
+
+    $conditions = [];
+    foreach ($keywords as $keyword) {
+        // Pour chaque mot, on crée une condition LIKE '%mot%'
+        // Le LIKE est appliqué à la colonne spécifiée ($columnName)
+        // La protection contre l'injection est assurée par PDO lors de l'exécution
+        $conditions[] = "$columnName LIKE '%" . addcslashes($keyword, '%_') . "%'";
+    }
+
+    // Combine les conditions avec AND : tous les mots doivent être présents
+    return implode(' AND ', $conditions);
+}
+
+
 function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?int $userId = null) {
     global $db;
 
-    // Valeurs par défaut
-    $depart  = $depart  ?: '';
-    $arrivee = $arrivee ?: '';
+    // Suppression des lignes de valeurs par défaut :
+    // $depart  = $depart  ?: '';
+    // $arrivee = $arrivee ?: '';
+
+    // --- Génération des conditions LIKE basées sur les mots-clés ---
+    $depart_conditions = buildLikeConditions($depart, 'J.start_adress');
+    $arrivee_conditions = buildLikeConditions($arrivee, 'J.arrival_adress');
+    // ----------------------------------------------------------------
 
     // Début de la requête SQL
     $sql = "SELECT 
@@ -324,11 +351,20 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?i
                 U.vehicle_color
             FROM Journeys J
             JOIN Users U ON J.driver_id = U.user_id
-            WHERE J.start_adress LIKE :depart
-              AND J.arrival_adress LIKE :arrivee
-              AND J.start_date >= :datetime";
+            WHERE J.start_date >= :datetime"; // La condition de date est toujours présente
 
-    // --- NOUVEAU CODE : FILTRES UTILISATEUR ---
+    // --- Ajout des conditions de recherche dynamique ---
+    if (!empty($depart_conditions)) {
+        $sql .= " AND (" . $depart_conditions . ")";
+    }
+
+    if (!empty($arrivee_conditions)) {
+        $sql .= " AND (" . $arrivee_conditions . ")";
+    }
+    // ----------------------------------------------------
+
+
+    // --- NOUVEAU CODE : FILTRES UTILISATEUR (inchangé) ---
     // Si un utilisateur est connecté, on applique les filtres
     if ($userId !== null) {
         // 1. Ne pas afficher les trajets où JE suis le conducteur
@@ -347,17 +383,19 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?i
     try {
         $stmt = $db->prepare($sql);
         
-        // Préparation des paramètres de base
+        // Préparation des paramètres de base (uniquement la date/heure)
         $params = [
-            ':depart' => "%$depart%",
-            ':arrivee' => "%$arrivee%",
             ':datetime' => $datetime
         ];
-
+        
         // Ajout du paramètre :uid si nécessaire
         if ($userId !== null) {
             $params[':uid'] = $userId;
         }
+        
+        // ATTENTION : Les conditions de DEPART et ARRIVEE sont maintenant directement
+        // incluses dans la requête (concaténées via buildLikeConditions).
+        // Il n'y a donc plus de bindParam pour :depart et :arrivee.
 
         $stmt->execute($params);
 
