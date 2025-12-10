@@ -54,48 +54,63 @@
 	}
 
 	function deleteUser(int $userId): bool {
-        global $db;
-        try {
-            $db->beginTransaction(); 
+    global $db;
+    try {
+        $db->beginTransaction(); 
 
-            //Suppression des R�servations
-            $stmt_reservation = $db->prepare("DELETE FROM Reservation WHERE user_id = :user_id");
-            $stmt_reservation->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt_reservation->execute();
+        // 1. Si l'utilisateur est CONDUCTEUR : 
+        // On doit supprimer les réservations des autres sur SES trajets avant de supprimer ses trajets.
+        // On sélectionne les ID de trajets proposés par cet utilisateur
+        $stmt_get_journeys = $db->prepare("SELECT journey_id FROM Journeys WHERE driver_id = :user_id");
+        $stmt_get_journeys->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_get_journeys->execute();
+        $journeys = $stmt_get_journeys->fetchAll(PDO::FETCH_COLUMN);
 
-            //Suppression des Notes
-            $stmt_notes_author = $db->prepare("DELETE FROM Notes WHERE author_note = :user_id OR affected_user = :user_id;");
-            $stmt_notes_author->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt_notes_author->execute();
-
-            //Suppression des Signalements
-            $stmt_reports_reporter = $db->prepare("DELETE FROM Reports WHERE reporter_id = :user_id OR user_reported = :user_id;");
-            $stmt_reports_reporter->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt_reports_reporter->execute();
-
-            //Suppression des Trajets
-            $stmt_journeys = $db->prepare("DELETE FROM Journeys WHERE driver_id = :user_id");
-            $stmt_journeys->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt_journeys->execute();
-
-            //Suppression de l'utilisateur
-            $sql_user = "DELETE FROM Users WHERE user_id = :user_id";
-            $stmt_user = $db->prepare($sql_user);
-            $stmt_user->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt_user->execute();
-        
-            $db->commit();
-            return true;
-
-        } 
-        catch (PDOException $e) {
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-            echo "Erreur critique lors de la suppression de l'utilisateur $userId : " . $e->getMessage();
-            return false;
+        if (!empty($journeys)) {
+            // Conversion tableau en chaîne pour le IN (ex: "1, 2, 5")
+            $ids = implode(',', array_map('intval', $journeys)); 
+            // Suppression des réservations sur ces trajets
+            $db->exec("DELETE FROM Reservation WHERE journey_id IN ($ids)");
+            
+            // Suppression des trajets eux-mêmes
+            $stmt_del_journeys = $db->prepare("DELETE FROM Journeys WHERE driver_id = :user_id");
+            $stmt_del_journeys->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt_del_journeys->execute();
         }
+
+        // 2. Supprimer les réservations faites PAR l'utilisateur (en tant que passager)
+        $stmt_reservation = $db->prepare("DELETE FROM Reservation WHERE user_id = :user_id");
+        $stmt_reservation->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_reservation->execute();
+
+        // 3. Suppression des Notes (Auteur OU Cible)
+        $stmt_notes = $db->prepare("DELETE FROM Notes WHERE author_note = :user_id OR affected_user = :user_id");
+        $stmt_notes->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_notes->execute();
+
+        // 4. Suppression des Signalements (Reporter OU Signalé)
+        $stmt_reports = $db->prepare("DELETE FROM Reports WHERE reporter_id = :user_id OR user_reported = :user_id");
+        $stmt_reports->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_reports->execute();
+
+        // 5. Suppression finale de l'utilisateur
+        $stmt_user = $db->prepare("DELETE FROM Users WHERE user_id = :user_id");
+        $stmt_user->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt_user->execute();
+    
+        $db->commit();
+        return true;
+
+    } 
+    catch (PDOException $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        // Log l'erreur pour le debug si besoin
+        error_log("Erreur deleteUser : " . $e->getMessage());
+        return false;
     }
+}
 
     function MailExist(string $mail): bool {
         global $db;
@@ -257,7 +272,7 @@ function TrajetExist(int $user_id): bool {
             return true;
         }
         catch (PDOException $e){
-            echo "Erreur lors de la suppression des r�servations du trajet : " . $e->getMessage();
+            echo "Erreur lors de la suppression des reservations du trajet : " . $e->getMessage();
             return false;
         }
     }
@@ -596,22 +611,27 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?i
     }
 
     function GetAllReportsWithDetails() {
-        global $db;
-        try {
-            $stmt = $db->prepare("SELECT Rep.reporting_id, Rep.report_cause, Rep.status, Rep.user_reported, Rep.reporter_id,
-                       U.first_name AS reported_firstname, U.last_name AS reported_lastname, U.mail AS reported_mail,
-                       R.first_name AS reporter_firstname, R.last_name AS reporter_lastname
+    global $db;
+    try {
+        $sql = "SELECT 
+                    Rep.reporting_id, Rep.report_cause, Rep.status, Rep.user_reported, Rep.reporter_id,
+                    U.first_name AS reported_firstname, U.last_name AS reported_lastname, U.mail AS reported_mail,
+                    R.first_name AS reporter_firstname, R.last_name AS reporter_lastname,
+                    N.note_description AS content_note, N.note AS rating_note
                 FROM Reports Rep
                 JOIN Users U ON Rep.user_reported = U.user_id
                 JOIN Users R ON Rep.reporter_id = R.user_id
-                ORDER BY Rep.user_reported ASC, Rep.reporting_id DESC");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            echo "Erreur récupération signalements : " . $e->getMessage();
-            return [];
-        }
+                LEFT JOIN Notes N ON (N.author_note = Rep.user_reported AND N.affected_user = Rep.reporter_id)
+                ORDER BY Rep.user_reported ASC, Rep.status ASC, Rep.reporting_id DESC";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Erreur récupération signalements : " . $e->getMessage();
+        return [];
     }
+}
 
     function UpdateReportStatus(int $reportId, int $newStatus): bool {
         global $db;
