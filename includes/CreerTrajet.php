@@ -12,7 +12,7 @@ $routes = [
     'reinitialiser'  => 'reinitialiserTrajet',
     'creation' => 'creerTrajet'
 ];
-//A faire
+
 
 
 
@@ -26,8 +26,8 @@ if (isset($routes[$action])) {
 
 
 
+
 //Afficher trajet
-//inverser départ/destination
 function afficheTrajet() {
     $depart = $_POST['depart'] ?? '';
     $destination = $_POST['destination'] ?? '';
@@ -101,6 +101,10 @@ function validateTrajetForm($data) {
 }
 
 
+
+
+
+
 function creerTrajet() {
 
     $errors = validateTrajetForm($_POST);
@@ -124,9 +128,7 @@ function creerTrajet() {
         exit();
     }
 
-    // Ajouter le trajet à la base de données( je ferais après)
-
-
+    
     header("Location: creerTrajet.php?success=1");
     exit();
 }

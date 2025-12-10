@@ -1,7 +1,7 @@
 ﻿/* --- styleCreerTrajet.css --- */
 
 * {
-    margin: 0;
+    margin: 10px;
     padding: 0;
     box-sizing: border-box;
 }
@@ -53,7 +53,7 @@ body {
     border: 1px solid #eee;
     border-top: 4px solid darkorange;
     border-radius: 10px;
-    padding: 30px;
+    padding: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
@@ -76,7 +76,7 @@ form.itinerary {
 
 .field:last-of-type {
     border-bottom: none; 
-    margin-bottom: 10px;
+    margin-bottom: 0px; /*10av*/
 }
 
 .labelOrange {
@@ -127,22 +127,23 @@ input[type="time"] {
     display: flex;
     justify-content: center;
     margin-top: 10px;
+    margin-bottom: 25px;
 }
 
-.affiche button {
-    background: darkorange;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 12px 30px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
-    transition: transform 0.2s, background 0.2s;
-    width: 100%;
-    max-width: 300px;
-}
+    .affiche button{
+        background: darkorange;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
+        transition: transform 0.2s, background 0.2s;
+        width: 100%;
+        max-width: 300px;
+    }
 
 .affiche button:hover {
     background: #e65c00;
@@ -243,19 +244,39 @@ input[type="time"] {
 }
 
 
-/* --- RESPONSIVE SPECIFIQUE TABLETTE & PC --- */
-/* C'est ici qu'on gère l'affichage "large" pour combler le vide */
+/* RESPONSIVE PC*/
 @media (min-width: 800px) {
 
-    /* 1. Formulaire Itinéraire sur une seule ligne */
-    form.itinerary {
+
+    .trip-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .trip-fields {
         display: grid;
-        grid-template-columns: 1fr 1fr auto; /* Départ | Arrivée | Bouton */
-        align-items: end; /* Aligner le bouton en bas avec les champs */
+        grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes égales */
+        gap: 25px;
+        align-items: end;
+        width: 100%; /* S'assurer qu'il prend toute la largeur */
+    }
+
+    .infosCertif,
+    .actions,
+    .errors,
+    .success {
+        width:100% ;  
+    }
+
+    form .itinerary {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        align-items: end;
         gap: 20px;
     }
     
-    /* On retire les bordures grises du mobile car on est en grille */
+   
     .field {
         border-bottom: none;
         padding: 0;
@@ -264,33 +285,25 @@ input[type="time"] {
         margin-bottom: 0;
     }
 
-    /* Le bouton prend juste sa place */
+    
     .affiche {
         margin-top: 0;
-        justify-content: flex-end;
+        justify-content: center;
     }
     .affiche button {
-        width: auto; /* Taille auto */
-        height: 45px; /* Pour s'aligner visuellement avec les inputs */
+        width: auto; 
+        height: 45px;
     }
 
-    /* 2. Formulaire Infos Trajet sur une ligne (3 colonnes) */
-    .trip-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr; /* Date | Heure | Places */
-        gap: 25px;
-        align-items: end;
-    }
-
-    /* Les éléments qui doivent prendre toute la largeur */
+     
     .infosCertif,
     .actions,
     .errors,
     .success {
-        grid-column: 1 / -1; /* S'étend du début à la fin de la grille */
+        grid-column: 1 / -1;  
     }
     
-    /* Boutons moins larges sur PC */
+    
     .actions {
         justify-content: center;
     }
@@ -299,7 +312,7 @@ input[type="time"] {
     }
 }
 
-/* RESPONSIVE MOBILE (Petit ajustement si très petit écran) */
+/* RESP. mobile*/
 @media (max-width: 600px) {
     .card { padding: 20px; width: 95%; }
     .actions { flex-direction: column; }
