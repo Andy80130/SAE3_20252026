@@ -41,6 +41,11 @@ function setupAutocomplete(inputId, suggestionsId, latId, lonId) {
         if (latValueField) latValueField.value = '';
         if (lonValueField) lonValueField.value = '';
 
+        if (query.length < 3) {
+            suggestions.innerHTML = '';
+            return;
+        }
+
         const url = `../includes/nominatim-proxy.php?q=${encodeURIComponent(query)}&limit=5`;
 
         try {

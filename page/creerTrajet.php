@@ -43,6 +43,20 @@ $destinationData = [
     'lon'  => $_POST['destination_lon'] ?? null
 ];
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Mise en BD du trajet
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creation') {
     $errors_submit = [];
@@ -52,6 +66,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     if (empty($date)) $errors_submit[] = "La date est requise.";
     if (empty($start)) $errors_submit[] = "L'heure de départ est requise.";
     if (!isset($_POST['certify'])) $errors_submit[] = "Veuillez certifier l'exactitude des informations.";
+
+
+    $depart_lat_value = $_POST['depart_lat'] ?? null;
+    $destination_lat_value = $_POST['destination_lat'] ?? null;
+    if (empty($depart_lat_value) || empty($destination_lat_value)) {
+        $errors_submit[] = "Merci de choisir une proposition pour le départ et l'arrivée, il vous suffit de cliquer sur une suggestion et de ne plus modifier l'adresse.";
+    }
+
+
+
 
     // Validation Date/Heure (Supérieur à maintenant)
     $date_actuelle = new DateTime();
