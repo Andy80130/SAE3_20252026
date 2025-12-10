@@ -53,9 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                 // --- FIN VERIFICATION ---
 
                 if ($conflit_detecte) {
-                    // S'il y a conflit, on affiche une erreur et on ne réserve pas
-                    $reservation_message = "<div style='color:red; text-align:center; margin-bottom:10px;'>Impossible de réserver : vous avez déjà un trajet prévu au même moment.</div>";
-                } 
+                // S'il y a conflit, on affiche une erreur et on ne réserve pas
+                $reservation_message = "<div style='background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; margin: 15px auto; border-radius: 5px; text-align: center; max-width: 600px;'>Impossible de réserver : vous avez déjà un trajet prévu au même moment.</div>";
+                }
                 else {
                     // 2. Ajouter la réservation (Seulement s'il n'y a pas de conflit)
                     if(AddReservation($id_user, $id_trajet_a_reserver)) {
