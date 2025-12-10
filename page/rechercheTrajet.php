@@ -23,35 +23,70 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
             $places_restantes = RemainingSeats($id_trajet_a_reserver);
             
             if ($places_restantes > 0) {
-                // 2. Ajouter la réservation
-                if(AddReservation($id_user, $id_trajet_a_reserver)) {
-                    
-                    // --- REDIRECTION APRÈS SUCCÈS (PRG) ---
-                    $params = http_build_query([
-                        'depart' => $_POST['depart'],
-                        'destination' => $_POST['destination'],
-                        'date' => $_POST['date'],
-                        'heure' => $_POST['heure'],
-                        'msg' => 'success' // Indicateur de succès
-                    ]);
-                    
-                    header("Location: rechercheTrajet.php?" . $params);
-                    exit();
-                    // ------------------------------------
 
-                } else {
-                    // Si AddReservation retourne false (ce qui ne devrait pas arriver 
-                    // si votre fonction lève une exception, mais par sécurité)
-                    $params = http_build_query([
-                        'depart' => $_POST['depart'],
-                        'destination' => $_POST['destination'],
-                        'date' => $_POST['date'],
-                        'heure' => $_POST['heure'],
-                        'msg' => 'error' // Indicateur d'erreur
-                    ]);
-                    header("Location: rechercheTrajet.php?" . $params);
-                    exit();
+                // --- DEBUT MODIFICATION : VERIFICATION ANTI-CONFLIT ---
+                $date_voulue = $_POST['start_date'] ?? ''; 
+                $conflit_detecte = false;
+
+                if (!empty($date_voulue)) {
+                    // A. Vérifier si je suis déjà conducteur à ce moment-là
+                    $mes_trajets_conducteur = GetOrganizedJourneys($id_user);
+                    foreach($mes_trajets_conducteur as $t) {
+                        // On compare les dates/heures exactes (format SQL 'YYYY-MM-DD HH:MM:SS')
+                        if ($t['start_date'] == $date_voulue) {
+                            $conflit_detecte = true;
+                            break;
+                        }
+                    }
+
+                    // B. Vérifier si je suis déjà passager à ce moment-là (si pas déjà conducteur)
+                    if (!$conflit_detecte) {
+                        $mes_reservations = GetReservedJourneysDetails($id_user);
+                        foreach($mes_reservations as $r) {
+                            if ($r['start_date'] == $date_voulue) {
+                                $conflit_detecte = true;
+                                break;
+                            }
+                        }
+                    }
                 }
+                // --- FIN VERIFICATION ---
+
+                if ($conflit_detecte) {
+                    // S'il y a conflit, on affiche une erreur et on ne réserve pas
+                    $reservation_message = "<div style='color:red; text-align:center; margin-bottom:10px;'>Impossible de réserver : vous avez déjà un trajet prévu au même moment.</div>";
+                } 
+                else {
+                    // 2. Ajouter la réservation (Seulement s'il n'y a pas de conflit)
+                    if(AddReservation($id_user, $id_trajet_a_reserver)) {
+                        
+                        // --- REDIRECTION APRÈS SUCCÈS (PRG) ---
+                        $params = http_build_query([
+                            'depart' => $_POST['depart'],
+                            'destination' => $_POST['destination'],
+                            'date' => $_POST['date'],
+                            'heure' => $_POST['heure'],
+                            'msg' => 'success' // Indicateur de succès
+                        ]);
+                        
+                        header("Location: rechercheTrajet.php?" . $params);
+                        exit();
+                        // ------------------------------------
+
+                    } else {
+                        // Erreur technique lors de l'ajout
+                        $params = http_build_query([
+                            'depart' => $_POST['depart'],
+                            'destination' => $_POST['destination'],
+                            'date' => $_POST['date'],
+                            'heure' => $_POST['heure'],
+                            'msg' => 'error' // Indicateur d'erreur
+                        ]);
+                        header("Location: rechercheTrajet.php?" . $params);
+                        exit();
+                    }
+                }
+
             } else {
                 $reservation_message = "<div style='color:red; text-align:center;'>Désolé, ce trajet est complet.</div>";
             }
@@ -144,6 +179,11 @@ if (isset($_GET['msg'])) {
         echo "<strong>" . htmlspecialchars($message) . "</strong>";
         echo "</div>";
     }
+}
+
+// Affichage du message de conflit local (s'il n'y a pas eu redirection)
+if (!empty($reservation_message)) {
+    echo $reservation_message;
 }
 ?>
 <section>
@@ -267,6 +307,13 @@ if (isset($_GET['msg'])) {
         <input type="hidden" name="journey_id" value="<?= $id_trajet ?>">
         <input type="hidden" name="action" value="reserver">
         
+        <input type="hidden" name="start_date" value="<?= htmlspecialchars($trajet['start_date']) ?>">
+        
+        <input type="hidden" name="depart" value="<?= htmlspecialchars($depart) ?>">
+        <input type="hidden" name="destination" value="<?= htmlspecialchars($destination) ?>">
+        <input type="hidden" name="date" value="<?= htmlspecialchars($date) ?>">
+        <input type="hidden" name="heure" value="<?= htmlspecialchars($heure) ?>">
+
         <?php if ($places_disponibles > 0): ?>
             <button class="btn-reserver" type="submit">Réserver</button>
         <?php else: ?>
