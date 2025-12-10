@@ -111,6 +111,21 @@
         }
     }
 
+function TrajetExist(int $user_id): bool {
+    global $db;
+    $stmt = $db->prepare("SELECT COUNT(*) FROM Journeys WHERE driver_id = :user_id");
+    try{
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+        return $count > 0;
+    }
+    catch (PDOException $e){
+        throw new Exception("Vous ne pouvez pas changer de véhicule
+                 en ayant créé un trajet avec celui-ci !");
+    }
+}
+
     function GetUserInfo(string $mail){
         global $db;
         $stmt = $db->prepare("SELECT * FROM Users WHERE mail = :mail");
