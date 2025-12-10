@@ -216,7 +216,7 @@ if($currentUserId > 0 && !empty($userNotes)) {
                             <div class="comment-card">
                                 <div class="comment-header">
                                     <div class="comment-info">
-                                        <span class="comment-note"><?php echo number_format($note['note'], 1); ?>/5</span>
+                                        <span class="comment-note"> Note : <?php echo number_format($note['note'], 1); ?>/5</span>
                                         <a href="<?php echo $profilLink; ?>" class="comment-author" style="text-decoration:none; color:#ff6600; font-weight:bold; font-style:normal;">
                                             <?php echo htmlspecialchars($authorName); ?>
                                         </a>
