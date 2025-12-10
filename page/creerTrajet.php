@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         </section>
 
     <div class="affiche">
-        <button type="button" onclick="refreshMap()">Re-centrer</button> 
+        <button type="button" onclick="refreshMap()">Afficher le trajet</button> 
     </div>
 
         <div class="map-container">
