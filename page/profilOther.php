@@ -33,7 +33,7 @@ $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 
 // --- 2. TRAITEMENT DES FORMULAIRES (Signalement & Ajout Note) ---
 
-// Traitement du Signalement (Comme dans profil.php)
+// Traitement du Signalement
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     if($currentUserId == 0) {
         header('Location: connexion.php');
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_send_report'])) {
     }
     
     $reason = htmlspecialchars(trim($_POST['reason']));
-    $reportedUserId = intval($_POST['reported_user_id']); // C'est l'auteur du commentaire
+    $reportedUserId = intval($_POST['reported_user_id']); 
     $reporterId = $currentUserId;
 
     if (!empty($reason) && $reportedUserId != $reporterId) {
@@ -66,10 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_add_note'])) {
     }
 
     $noteVal = floatval($_POST['note_value']);
-    $description = htmlspecialchars(trim($_POST['note_description']));
+    
+    // CORRECTION ICI : On ne met pas htmlspecialchars avant l'insertion en BD
+    // On garde juste trim() pour enlever les espaces inutiles au début/fin
+    $description = trim($_POST['note_description']);
 
     // Vérification basique (Note entre 1 et 5)
     if ($noteVal >= 1 && $noteVal <= 5 && !empty($description)) {
+        // On insère le texte brut en base de données
         if (AddNote($noteVal, $description, $currentUserId, $ViewUserId)) {
             header("Location: profilOther.php?user_id=" . $ViewUserId . "&succes=note_added");
             exit();
@@ -208,6 +212,7 @@ $userNotes = UserNotes($ViewUserId);
                                         </button>
                                     <?php endif; ?>
                                 </div>
+                                
                                 <p class="comment-text">"<?php echo htmlspecialchars($note['note_description']); ?>"</p>
                             </div>
                         <?php endforeach; ?>
