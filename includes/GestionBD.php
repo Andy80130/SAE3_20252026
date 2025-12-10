@@ -342,6 +342,7 @@ function SearchJourneys(?string $depart, ?string $arrivee, ?string $datetime, ?i
     // Début de la requête SQL
     $sql = "SELECT 
                 J.journey_id,
+                J.driver_id,
                 CONCAT(U.first_name, ' ', U.last_name) AS driver_name,
                 J.start_adress AS depart,
                 J.arrival_adress AS destination,

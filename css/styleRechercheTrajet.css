@@ -162,6 +162,11 @@ footer {
     font-size: 12px;
 }
 
+a {
+  color: #ff6600;
+  text-decoration: none;
+}
+
 /* ===== Responsive ===== */
 @media screen and (max-width: 767px) {
     .orangeBackground,

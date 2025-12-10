@@ -205,10 +205,21 @@ if (isset($_GET['msg'])) {
     <div class="results-container">
         <?php foreach ($results as $trajet): ?>
             
-            <?php 
+            <?php
+                // --- Gestion des dates
                 $dateObj = new DateTime($trajet['start_date']);
                 $heureDepart = $dateObj->format('H:i');
                 $dateDepart = $dateObj->format('d/m/Y');
+
+                // --- Gestion du lien vers le profil du conducteur ---
+                $DriverID = $trajet['driver_id'] ?? 0;
+                $currentUserID = $_SESSION['user_id'] ?? 0;
+
+                if ($DriverID == $currentUserID) {
+                    $profilURL = "profil.php";
+                } else {
+                    $profilURL = "profilOther.php?user_id=" . urlencode($DriverID);
+                }
             ?>
 
             <div class="trajet-card">
@@ -232,7 +243,7 @@ if (isset($_GET['msg'])) {
                     <div class="driver-info">
                         <img src="../images/Profil_Picture.png" class="driver-avatar" alt="Avatar">
                         
-                        <span class="driver-name"><?= htmlspecialchars($trajet['driver_name']) ?></span>
+                        <span class="driver-name"><?= '<a href="'.$profilURL.'" title="Voir le profil">'.htmlspecialchars($trajet['driver_name']).'</a>' ?></span>
                     </div>
                     <div class="car-info">
                         <img src="../images/Voiture_orange.png" class="icon-voiture-small" alt="Voiture">
