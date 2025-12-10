@@ -1,28 +1,32 @@
 ﻿/* --- styleCreerTrajet.css --- */
 
+/* Ajout d'un Reset global pour éviter les problèmes de dimensions */
 * {
-    margin: 10px;
-    padding: 0;
     box-sizing: border-box;
 }
 
 a { text-decoration: none; }
 
-/* Sticky Footer */
-html, body { height: 100%; }
+html, body { 
+    height: 100%; 
+    /* IMPORTANT : Supprime les marges par défaut du navigateur */
+    margin: 0; 
+    padding: 0;
+}
 
 body {
     font-family: Arial, sans-serif;
     color: #333;
     background: #fafafa;
-    padding-top: 105px;
+    /* On déplace le padding-top ici ou dans le main pour éviter de casser le height: 100% */
     display: flex;
     flex-direction: column;
 }
 
 .main-content {
-    flex: 1;
+    flex: 1; /* Permet au contenu de pousser le footer vers le bas */
     width: 100%;
+    padding-top: 10px; /* Déplacé ici depuis le body pour la propreté */
     padding-bottom: 40px;
 }
 
@@ -38,13 +42,12 @@ body {
 .title, .petittitle {
     color: darkorange;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 23px;
     text-align: center;
     margin-bottom: 20px;
 }
 
 /* --- CARTES (Conteneurs) --- */
-/* MODIFICATION : On passe de 600px à 1000px pour élargir sur PC */
 .card {
     max-width: 1000px; 
     width: 90%;
@@ -65,25 +68,24 @@ form.itinerary {
     width: 100%;
 }
 
-/* Le bloc contenant Label + Input */
 .field {
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding: 15px 0;
-    border-bottom: 1px solid #eee; /* Barre grise pour mobile */
+
+    border-bottom: 1px solid #eee; 
 }
 
 .field:last-of-type {
     border-bottom: none; 
-    margin-bottom: 0px; /*10av*/
+    margin-bottom: 0px; 
 }
 
 .labelOrange {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: darkorange;
-    margin-bottom: 8px;
+    /* Réduction de la marge inférieure du label de 8px à 4px */
     text-align: left;
 }
 
@@ -130,20 +132,20 @@ input[type="time"] {
     margin-bottom: 25px;
 }
 
-    .affiche button{
-        background: darkorange;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        padding: 12px 30px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
-        transition: transform 0.2s, background 0.2s;
-        width: 100%;
-        max-width: 300px;
-    }
+.affiche button{
+    background: darkorange;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
+    transition: transform 0.2s, background 0.2s;
+    width: 100%;
+    max-width: 300px;
+}
 
 .affiche button:hover {
     background: #e65c00;
@@ -153,8 +155,8 @@ input[type="time"] {
 /* --- CARTE (Map) --- */
 .map-container {
     width: 90%;
-    max-width: 1000px; /* Élargi aussi pour suivre la carte */
-    height: 400px; /* Un peu plus haut sur PC c'est joli */
+    max-width: 1000px;
+    height: 400px;
     margin: 0 auto 30px auto;
     border-radius: 12px;
     overflow: hidden;
@@ -243,11 +245,12 @@ input[type="time"] {
     max-width: 300px; width: 80%;
 }
 
+#dureeTrajet {
+    color: darkorange; font-size: 18px; text-align: center; font-weight: bold;
+}
 
 /* RESPONSIVE PC*/
 @media (min-width: 800px) {
-
-
     .trip-form {
         display: flex;
         flex-direction: column;
@@ -256,10 +259,10 @@ input[type="time"] {
 
     .trip-fields {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes égales */
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 25px;
         align-items: end;
-        width: 100%; /* S'assurer qu'il prend toute la largeur */
+        width: 100%;
     }
 
     .infosCertif,
@@ -276,7 +279,6 @@ input[type="time"] {
         gap: 20px;
     }
     
-   
     .field {
         border-bottom: none;
         padding: 0;
@@ -284,7 +286,6 @@ input[type="time"] {
     .field:last-of-type {
         margin-bottom: 0;
     }
-
     
     .affiche {
         margin-top: 0;
@@ -294,7 +295,6 @@ input[type="time"] {
         width: auto; 
         height: 45px;
     }
-
      
     .infosCertif,
     .actions,
@@ -302,7 +302,6 @@ input[type="time"] {
     .success {
         grid-column: 1 / -1;  
     }
-    
     
     .actions {
         justify-content: center;

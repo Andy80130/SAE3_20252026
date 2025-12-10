@@ -202,9 +202,13 @@ body{
         gap: 15px;
     }
 
-    .upjv-logo,
+
     .car-illustration {
         max-height: 65px;
+    }
+
+    .upjv-logo{
+        max-height: 85px;
     }
 
     .icone-plus {
@@ -231,9 +235,12 @@ body{
 /* TÉLÉPHONES */
 @media (max-width: 480px) {
 
-    .upjv-logo,
     .car-illustration {
         max-height: 50px;
+    }
+
+    .upjv-logo{
+        max-height: 70px;
     }
 
     .icone-plus {
